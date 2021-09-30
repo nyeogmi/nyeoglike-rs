@@ -27,7 +27,8 @@ impl<T: 'static+Widgetlike> Widget<T> {
 
     pub fn draw<X: Brushable>(&self, brush: Brush<X>, menu: &Menu<()>) {
         let brush = self.estimate_dimensions(brush.rect().width()).tailor(brush);
-        self.state.borrow().draw(brush, &WidgetMenu { state: self.state.clone(), menu });
+        let offset = brush.cursor_offset();
+        self.state.borrow().draw(brush, &WidgetMenu { state: self.state.clone(), menu, brush_offset: offset });
     }
 
     pub fn estimate_dimensions(&self, mut width: isize) -> WidgetDimensions {

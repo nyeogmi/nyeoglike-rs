@@ -5,13 +5,15 @@ use chiropterm::*;
 pub struct WidgetMenu<'r, 'a, T: 'a> {
     pub(in super) state: Rc<RefCell<T>>,
     pub(in super) menu: &'r Menu<'a, ()>,
+    pub(in super) brush_offset: CellVector,
 }
 
 impl<'r, 'a, T> WidgetMenu<'r, 'a, T> {
     pub fn on(&self, k: Keycode, cb: impl 'a+Fn(&mut T, InputEvent)) -> Interactor {
         let state = self.state.clone();
+        let o = self.brush_offset;
         self.menu.on(k, move |inp| {
-            cb(&mut state.borrow_mut(), inp);
+            cb(&mut state.borrow_mut(), inp.offset(-o));
         })
     }
 
@@ -24,8 +26,9 @@ impl<'r, 'a, T> WidgetMenu<'r, 'a, T> {
 
     pub fn on_click(&self, cb: impl 'a+Fn(&mut T, MouseEvent)) -> Interactor {
         let state = self.state.clone();
+        let o = self.brush_offset;
         self.menu.on_click(move |inp| {
-            cb(&mut state.borrow_mut(), inp);
+            cb(&mut state.borrow_mut(), inp.offset(-o));
         })
     }
 

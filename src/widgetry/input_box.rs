@@ -8,6 +8,8 @@ pub type InputBox = Widget<InputBoxState>;
 pub struct InputBoxState {
     text: String,
     cursor: usize,
+
+    // TODO: Left position of window
     // TODO: Highlighting (click/drag etc)
 }
 
@@ -30,10 +32,8 @@ impl Widgetlike for InputBoxState {
         menu.on_key( Keycode::Home, |slf, _| {slf.set_cursor(0); });
         menu.on_key( Keycode::End, |slf, _| {slf.set_cursor(slf.text.len()); });
 
-        let offset = brush.cursor_offset();
         let click_interactor = menu.on_click(move |slf, click: MouseEvent| {
-            let rel = click.offset(-offset);
-            match rel {
+            match click {
                 MouseEvent::Click(MouseButton::Left, point, _) => {
                     slf.set_cursor(point.x as usize)
                 },
@@ -44,13 +44,15 @@ impl Widgetlike for InputBoxState {
 
         brush.fill(FSem::new().bg(colors::Green[3]));
         brush.bevel_w95(colors::Dark[0], colors::Light[3]);
-        brush.putfs(&self.text);
+        brush.putfs(&self.text);  // TODO: Don't wrap?
 
-        // draw cursor
-        brush.region(rect(self.cursor as isize, 0, 1, 2)).fill(FSem::new().bg(colors::Orange[2]));
+        let cursor_region = brush.region(rect(self.cursor as isize, 0, 1, 2));
 
         // make clickable
-        brush.interactor(click_interactor).fill(FSem::new())
+        brush.interactor(click_interactor, colors::Green[2], colors::Dark[0]).fill(FSem::new());
+
+        // draw cursor
+        cursor_region.interactor(click_interactor, colors::Orange[2], colors::Dark[0]).fill(FSem::new().bg(colors::Orange[2]));
     }
 
     fn estimate_dimensions(&self, width: isize) -> super::WidgetDimensions {
