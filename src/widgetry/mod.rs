@@ -1,7 +1,9 @@
 pub(self) mod input;
-pub(self) mod widget;
+pub(self) mod layout;
 pub(self) mod ui;
+pub(self) mod widget;
 
 pub use input::*;
-pub use widget::{Widget, WidgetCommon, WidgetDimensions, Widgetlike, WidgetMenu};
+pub use layout::*;
 pub use ui::{Selection, UI};
+pub use widget::{Widget, WidgetCommon, WidgetDimensions, Widgetlike, WidgetMenu};

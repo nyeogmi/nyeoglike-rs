@@ -1,8 +1,9 @@
 mod common;
 mod dimensions;
 mod menu;
+// mod polymorphic;
 
-use std::{cell::{Cell, RefCell}, rc::Rc};
+use std::{cell::{Cell, RefCell}, marker::PhantomData, rc::Rc};
 
 use chiropterm::*;
 
@@ -12,12 +13,16 @@ pub use self::menu::WidgetMenu;
 
 use super::UI;
 
-pub struct Widget<T: Widgetlike> {
+pub struct Widget<'draw, T: Widgetlike> {
+    // TODO: Instead use a ref inside an arena allocator (not bump, we need drop)
     state: Rc<RefCell<WidgetCommon<T>>>,
+
+    // TODO: Move this to state?
     last_dimensions: Cell<(isize, WidgetDimensions)>,
+    phantom: PhantomData<&'draw ()>, 
 }
 
-impl<T: 'static+Widgetlike> Widget<T> {
+impl<'draw, T: 'draw+Widgetlike> Widget<'draw, T> {
     pub fn new() -> Self {
         Widget { 
             state: Rc::new(RefCell::new(WidgetCommon::new(T::default()))),
@@ -26,13 +31,24 @@ impl<T: 'static+Widgetlike> Widget<T> {
                 preferred: CellSize::zero(), 
                 max: CellSize::zero() 
             })),
+            phantom: PhantomData,
         }
     }
 
-    pub fn draw<'draw, X: Brushable>(&self, ui: UI<'draw>, brush: Brush<X>, menu: Menu<'draw, ()>) {
+    pub fn share(&self) -> Self {
+        Widget { 
+            state: self.state.clone(), 
+            last_dimensions: self.last_dimensions.clone(),
+            phantom: PhantomData,
+        }
+    }
+
+    pub fn draw<X: Brushable>(&self, ui: UI<'draw>, brush: Brush<X>, menu: Menu<'draw, ()>) {
         let brush = self.estimate_dimensions(brush.rect().width()).tailor(brush);
         let offset = brush.cursor_offset();
-        let widget_menu = WidgetMenu { ui, state: self.state.clone(), menu, brush_offset: offset };
+        let widget_menu = WidgetMenu { 
+            ui, state: self.state.clone(), menu, brush_offset: offset 
+        };
         self.state.borrow().draw(brush, &widget_menu);
     }
 
