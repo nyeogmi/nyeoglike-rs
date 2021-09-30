@@ -15,22 +15,22 @@ impl<'draw> AnyWidget<'draw> {
         self.implementation.poly_estimate_dimensions(width)
     }
 
-    pub fn draw(&self, ui: UI<'draw>, brush: Brush, menu: Menu<'draw, ()>) {
+    pub fn draw(&self, ui: UI<'draw>, brush: Brush<'draw>, menu: Menu<'draw, ()>) {
         self.implementation.poly_draw(ui, brush, menu);
     }
 }
 
 trait AWidget<'draw> {
     fn poly_estimate_dimensions(&self, width: isize) -> WidgetDimensions;
-    fn poly_draw<'a>(&self, ui: UI<'draw>, brush: Brush<'a>, menu: Menu<'draw, ()>);
+    fn poly_draw(&self, ui: UI<'draw>, brush: Brush<'draw>, menu: Menu<'draw, ()>);
 }
 
-impl<'draw, T: 'draw+Widgetlike> AWidget<'draw> for Widget<'draw, T> {
+impl<'draw, T: Widgetlike<'draw>> AWidget<'draw> for Widget<'draw, T> {
     fn poly_estimate_dimensions(&self, width: isize) -> WidgetDimensions {
         self.estimate_dimensions(width)
     }
 
-    fn poly_draw<'a>(&self, ui: UI<'draw>, brush: Brush<'a>, menu: Menu<'draw, ()>) {
+    fn poly_draw(&self, ui: UI<'draw>, brush: Brush<'draw>, menu: Menu<'draw, ()>) {
         self.draw(ui, brush, menu)
     }
 }

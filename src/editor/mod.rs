@@ -49,10 +49,10 @@ fn load_file(io: &mut IO, gamestate: &()) -> Terrain {
 
     let prompt = InputBox::new();
     UI::host(io, |ui, out, menu| {
-        let window = out.brush().region(out.rect().inflate(-2, -2));
+        let window = out.region(out.rect().inflate(-2, -2));
         let mut inner = window.region(window.rect().inflate(-1, -1));
         
-        out.brush().fill(FSem::new().bg(Green[0]));
+        out.fill(FSem::new().bg(Green[0]));
         window.fill(FSem::new().bg(Light[2]).fg(Dark[0]));
         window.bevel_w95(Light[3], Dark[0]);
 
