@@ -24,7 +24,7 @@ impl Default for InputBoxState {
 }
     
 impl Widgetlike for InputBoxState {
-    fn draw(&self, selected: bool, brush: Brush, menu: &WidgetMenu<InputBoxState>) {
+    fn draw(&self, selected: bool, brush: Brush, menu: WidgetMenu<InputBoxState>) {
         if selected {
             menu.on_text( |_, this, character| { this.unique.type_character(character); });
             menu.on_key( Keycode::Backspace, |_, this, _| {this.unique.backspace(); });

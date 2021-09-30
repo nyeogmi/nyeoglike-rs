@@ -26,7 +26,7 @@ impl<T: Widgetlike> WidgetCommon<T> {
         }
     }
 
-    pub fn draw(&self, brush: Brush, menu: &WidgetMenu<T>) {
+    pub fn draw(&self, brush: Brush, menu: WidgetMenu<T>) {
         self.unique.draw(menu.ui.is_selected(self.selection), brush, menu)
     }
 

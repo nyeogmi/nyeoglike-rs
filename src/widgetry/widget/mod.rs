@@ -51,7 +51,7 @@ impl<'draw, T: 'draw+Widgetlike> Widget<'draw, T> {
         let widget_menu = WidgetMenu { 
             ui, state: self.state.clone(), menu, brush_offset: offset 
         };
-        self.state.borrow().draw(brush, &widget_menu);
+        self.state.borrow().draw(brush, widget_menu);
     }
 
     pub fn estimate_dimensions(&self, mut width: isize) -> WidgetDimensions {
@@ -60,6 +60,6 @@ impl<'draw, T: 'draw+Widgetlike> Widget<'draw, T> {
 }
 
 pub trait Widgetlike: Default+Sized {
-    fn draw(&self, selected: bool, brush: Brush, menu: &WidgetMenu<Self>);
+    fn draw(&self, selected: bool, brush: Brush, menu: WidgetMenu<Self>);
     fn estimate_dimensions(&self, width: isize) -> WidgetDimensions;
 }
