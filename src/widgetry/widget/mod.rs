@@ -51,6 +51,22 @@ impl<'draw, T: 'draw+Widgetlike> Widget<'draw, T> {
         let widget_menu = WidgetMenu { 
             ui, state: self.state.clone(), menu, brush_offset: offset 
         };
+        self.draw_internal(brush, widget_menu)
+    }
+
+    pub fn support_polydraw<X: Widgetlike>(&self, brush: Brush, menu: WidgetMenu<'draw, X>) {
+        let brush = self.estimate_dimensions(brush.rect().width()).tailor(brush);
+        let offset = brush.cursor_offset();
+        let widget_menu = WidgetMenu { 
+            ui: menu.ui, 
+            state: self.state.clone(), 
+            menu: menu.menu, 
+            brush_offset: brush.cursor_offset() 
+        };
+        self.draw_internal(brush, widget_menu)
+    }
+
+    pub(in super) fn draw_internal(&self, brush: Brush, widget_menu: WidgetMenu<'draw, T>) {
         self.state.borrow().draw(brush, widget_menu);
     }
 
