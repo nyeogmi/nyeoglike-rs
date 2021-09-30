@@ -1,3 +1,4 @@
+mod common;
 mod dimensions;
 mod menu;
 
@@ -5,18 +6,21 @@ use std::{cell::{Cell, RefCell}, rc::Rc};
 
 use chiropterm::*;
 
+pub use self::common::WidgetCommon;
 pub use self::dimensions::WidgetDimensions;
 pub use self::menu::WidgetMenu;
 
+use super::UI;
+
 pub struct Widget<T: Widgetlike> {
-    state: Rc<RefCell<T>>,
+    state: Rc<RefCell<WidgetCommon<T>>>,
     last_dimensions: Cell<(isize, WidgetDimensions)>,
 }
 
 impl<T: 'static+Widgetlike> Widget<T> {
     pub fn new() -> Self {
         Widget { 
-            state: Rc::new(RefCell::new(T::default())),
+            state: Rc::new(RefCell::new(WidgetCommon::new(T::default()))),
             last_dimensions: Cell::new((-1, WidgetDimensions { 
                 min: CellSize::zero(), 
                 preferred: CellSize::zero(), 
@@ -25,10 +29,10 @@ impl<T: 'static+Widgetlike> Widget<T> {
         }
     }
 
-    pub fn draw<X: Brushable>(&self, brush: Brush<X>, menu: &Menu<()>) {
+    pub fn draw<X: Brushable>(&self, ui: Rc<RefCell<UI>>, brush: Brush<X>, menu: &Menu<()>) {
         let brush = self.estimate_dimensions(brush.rect().width()).tailor(brush);
         let offset = brush.cursor_offset();
-        self.state.borrow().draw(brush, &WidgetMenu { state: self.state.clone(), menu, brush_offset: offset });
+        self.state.borrow().draw(brush, &WidgetMenu { ui, state: self.state.clone(), menu, brush_offset: offset });
     }
 
     pub fn estimate_dimensions(&self, mut width: isize) -> WidgetDimensions {
@@ -47,6 +51,6 @@ impl<T: 'static+Widgetlike> Widget<T> {
 }
 
 pub trait Widgetlike: Default+Sized {
-    fn draw<T: Brushable>(&self, brush: Brush<T>, menu: &WidgetMenu<Self>);
+    fn draw<T: Brushable>(&self, selected: bool, brush: Brush<T>, menu: &WidgetMenu<Self>);
     fn estimate_dimensions(&self, width: isize) -> WidgetDimensions;
 }

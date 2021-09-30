@@ -11,7 +11,6 @@ pub struct InputBoxState {
     cursor_r: usize,
 
     // TODO: Left position of window
-    // TODO: Highlighting (click/drag etc)
 }
 
 impl Default for InputBoxState {
@@ -25,19 +24,25 @@ impl Default for InputBoxState {
 }
     
 impl Widgetlike for InputBoxState {
-    fn draw<T: Brushable>(&self, brush: Brush<T>, menu: &WidgetMenu<InputBoxState>) {
-        menu.on_text( |slf, character| { slf.type_character(character); });
-        menu.on_key( Keycode::Backspace, |slf, _| {slf.backspace(); });
-        menu.on_key( Keycode::Delete, |slf, _| {slf.delete(); });
-        menu.on_key( Keycode::Left, |slf, _| {slf.move_cursor(-1); });
-        menu.on_key( Keycode::Right, |slf, _| {slf.move_cursor(1); });
-        menu.on_key( Keycode::Home, |slf, _| {slf.set_cursor(0); });
-        menu.on_key( Keycode::End, |slf, _| {slf.set_cursor(slf.text.len()); });
+    fn draw<T: Brushable>(&self, selected: bool, brush: Brush<T>, menu: &WidgetMenu<InputBoxState>) {
+        if selected {
+            menu.on_text( |_, this, character| { this.unique.type_character(character); });
+            menu.on_key( Keycode::Backspace, |_, this, _| {this.unique.backspace(); });
+            menu.on_key( Keycode::Delete, |_, this, _| {this.unique.delete(); });
+            menu.on_key( Keycode::Left, |_, this, _| {this.unique.move_cursor(-1); });
+            menu.on_key( Keycode::Right, |_, this, _| {this.unique.move_cursor(1); });
+            menu.on_key( Keycode::Home, |_, this, _| {this.unique.set_cursor(0); });
+            menu.on_key( Keycode::End, |_, this, _| {this.unique.set_cursor(this.unique.text.len()); });
+            menu.on_key(Keycode::Enter, |ui, this, _| {
+                ui.deselect(this)
+            })
+        }
 
-        let click_interactor = menu.on_click(move |slf, click: MouseEvent| {
+        let click_interactor = menu.on_click(move |ui, this, click: MouseEvent| {
             match click {
                 MouseEvent::Click(MouseButton::Left, point, _) => {
-                    slf.set_cursor(point.x as usize)
+                    ui.select(this);
+                    this.unique.set_cursor(point.x as usize)
                 },
                 MouseEvent::Click(_, _, _) => {}
                 MouseEvent::Up(_, _, _) => {}
@@ -49,7 +54,7 @@ impl Widgetlike for InputBoxState {
                     if start_point.x < 0 { return; } // should be impossible
                     let now_x = now_point.x.max(0) as usize;
 
-                    slf.highlight(start_point.x as usize, now_x);
+                    this.unique.highlight(start_point.x as usize, now_x);
                 },
                 MouseEvent::Drag {..} => {}
             }
@@ -59,13 +64,18 @@ impl Widgetlike for InputBoxState {
         brush.bevel_w95(colors::Dark[0], colors::Light[3]);
         brush.putfs(&self.text);  // TODO: Don't wrap?
 
-        let cursor_region = brush.region(rect(self.cursor_l as isize, 0, (self.cursor_r as isize - self.cursor_l as isize + 1).max(1), 2));
 
         // make clickable
         brush.interactor(click_interactor, colors::Green[2], colors::Dark[0]).fill(FSem::new());
 
         // draw cursor
-        cursor_region.interactor(click_interactor, colors::Orange[2], colors::Dark[0]).fill(FSem::new().bg(colors::Orange[2]));
+        if selected {
+            let cursor_region = brush.region(rect(
+                self.cursor_l as isize, 0, 
+                (self.cursor_r as isize - self.cursor_l as isize + 1).max(1), 2
+            ));
+            cursor_region.interactor(click_interactor, colors::Orange[2], colors::Dark[0]).fill(FSem::new().bg(colors::Orange[2]));
+        }
     }
 
     fn estimate_dimensions(&self, width: isize) -> super::WidgetDimensions {
