@@ -15,7 +15,7 @@ impl WidgetDimensions {
         *self
     }
 
-    pub fn tailor<'a, X: Brushable>(&self, brush: Brush<'a, X>) -> Brush<'a, X> {
+    pub fn tailor<'a>(&self, brush: Brush<'a>) -> Brush<'a> {
         // TODO: Make the brush region bigger if it's too small, or smaller if it's too big
         let existing_size = brush.rect().size;
 

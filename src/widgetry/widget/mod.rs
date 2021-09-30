@@ -1,15 +1,16 @@
 mod common;
 mod dimensions;
 mod menu;
-// mod polymorphic;
+mod polymorphic;
 
-use std::{cell::{Cell, RefCell}, marker::PhantomData, rc::Rc};
+use std::{cell::{Ref, RefCell, RefMut}, marker::PhantomData, rc::Rc};
 
 use chiropterm::*;
 
 pub use self::common::WidgetCommon;
 pub use self::dimensions::WidgetDimensions;
 pub use self::menu::WidgetMenu;
+pub(in crate::widgetry) use self::polymorphic::AnyWidget;
 
 use super::UI;
 
@@ -18,7 +19,6 @@ pub struct Widget<'draw, T: Widgetlike> {
     state: Rc<RefCell<WidgetCommon<T>>>,
 
     // TODO: Move this to state?
-    last_dimensions: Cell<(isize, WidgetDimensions)>,
     phantom: PhantomData<&'draw ()>, 
 }
 
@@ -26,11 +26,6 @@ impl<'draw, T: 'draw+Widgetlike> Widget<'draw, T> {
     pub fn new() -> Self {
         Widget { 
             state: Rc::new(RefCell::new(WidgetCommon::new(T::default()))),
-            last_dimensions: Cell::new((-1, WidgetDimensions { 
-                min: CellSize::zero(), 
-                preferred: CellSize::zero(), 
-                max: CellSize::zero() 
-            })),
             phantom: PhantomData,
         }
     }
@@ -38,12 +33,19 @@ impl<'draw, T: 'draw+Widgetlike> Widget<'draw, T> {
     pub fn share(&self) -> Self {
         Widget { 
             state: self.state.clone(), 
-            last_dimensions: self.last_dimensions.clone(),
             phantom: PhantomData,
         }
     }
 
-    pub fn draw<X: Brushable>(&self, ui: UI<'draw>, brush: Brush<X>, menu: Menu<'draw, ()>) {
+    pub fn borrow(&self) -> Ref<WidgetCommon<T>> {
+        self.state.borrow()
+    }
+
+    pub fn borrow_mut(&self) -> RefMut<WidgetCommon<T>> {
+        self.state.borrow_mut()
+    }
+
+    pub fn draw(&self, ui: UI<'draw>, brush: Brush, menu: Menu<'draw, ()>) {
         let brush = self.estimate_dimensions(brush.rect().width()).tailor(brush);
         let offset = brush.cursor_offset();
         let widget_menu = WidgetMenu { 
@@ -53,21 +55,11 @@ impl<'draw, T: 'draw+Widgetlike> Widget<'draw, T> {
     }
 
     pub fn estimate_dimensions(&self, mut width: isize) -> WidgetDimensions {
-        if width < 0 { width = 0; }
-        // TODO: If it's 0, provide a stock answer
-
-        let (last_width, last_dims) = self.last_dimensions.get();
-        if last_width == width {
-            return last_dims;
-        }
-
-        let new_dims = self.state.borrow().estimate_dimensions(width).fixup();
-        self.last_dimensions.replace((last_width, new_dims));
-        new_dims
+        self.state.borrow().estimate_dimensions(width)
     }
 }
 
 pub trait Widgetlike: Default+Sized {
-    fn draw<T: Brushable>(&self, selected: bool, brush: Brush<T>, menu: &WidgetMenu<Self>);
+    fn draw(&self, selected: bool, brush: Brush, menu: &WidgetMenu<Self>);
     fn estimate_dimensions(&self, width: isize) -> WidgetDimensions;
 }

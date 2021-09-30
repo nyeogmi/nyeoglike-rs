@@ -1,11 +1,36 @@
 use std::any::Any;
 
-use super::{Widget, Widgetlike};
+use chiropterm::{Brush, Brushable, CellPoint, FSem, Menu};
 
-pub struct AnyWidget {
-    implementation: Box<dyn AWidget>
+use crate::widgetry::UI;
+
+use super::{Widget, WidgetDimensions, Widgetlike};
+
+pub struct AnyWidget<'draw> {
+    implementation: Box<dyn AWidget<'draw>>,
 }
 
-impl<T: Widgetlike> AWidget for Widget<T> {
+impl<'draw> AnyWidget<'draw> {
+    pub fn estimate_dimensions(&self, width: isize) -> WidgetDimensions {
+        self.implementation.poly_estimate_dimensions(width)
+    }
 
+    pub fn draw(&self, ui: UI<'draw>, brush: Brush, menu: Menu<'draw, ()>) {
+        self.implementation.poly_draw(ui, brush, menu);
+    }
+}
+
+trait AWidget<'draw> {
+    fn poly_estimate_dimensions(&self, width: isize) -> WidgetDimensions;
+    fn poly_draw<'a>(&self, ui: UI<'draw>, brush: Brush<'a>, menu: Menu<'draw, ()>);
+}
+
+impl<'draw, T: 'draw+Widgetlike> AWidget<'draw> for Widget<'draw, T> {
+    fn poly_estimate_dimensions(&self, width: isize) -> WidgetDimensions {
+        self.estimate_dimensions(width)
+    }
+
+    fn poly_draw<'a>(&self, ui: UI<'draw>, brush: Brush<'a>, menu: Menu<'draw, ()>) {
+        self.draw(ui, brush, menu)
+    }
 }
