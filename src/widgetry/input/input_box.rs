@@ -1,7 +1,7 @@
 use chiropterm::*;
 use euclid::{rect, size2};
 
-use super::{Widget, WidgetDimensions, Widgetlike, widget::WidgetMenu};
+use crate::widgetry::{Widget, WidgetDimensions, Widgetlike, widget::WidgetMenu};
 
 pub type InputBox = Widget<InputBoxState>;
 
@@ -78,7 +78,7 @@ impl Widgetlike for InputBoxState {
         }
     }
 
-    fn estimate_dimensions(&self, width: isize) -> super::WidgetDimensions {
+    fn estimate_dimensions(&self, width: isize) -> WidgetDimensions {
         WidgetDimensions { 
             min: size2(8, 2),
             preferred: size2(8.max(self.text.len() as isize), 2),
