@@ -6,31 +6,19 @@ pub type PromptBox = Widget<PromptBoxState>;
 
 pub struct PromptBoxState {
     text: String,
-    text_i: usize,
 }
 
-impl PromptBoxState {
-    pub fn new() -> PromptBoxState {
-        PromptBoxState {
-            text: "fuck you lamers".to_string(), 
-            text_i: 0,
-        }
-    }
-
-    fn incr_i(&mut self, amt: isize) {
-        let mut ti2 = self.text_i as isize + amt;
-        if ti2 < 0 { ti2 = 0 }
-        if ti2 >= self.text.len() as isize { ti2 = self.text.len() as isize }
-        self.text_i = ti2 as usize;
+impl Default for PromptBoxState {
+    fn default() -> Self {
+        Self { text: "".to_owned() }
     }
 }
     
 impl Widgetlike for PromptBoxState {
     fn draw<T: Brushable>(&self, brush: Brush<T>, menu: &WidgetMenu<PromptBoxState>) {
-        let interactor = menu.on(Keycode::A, 
-            |slf, _| slf.incr_i(1)
-        );
+        menu.on_text( |slf, character| { slf.text.push(character); });
+        menu.on_key( Keycode::Backspace, |slf, _| {slf.text.pop(); });
 
-        brush.interactor(interactor).putfs(&self.text[..self.text_i]);
+        brush.putfs(&self.text);
     }
 }

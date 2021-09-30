@@ -47,7 +47,7 @@ fn main_loop(mut editor: EditorState) {
 }
 
 fn load_file(io: &mut IO) -> Terrain {
-    let prompt = PromptBox::new(PromptBoxState::new());
+    let prompt = PromptBox::new();
     loop {
         io.menu(|out, menu| {
             let b = out.brush().putfs("Please enter a filename (will be created if does not exist):");

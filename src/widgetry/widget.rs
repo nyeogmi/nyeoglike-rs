@@ -15,9 +15,9 @@ impl<'a> Command<'a> {
 }
 
 impl<T: 'static+Widgetlike> Widget<T> {
-    pub fn new(state: T) -> Self {
+    pub fn new() -> Self {
         Widget { 
-            state: Rc::new(RefCell::new(state))
+            state: Rc::new(RefCell::new(T::default()))
         }
     }
 
@@ -26,7 +26,7 @@ impl<T: 'static+Widgetlike> Widget<T> {
     }
 }
 
-pub trait Widgetlike: Sized {
+pub trait Widgetlike: Default+Sized {
     fn draw<T: Brushable>(&self, brush: Brush<T>, menu: &WidgetMenu<Self>);
 }
 
@@ -53,6 +53,13 @@ impl<'r, 'a, T> WidgetMenu<'r, 'a, T> {
     pub fn on_click(&self, cb: impl 'a+Fn(&mut T, MouseEvent)) -> Interactor {
         let state = self.state.clone();
         self.menu.on_click(move |inp| {
+            cb(&mut state.borrow_mut(), inp);
+        })
+    }
+
+    pub fn on_text(&self, cb: impl 'a+Fn(&mut T, char)) {
+        let state = self.state.clone();
+        self.menu.on_text(move |inp| {
             cb(&mut state.borrow_mut(), inp);
         })
     }
