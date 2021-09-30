@@ -18,7 +18,7 @@ impl<T: Widgetlike> WidgetCommon<T> {
     }
 
     pub fn draw<X: Brushable>(&self, brush: Brush<X>, menu: &WidgetMenu<T>) {
-        self.unique.draw(menu.ui.borrow().is_selected(self.selection), brush, menu)
+        self.unique.draw(menu.ui.is_selected(self.selection), brush, menu)
     }
 
     pub fn estimate_dimensions(&self, width: isize) -> WidgetDimensions {

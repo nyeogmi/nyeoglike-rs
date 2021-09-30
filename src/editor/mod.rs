@@ -26,7 +26,7 @@ pub fn main() {
         |_| exit(0)
     );
 
-    let terrain = load_file(&mut io);
+    let terrain = load_file(&mut io, &());
 
     main_loop(EditorState {
         io, 
@@ -44,24 +44,22 @@ fn main_loop(mut editor: EditorState) {
     }
 }
 
-fn load_file(io: &mut IO) -> Terrain {
+fn load_file(io: &mut IO, gamestate: &()) -> Terrain {
     use chiropterm::colors::*;
 
     let prompt = InputBox::new();
-    let ui = UI::new();
-    loop {
-        io.menu(|out, menu| {
-            let window = out.brush().region(out.rect().inflate(-2, -2));
-            let mut inner = window.region(window.rect().inflate(-1, -1));
-            
-            out.brush().fill(FSem::new().bg(Green[0]));
-            window.fill(FSem::new().bg(Light[2]).fg(Dark[0]));
-            window.bevel_w95(Light[3], Dark[0]);
+    UI::host(io, |ui, out, menu| {
+        let window = out.brush().region(out.rect().inflate(-2, -2));
+        let mut inner = window.region(window.rect().inflate(-1, -1));
+        
+        out.brush().fill(FSem::new().bg(Green[0]));
+        window.fill(FSem::new().bg(Light[2]).fg(Dark[0]));
+        window.bevel_w95(Light[3], Dark[0]);
 
-            inner = inner.clone().putfs("Please enter a filename (will be created if the file does not exist):");
-            let (above, below) = inner.split_vertically(inner.on_newline().cursor.y);
-            prompt.draw(ui.clone(), below, menu)
-        });
-    }
+        inner = inner.clone().putfs("Please enter a filename (will be created if the file does not exist):");
+        let (above, below) = inner.split_vertically(inner.on_newline().cursor.y);
+        prompt.draw(ui, below, menu)
+    });
+
     Terrain::new()
 }

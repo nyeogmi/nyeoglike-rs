@@ -29,10 +29,11 @@ impl<T: 'static+Widgetlike> Widget<T> {
         }
     }
 
-    pub fn draw<X: Brushable>(&self, ui: Rc<RefCell<UI>>, brush: Brush<X>, menu: &Menu<()>) {
+    pub fn draw<'draw, X: Brushable>(&self, ui: UI<'draw>, brush: Brush<X>, menu: Menu<'draw, ()>) {
         let brush = self.estimate_dimensions(brush.rect().width()).tailor(brush);
         let offset = brush.cursor_offset();
-        self.state.borrow().draw(brush, &WidgetMenu { ui, state: self.state.clone(), menu, brush_offset: offset });
+        let widget_menu = WidgetMenu { ui, state: self.state.clone(), menu, brush_offset: offset };
+        self.state.borrow().draw(brush, &widget_menu);
     }
 
     pub fn estimate_dimensions(&self, mut width: isize) -> WidgetDimensions {
