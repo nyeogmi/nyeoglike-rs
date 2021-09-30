@@ -469,6 +469,7 @@ dependencies = [
  "euclid",
  "gridd-euclid",
  "moogle",
+ "smallvec",
 ]
 
 [[package]]
