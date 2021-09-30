@@ -6,14 +6,22 @@ use crate::widgetry::ui::{UI};
 
 use super::{Widgetlike, common::WidgetCommon};
 
-pub struct WidgetMenu<'draw, T: 'draw+Widgetlike> {
+pub struct WidgetMenu<'draw, T: Widgetlike<'draw>> {
     pub(in super) ui: UI<'draw>,
     pub(in super) state: Rc<RefCell<WidgetCommon<T>>>,
     pub(in super) menu: Menu<'draw, ()>,
     pub(in super) brush_offset: CellVector,
 }
 
-impl<'draw, T: 'draw+Widgetlike> WidgetMenu<'draw, T> {
+impl<'draw, T: Widgetlike<'draw>> WidgetMenu<'draw, T> {
+    pub fn share(&self) -> WidgetMenu<'draw, T> {
+        WidgetMenu {
+            ui: self.ui,
+            state: self.state.clone(),
+            menu: self.menu.share(),
+            brush_offset: self.brush_offset,
+        }
+    }
     pub fn on(&self, k: Keycode, cb: impl 'draw+Fn(UI, &mut WidgetCommon<T>, InputEvent)) -> Interactor {
         let state = self.state.clone();
         let o = self.brush_offset;

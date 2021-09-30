@@ -23,7 +23,7 @@ impl Default for InputBoxState {
     }
 }
     
-impl Widgetlike for InputBoxState {
+impl<'draw> Widgetlike<'draw> for InputBoxState {
     fn draw(&self, selected: bool, brush: Brush, menu: WidgetMenu<InputBoxState>) {
         if selected {
             menu.on_text( |_, this, character| { this.unique.type_character(character); });

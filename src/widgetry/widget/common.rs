@@ -6,14 +6,14 @@ use crate::widgetry::ui::Selection;
 
 use super::{WidgetDimensions, WidgetMenu, Widgetlike};
 
-pub struct WidgetCommon<T: Widgetlike> {
+pub struct WidgetCommon<T> {
     pub unique: T,
     pub(in crate::widgetry) selection: Selection,
 
     last_dimensions: Cell<(isize, WidgetDimensions)>,
 }
 
-impl<T: Widgetlike> WidgetCommon<T> {
+impl<'draw, T: Widgetlike<'draw>> WidgetCommon<T> {
     pub fn new(value: T) -> Self {
         WidgetCommon {
             unique: value,
@@ -26,7 +26,7 @@ impl<T: Widgetlike> WidgetCommon<T> {
         }
     }
 
-    pub fn draw(&self, brush: Brush, menu: WidgetMenu<T>) {
+    pub fn draw(&self, brush: Brush, menu: WidgetMenu<'draw, T>) {
         self.unique.draw(menu.ui.is_selected(self.selection), brush, menu)
     }
 

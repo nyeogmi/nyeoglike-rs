@@ -25,11 +25,11 @@ impl<'draw> Default for ColumnState<'draw> {
     }
 }
 
-impl<'draw> Widgetlike for ColumnState<'draw> {
-    fn draw(&self, _: bool, brush: Brush, menu: WidgetMenu<'_, ColumnState<'draw>>) {
+impl<'draw> Widgetlike<'draw> for ColumnState<'draw> {
+    fn draw(&self, _: bool, brush: Brush, menu: WidgetMenu<'draw, ColumnState<'draw>>) {
         let plots = self.get_plots_practical(brush.rect().size);
         for (w, p) in self.widgets.iter().zip(plots.1.plot_size.iter()) {
-            // w.draw(brush.clone(), menu)
+            w.draw(brush.clone(), menu.share())
         }
     }
 

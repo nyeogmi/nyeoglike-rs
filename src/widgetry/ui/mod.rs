@@ -36,12 +36,12 @@ impl<'gamestate> UI<'gamestate> {
         }
     }
 
-    pub fn select<T: Widgetlike>(&self, widg: &mut WidgetCommon<T>) {
+    pub fn select<'a, T: Widgetlike<'a>>(&self, widg: &mut WidgetCommon<T>) {
         self.state.selection.replace(self.state.selection.get().advance());
         widg.selection = self.state.selection.get();
     }
 
-    pub fn deselect<T: Widgetlike>(&self, _widg: &mut WidgetCommon<T>) {
+    pub fn deselect<'a, T: Widgetlike<'a>>(&self, _widg: &mut WidgetCommon<T>) {
         self.state.selection.replace(self.state.selection.get().advance());
     }
 
