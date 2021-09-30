@@ -1,9 +1,9 @@
-use std::{cell::RefCell, process::exit, rc::Rc};
+use std::{process::exit};
 
 use chiropterm::*;
 use euclid::*;
 use moogle::Id;
-use crate::{terrain::{Room, Terrain}, widgetry::{PromptBox, PromptBoxState}};
+use crate::{terrain::{Room, Terrain}, widgetry::InputBox};
 
 const ASPECT_CONFIG: AspectConfig = AspectConfig {
     pref_min_term_size: size2(64, 48),  // but expect ~112x60
@@ -47,7 +47,7 @@ fn main_loop(mut editor: EditorState) {
 fn load_file(io: &mut IO) -> Terrain {
     use chiropterm::colors::*;
 
-    let prompt = PromptBox::new();
+    let prompt = InputBox::new();
     loop {
         io.menu(|out, menu| {
             let window = out.brush().region(out.rect().inflate(-2, -2));

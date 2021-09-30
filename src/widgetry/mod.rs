@@ -1,5 +1,5 @@
-pub(self) mod prompt_box;
+pub(self) mod input_box;
 pub(self) mod widget;
 
-pub use prompt_box::{PromptBox, PromptBoxState};
+pub use input_box::{InputBox, InputBoxState};
 pub use widget::{Widget, WidgetDimensions, Widgetlike, WidgetMenu};
