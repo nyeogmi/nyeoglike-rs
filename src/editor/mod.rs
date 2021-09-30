@@ -38,8 +38,6 @@ pub fn main() {
 }
 
 fn main_loop(mut editor: EditorState) {
-    use chiropterm::colors::*;
-
     loop {
         editor.io.menu(|out, menu| {
         });
@@ -47,12 +45,20 @@ fn main_loop(mut editor: EditorState) {
 }
 
 fn load_file(io: &mut IO) -> Terrain {
+    use chiropterm::colors::*;
+
     let prompt = PromptBox::new();
     loop {
         io.menu(|out, menu| {
-            let b = out.brush().putfs("Please enter a filename (will be created if does not exist):");
+            let window = out.brush().region(out.rect().inflate(-2, -2));
+            let mut inner = window.region(window.rect().inflate(-1, -1));
+            
+            out.brush().fill(FSem::new().bg(Green[0]));
+            window.fill(FSem::new().bg(Light[2]).fg(Dark[0]));
+            window.bevel_w95(Light[3], Dark[0]);
 
-            let (_, below) = b.split_vertically(b.on_newline().cursor.y);
+            inner = inner.clone().putfs("Please enter a filename (will be created if the file does not exist):");
+            let (above, below) = inner.split_vertically(inner.on_newline().cursor.y);
             prompt.draw(below, menu)
         });
     }
