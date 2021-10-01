@@ -45,6 +45,11 @@ impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, 
         self.state.borrow_mut()
     }
 
+    pub fn setup(&self, f: impl FnOnce(&mut T)) -> Self {
+        f(&mut self.state.borrow_mut().unique);
+        self.share()
+    }
+
     pub fn draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame, Out>) 
     where 'gamestate: 'frame {
         let brush = self.estimate_dimensions(brush.rect().width()).tailor(brush);

@@ -3,7 +3,7 @@ use std::{process::exit};
 use chiropterm::*;
 use euclid::*;
 use moogle::Id;
-use crate::{terrain::{Room, Terrain}, widgetry::{Column, InputBox, UI}};
+use crate::{terrain::{Room, Terrain}, widgetry::{Column, InputBox, Label, UI}};
 
 const ASPECT_CONFIG: AspectConfig = AspectConfig {
     pref_min_term_size: size2(64, 48),  // but expect ~112x60
@@ -48,28 +48,33 @@ fn load_file(io: &mut IO) -> Terrain {
     use chiropterm::colors::*;
 
     let ui = UI::new();
+    let label: Label<()> = Label::new().setup(|l| {
+        l.text = "Please enter a filename (will be created if the file does not exist). PS Bhijn drinks piss.".to_string()
+    });
     let prompt1: InputBox<()> = InputBox::new();
     let prompt2: InputBox<()> = InputBox::new();
     let prompt3: InputBox<()> = InputBox::new();
     let prompt4: InputBox<()> = InputBox::new();
 
     let col: Column<()> = Column::new();
-    col.borrow_mut().unique.add(prompt1.share());
-    col.borrow_mut().unique.add(prompt2.share());
-    col.borrow_mut().unique.add(prompt3.share());
-    col.borrow_mut().unique.add(prompt4.share());
+    col.setup(|c| {
+        c.add(label);
+        c.add(prompt1.share());
+        c.add(prompt2.share());
+        c.add(prompt3.share());
+        c.add(prompt4.share());
+    });
 
     io.menu(|out, menu| {
         let window = out.brush().region(out.rect().inflate(-2, -2));
-        let mut inner = window.region(window.rect().inflate(-1, -1));
+        let inner = window.region(window.rect().inflate(-1, -1));
         
         out.brush().fill(FSem::new().bg(Green[0]));
         window.fill(FSem::new().bg(Light[2]).fg(Dark[0]));
         window.bevel_w95(Light[3], Dark[0]);
 
-        inner = inner.clone().putfs("Please enter a filename (will be created if the file does not exist):");
-        let (_above, below) = inner.split_vertically(inner.on_newline().cursor.y);
-        col.draw(ui.share(), below, menu)
+        // TODO: Use labels or something for this bit, when they're implemented
+        col.draw(ui.share(), inner, menu)
     });
 
     Terrain::new()

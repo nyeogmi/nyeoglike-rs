@@ -11,8 +11,8 @@ pub struct InputBoxState<Out> {
     text: String,
     cursor_l: usize,
     cursor_r: usize,
+    // TODO: Store left position of window
 
-    // TODO: Left position of window
     phantom: PhantomData<*const Out>,
 }
 
