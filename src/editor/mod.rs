@@ -3,7 +3,7 @@ use std::{process::exit};
 use chiropterm::*;
 use euclid::*;
 use moogle::Id;
-use crate::{terrain::{Room, Terrain}, widgetry::{Button, Column, InputBox, Label, UI}};
+use crate::{terrain::{Room, Terrain}, widgetry::{Button, Column, InputBox, Label, Theme, UI}};
 
 const ASPECT_CONFIG: AspectConfig = AspectConfig {
     pref_min_term_size: size2(64, 48),  // but expect ~112x60
@@ -47,7 +47,7 @@ fn main_loop(mut editor: EditorState) {
 fn load_file(io: &mut IO) -> Terrain {
     use chiropterm::colors::*;
 
-    let ui = UI::new();
+    let ui = UI::new(Theme::W95_FRUITY);
     let label: Label<()> = Label::new().setup(|l| {
         l.text = "Please enter a filename (will be created if the file does not exist). PS Bhijn drinks piss.".to_string()
     });
@@ -86,9 +86,9 @@ fn load_file(io: &mut IO) -> Terrain {
         let window = out.brush().region(out.rect().inflate(-2, -2));
         let inner = window.region(window.rect().inflate(-1, -1));
         
-        out.brush().fill(FSem::new().bg(Green[0]));
-        window.fill(FSem::new().bg(Light[2]).fg(Dark[0]));
-        window.bevel_w95(Light[3], Dark[0]);
+        out.brush().fill(FSem::new().color(ui.theme().base.wallpaper));
+        window.fill(FSem::new().color(ui.theme().window.color));
+        window.bevel_w95(ui.theme().window.bevel);
 
         // TODO: Use labels or something for this bit, when they're implemented
         col.draw(ui.share(), inner, menu)

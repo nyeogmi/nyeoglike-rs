@@ -4,11 +4,12 @@ use std::{cell::Cell, rc::Rc};
 
 pub use self::selection::Selection;
 
-use super::{WidgetCommon, Widgetlike};
+use super::{Theme, WidgetCommon, Widgetlike};
 
 pub struct UISource {
     selection: Cell<Selection>,
     layout_token: Cell<u64>,
+    theme: Cell<Theme>,
 }
 
 #[derive(Clone)]
@@ -17,16 +18,22 @@ pub struct UI {
 }
 
 impl UI {
-    pub fn new() -> UI {
+    pub fn new(theme: Theme) -> UI {
         UI {
             state: Rc::new(UISource { 
                 selection: Cell::new(Selection::none()),
                 layout_token: Cell::new(0),
+                theme: Cell::new(theme),
             })
         }
     }
+
     pub fn share(&self) -> UI {
         UI { state: self.state.clone() }
+    }
+
+    pub fn theme(&self) -> Theme {
+        self.state.theme.get()
     }
 
     pub fn select<'a, T: Widgetlike<'a, Out=Out>, Out>(&self, widg: &mut WidgetCommon<T>) {

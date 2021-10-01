@@ -47,8 +47,9 @@ impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ButtonState<'games
             Signal::Continue
         });
 
-        brush.bevel_w95(Light[3], Dark[0]);
-        brush.interactor(click_interactor, Yellow[0], Dark[0]).putfs(&self.text);
+        let theme = menu.ui.theme().button;
+        brush.bevel_w95(theme.bevel);
+        brush.interactor(click_interactor, theme.preclick).putfs(&self.text);
     }
 
     fn estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {

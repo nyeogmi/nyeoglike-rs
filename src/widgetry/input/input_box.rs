@@ -69,13 +69,14 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for InputBoxState<Out> 
             Signal::Continue
         });
 
-        brush.fill(FSem::new().bg(colors::Green[3]));
-        brush.bevel_w95(colors::Dark[0], colors::Light[3]);
+        let theme = menu.ui.theme().input_box;
+        brush.fill(FSem::new().color(if selected { theme.selected } else { theme.deselected }));
+        brush.bevel_w95(theme.bevel);
         brush.putfs(&self.text);  // TODO: Don't wrap?
 
 
         // make clickable
-        brush.interactor(click_interactor, colors::Green[2], colors::Dark[0]).fill(FSem::new());
+        brush.interactor(click_interactor, theme.preclick).fill(FSem::new());
 
         // draw cursor
         if selected {
@@ -83,7 +84,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for InputBoxState<Out> 
                 self.cursor_l as isize, 0, 
                 (self.cursor_r as isize - self.cursor_l as isize + 1).max(1), 2
             ));
-            cursor_region.interactor(click_interactor, colors::Orange[2], colors::Dark[0]).fill(FSem::new().bg(colors::Orange[2]));
+            cursor_region.interactor(click_interactor, theme.cursor).fill(FSem::new().color(theme.cursor));
         }
     }
 
