@@ -14,7 +14,7 @@ pub(in crate::widgetry) use self::polymorphic::AnyWidget;
 
 use super::UI;
 
-pub struct Widget<'draw, T: Widgetlike<'draw>> {
+pub struct Widget<'draw, T: Widgetlike<'draw, Out=Out>, Out> {
     // TODO: Instead use a ref inside an arena allocator (not bump, we need drop)
     state: Rc<RefCell<WidgetCommon<T>>>,
 
@@ -22,7 +22,7 @@ pub struct Widget<'draw, T: Widgetlike<'draw>> {
     phantom: PhantomData<&'draw ()>, 
 }
 
-impl<'draw, T: Widgetlike<'draw>> Widget<'draw, T> {
+impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, Out> {
     pub fn new() -> Self {
         Widget { 
             state: Rc::new(RefCell::new(WidgetCommon::new(T::default()))),
@@ -45,25 +45,24 @@ impl<'draw, T: Widgetlike<'draw>> Widget<'draw, T> {
         self.state.borrow_mut()
     }
 
-    pub fn draw(&self, ui: UI<'draw>, brush: Brush, menu: Menu<'draw, ()>) {
+    pub fn draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame, Out>) 
+    where 'gamestate: 'frame {
         let brush = self.estimate_dimensions(brush.rect().width()).tailor(brush);
         let offset = brush.cursor_offset();
         let widget_menu = WidgetMenu { 
-            ui, state: self.state.clone(), menu, brush_offset: offset 
+            ui, state: self.state.clone(), menu, brush_offset: offset, phantom: PhantomData
         };
-        self.draw_internal(brush, widget_menu)
-    }
-
-    pub(in super) fn draw_internal(&self, brush: Brush, widget_menu: WidgetMenu<'draw, T>) {
         self.state.borrow().draw(brush, widget_menu);
     }
 
-    pub fn estimate_dimensions(&self, mut width: isize) -> WidgetDimensions {
+    pub fn estimate_dimensions(&self, width: isize) -> WidgetDimensions {
         self.state.borrow().estimate_dimensions(width)
     }
 }
 
-pub trait Widgetlike<'draw>: 'draw+Default+Sized {
-    fn draw(&self, selected: bool, brush: Brush, menu: WidgetMenu<'draw, Self>);
+pub trait Widgetlike<'gamestate>: 'gamestate+Default+Sized {
+    type Out: 'gamestate;
+
+    fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>);
     fn estimate_dimensions(&self, width: isize) -> WidgetDimensions;
 }

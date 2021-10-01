@@ -1,47 +1,36 @@
 mod selection;
 
-use std::cell::Cell;
-
-use chiropterm::{IO, Menu, Screen};
+use std::{cell::Cell, rc::Rc};
 
 pub use self::selection::Selection;
 
 use super::{WidgetCommon, Widgetlike};
 
-struct UIState {
+pub struct UISource {
     selection: Cell<Selection>,
 }
 
-#[derive(Clone, Copy)]
-pub struct UI<'gamestate> {
-    state: &'gamestate UIState, 
+#[derive(Clone)]
+pub struct UI {
+    state: Rc<UISource>, 
 }
 
-impl<'gamestate> UI<'gamestate> {
-    pub fn host(
-        io: &mut IO, 
-        mut body: impl for<'draw> FnMut(UI<'draw>, &Screen, Menu<'draw, ()>)
-    ) {
-        let ui_state = UIState {
-            selection: Cell::new(Selection::none()),
-        };
-        let ui = UI { 
-            state: &ui_state
-        };
-
-        loop {
-            io.menu(|out, menu| {
-                body(ui, out, menu)
-            })
+impl UI {
+    pub fn new() -> UI {
+        UI {
+            state: Rc::new(UISource { selection: Cell::new(Selection::none())})
         }
     }
+    pub fn share(&self) -> UI {
+        UI { state: self.state.clone() }
+    }
 
-    pub fn select<'a, T: Widgetlike<'a>>(&self, widg: &mut WidgetCommon<T>) {
+    pub fn select<'a, T: Widgetlike<'a, Out=Out>, Out>(&self, widg: &mut WidgetCommon<T>) {
         self.state.selection.replace(self.state.selection.get().advance());
         widg.selection = self.state.selection.get();
     }
 
-    pub fn deselect<'a, T: Widgetlike<'a>>(&self, _widg: &mut WidgetCommon<T>) {
+    pub fn deselect<'a, T: Widgetlike<'a, Out=Out>, Out>(&self, _widg: &mut WidgetCommon<T>) {
         self.state.selection.replace(self.state.selection.get().advance());
     }
 

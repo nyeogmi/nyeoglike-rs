@@ -5,5 +5,5 @@ pub(self) mod widget;
 
 pub use input::*;
 pub use layout::*;
-pub use ui::{Selection, UI};
+pub use ui::{Selection, UI, UISource};
 pub use widget::{Widget, WidgetCommon, WidgetDimensions, Widgetlike, WidgetMenu};

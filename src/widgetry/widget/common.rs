@@ -1,6 +1,6 @@
 use std::cell::Cell;
 
-use chiropterm::{Brush, Brushable, CellSize};
+use chiropterm::{Brush, CellSize};
 
 use crate::widgetry::ui::Selection;
 
@@ -13,7 +13,7 @@ pub struct WidgetCommon<T> {
     last_dimensions: Cell<(isize, WidgetDimensions)>,
 }
 
-impl<'draw, T: Widgetlike<'draw>> WidgetCommon<T> {
+impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
     pub fn new(value: T) -> Self {
         WidgetCommon {
             unique: value,
@@ -26,7 +26,7 @@ impl<'draw, T: Widgetlike<'draw>> WidgetCommon<T> {
         }
     }
 
-    pub fn draw(&self, brush: Brush, menu: WidgetMenu<'draw, T>) {
+    pub fn draw<'frame>(&self, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, T, T::Out>) {
         self.unique.draw(menu.ui.is_selected(self.selection), brush, menu)
     }
 

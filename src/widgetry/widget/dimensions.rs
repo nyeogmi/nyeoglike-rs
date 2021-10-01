@@ -1,5 +1,5 @@
 use chiropterm::*;
-use euclid::rect;
+use euclid::{rect, size2};
 
 #[derive(Clone, Copy)]
 pub struct WidgetDimensions {
@@ -10,6 +10,14 @@ pub struct WidgetDimensions {
 }
 
 impl WidgetDimensions {
+    pub fn bogus() -> WidgetDimensions {
+        WidgetDimensions {
+            min: size2(0, 0),
+            preferred: size2(0, 0),
+            max: size2(0, 0),
+        }
+    }
+
     pub(crate) fn fixup(&self) -> WidgetDimensions {
         // TODO: fix impossibilities
         *self

@@ -1,40 +1,48 @@
+use std::marker::PhantomData;
+
 use chiropterm::*;
 use euclid::{rect, size2};
 
 use crate::widgetry::{Widget, WidgetDimensions, Widgetlike, widget::WidgetMenu};
 
-pub type InputBox<'draw> = Widget<'draw, InputBoxState>;
+pub type InputBox<'draw, Out> = Widget<'draw, InputBoxState<Out>, Out>;
 
-pub struct InputBoxState {
+pub struct InputBoxState<Out> {
     text: String,
     cursor_l: usize,
     cursor_r: usize,
 
     // TODO: Left position of window
+    phantom: PhantomData<*const Out>,
 }
 
-impl Default for InputBoxState {
+impl<Out> Default for InputBoxState<Out> {
     fn default() -> Self {
         Self { 
             text: "".to_owned(),
             cursor_l: 0,
             cursor_r: 0,
+
+            phantom: PhantomData,
         }
     }
 }
     
-impl<'draw> Widgetlike<'draw> for InputBoxState {
-    fn draw(&self, selected: bool, brush: Brush, menu: WidgetMenu<InputBoxState>) {
+impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for InputBoxState<Out> {
+    type Out = Out;
+
+    fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, InputBoxState<Out>, Out>) {
         if selected {
-            menu.on_text( |_, this, character| { this.unique.type_character(character); });
-            menu.on_key( Keycode::Backspace, |_, this, _| {this.unique.backspace(); });
-            menu.on_key( Keycode::Delete, |_, this, _| {this.unique.delete(); });
-            menu.on_key( Keycode::Left, |_, this, _| {this.unique.move_cursor(-1); });
-            menu.on_key( Keycode::Right, |_, this, _| {this.unique.move_cursor(1); });
-            menu.on_key( Keycode::Home, |_, this, _| {this.unique.set_cursor(0); });
-            menu.on_key( Keycode::End, |_, this, _| {this.unique.set_cursor(this.unique.text.len()); });
+            menu.on_text( |_, this, character| { this.unique.type_character(character); Signal::Continue });
+            menu.on_key( Keycode::Backspace, |_, this, _| {this.unique.backspace(); Signal::Continue });
+            menu.on_key( Keycode::Delete, |_, this, _| {this.unique.delete(); Signal::Continue });
+            menu.on_key( Keycode::Left, |_, this, _| {this.unique.move_cursor(-1); Signal::Continue });
+            menu.on_key( Keycode::Right, |_, this, _| {this.unique.move_cursor(1); Signal::Continue });
+            menu.on_key( Keycode::Home, |_, this, _| {this.unique.set_cursor(0); Signal::Continue });
+            menu.on_key( Keycode::End, |_, this, _| {this.unique.set_cursor(this.unique.text.len()); Signal::Continue });
             menu.on_key(Keycode::Enter, |ui, this, _| {
-                ui.deselect(this)
+                ui.deselect(this);
+                Signal::Continue  // TODO: Make the UI hit the submit button
             })
         }
 
@@ -51,13 +59,14 @@ impl<'draw> Widgetlike<'draw> for InputBoxState {
                     start_point, now_point, 
                     ..
                 } => {
-                    if start_point.x < 0 { return; } // should be impossible
+                    if start_point.x < 0 { return Signal::Continue; } // should be impossible
                     let now_x = now_point.x.max(0) as usize;
 
                     this.unique.highlight(start_point.x as usize, now_x);
                 },
                 MouseEvent::Drag {..} => {}
-            }
+            };
+            Signal::Continue
         });
 
         brush.fill(FSem::new().bg(colors::Green[3]));
@@ -86,7 +95,7 @@ impl<'draw> Widgetlike<'draw> for InputBoxState {
         }
     }
 }
-impl InputBoxState {
+impl<Out> InputBoxState<Out> {
     fn type_character(&mut self, character: char) {
         if self.cursor_l != self.cursor_r {
             self.text.drain(self.cursor_l..self.cursor_r + 1);

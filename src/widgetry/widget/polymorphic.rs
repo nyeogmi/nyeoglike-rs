@@ -1,21 +1,25 @@
-use std::any::Any;
-
-use chiropterm::{Brush, Brushable, CellPoint, FSem, Menu};
+use chiropterm::{Brush, Menu};
 
 use crate::widgetry::UI;
 
 use super::{Widget, WidgetDimensions, WidgetMenu, Widgetlike};
 
-pub struct AnyWidget<'draw> {
-    implementation: Box<dyn AWidget<'draw>>,
+pub struct AnyWidget<'gamestate, Out> {
+    implementation: Box<dyn AWidget<'gamestate, Out>>,
 }
 
-impl<'draw> AnyWidget<'draw> {
+impl<'gamestate, Out: 'gamestate> AnyWidget<'gamestate, Out> {
+    pub fn wrap<X: Widgetlike<'gamestate, Out=Out>>(widget: Widget<'gamestate, X, Out>) -> AnyWidget<'gamestate, Out> {
+        AnyWidget { 
+            implementation: Box::new(widget)
+        }
+    }
+
     pub fn estimate_dimensions(&self, width: isize) -> WidgetDimensions {
         self.implementation.poly_estimate_dimensions(width)
     }
 
-    pub fn draw<X: Widgetlike<'draw>>(&self, brush: Brush, menu: WidgetMenu<'draw, X>) {
+    pub fn draw<'frame, X: Widgetlike<'gamestate, Out=Out>>(&self, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, X, Out>) {
         let ui = menu.ui;
         let menu = menu.menu;
 
@@ -23,17 +27,19 @@ impl<'draw> AnyWidget<'draw> {
     }
 }
 
-trait AWidget<'draw> {
+trait AWidget<'gamestate, Out>: 'gamestate {
     fn poly_estimate_dimensions(&self, width: isize) -> WidgetDimensions;
-    fn poly_draw(&self, ui: UI<'draw>, brush: Brush, menu: Menu<'draw, ()>);
+    fn poly_draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame, Out>)
+    where 'gamestate: 'frame;
 }
 
-impl<'draw, T: Widgetlike<'draw>> AWidget<'draw> for Widget<'draw, T> {
+impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out: 'gamestate> AWidget<'gamestate, Out> for Widget<'gamestate, T, Out> {
     fn poly_estimate_dimensions(&self, width: isize) -> WidgetDimensions {
         self.estimate_dimensions(width)
     }
 
-    fn poly_draw(&self, ui: UI<'draw>, brush: Brush, menu: Menu<'draw, ()>) {
+    fn poly_draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame, Out>) 
+    where 'gamestate: 'frame {
         self.draw(ui, brush, menu)
     }
 }

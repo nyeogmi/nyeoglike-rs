@@ -1,48 +1,64 @@
-use std::cell::{Ref, RefCell};
+use std::{cell::{Ref, RefCell}};
 
 use chiropterm::{Brush, CellSize};
-use euclid::{size2};
+use euclid::{rect, size2};
 use smallvec::SmallVec;
 
-use crate::widgetry::{UI, WidgetDimensions, WidgetMenu, Widgetlike, widget::AnyWidget};
+use crate::widgetry::{Widget, WidgetDimensions, WidgetMenu, Widgetlike, widget::AnyWidget};
 
 // Smallvec size -- set this to "higher than most users will ever put in one column/row"
 const SM: usize = 32;
 
-pub struct ColumnState<'draw> {
-    widgets: SmallVec<[AnyWidget<'draw>; SM]>,
-    plots_desired: RefCell<(isize, Plots)>,
+pub type Column<'gamestate, Out> = Widget<'gamestate, ColumnState<'gamestate, Out>, Out>;
+
+pub struct ColumnState<'gamestate, Out> {
+    widgets: SmallVec<[AnyWidget<'gamestate, Out>; SM]>,
+    plots_desired: RefCell<(isize, (Plots, WidgetDimensions))>,
     plots_practical: RefCell<(CellSize, Plots)>,
 }
 
-impl<'draw> Default for ColumnState<'draw> {
+impl<'gamestate, Out> Default for ColumnState<'gamestate, Out> {
     fn default() -> Self {
         ColumnState { 
             widgets: SmallVec::new(),
-            plots_desired: RefCell::new((-1, Plots::new())),
+            plots_desired: RefCell::new((-1, (Plots::new(), WidgetDimensions::bogus()))),
             plots_practical: RefCell::new((size2(-1, -1), Plots::new())),
         }
     }
 }
 
-impl<'draw> Widgetlike<'draw> for ColumnState<'draw> {
-    fn draw(&self, _: bool, brush: Brush, menu: WidgetMenu<'draw, ColumnState<'draw>>) {
+impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ColumnState<'gamestate, Out> {
+    type Out = Out;
+
+    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, ColumnState<'gamestate, Out>, Out>) {
         let plots = self.get_plots_practical(brush.rect().size);
+
+        let mut total_y = 0;
+        let width = brush.rect().width();
         for (w, p) in self.widgets.iter().zip(plots.1.plot_size.iter()) {
-            w.draw(brush.clone(), menu.share())
+            let real_plot = brush.region(rect(0, total_y, width, *p));
+            w.draw(real_plot.clone(), menu.share());
+            total_y += p;
         }
     }
 
     fn estimate_dimensions(&self, width: isize) -> WidgetDimensions {
-        todo!()
+        let plots = self.get_plots_desired(width);
+        plots.1.1
     }
 }
 
-impl<'draw> ColumnState<'draw> {
-    fn get_plots_desired(&self, width: isize) -> Ref<'_, (isize, Plots)> {
+impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
+    pub fn add<X: Widgetlike<'gamestate, Out=Out>>(&mut self, w: Widget<'gamestate, X, Out>) {
+        self.widgets.push(AnyWidget::wrap(w))
+    }
+}
+
+impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
+    fn get_plots_desired(&self, width: isize) -> Ref<'_, (isize, (Plots, WidgetDimensions))> {
         {
             let b = self.plots_desired.borrow();
-            let (sz, pl) = &*b;
+            let (sz, (pl, _)) = &*b;
             if sz == &width && pl.plot_size.len() == self.widgets.len() {
                 return b
             }
@@ -63,16 +79,38 @@ impl<'draw> ColumnState<'draw> {
         return self.plots_practical.borrow()
     }
 
-    fn internal_compute_plots_desired(&self, width: isize) -> Plots {
+    fn internal_compute_plots_desired(&self, width: isize) -> (Plots, WidgetDimensions) {
         // TODO: Use the cache
         let mut preferred: SmallVec<[isize; SM]> = SmallVec::new();
+
+        let mut min_wmax = 0;
+        let mut preferred_wmax = 0;
+        let mut max_wmax = 0;
+
+        let mut min_h = 0;
+        let mut preferred_h = 0;
+        let mut max_h = 0;
 
         for w in self.widgets.iter() {
             let dim = w.estimate_dimensions(width);
             preferred.push(dim.preferred.height);
+
+            min_wmax = min_wmax.max(dim.min.width);
+            preferred_wmax = preferred_wmax.max(dim.preferred.width);
+            max_wmax = max_wmax.max(dim.max.width);
+
+            min_h += dim.min.height;
+            preferred_h += dim.preferred.height;
+            max_h += dim.max.height;
         }
 
-        Plots { plot_size: preferred }
+        let dims = WidgetDimensions {
+            min: size2(min_wmax, min_h),
+            preferred: size2(preferred_wmax, preferred_h),
+            max: size2(max_wmax, max_h),
+        };
+
+        (Plots { plot_size: preferred }, dims)
     }
 
     fn internal_compute_plots_practical(&self, size: CellSize) -> Plots {
@@ -87,7 +125,7 @@ impl<'draw> ColumnState<'draw> {
             maximum.push(dim.max.height);
         }
 
-        if practical.len() == 0 { return Plots { plot_size: practical }; }
+        if practical.len() == 0 || size.height < 0 { return Plots { plot_size: practical }; }
 
         let mut practical_sum: isize = practical.iter().sum();
         if practical_sum < size.height {
@@ -98,7 +136,7 @@ impl<'draw> ColumnState<'draw> {
         }
         else {
             let mut desperate = false;
-            while practical_sum > size.height {
+            'fix: while practical_sum > size.height {
                 // Steal from everyone equally, starting at bottom
                 let prev_sum = practical_sum;
                 for i in (0..practical.len()).rev() {
@@ -106,6 +144,10 @@ impl<'draw> ColumnState<'draw> {
                     if practical[i] <= 0 { continue }
 
                     practical[i] -= 1;
+                    practical_sum -= 1;
+                    if practical_sum <= size.height { 
+                        break 'fix; 
+                    }
                 }
                 if prev_sum == practical_sum { 
                     desperate = true; 
