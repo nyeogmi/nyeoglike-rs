@@ -14,12 +14,12 @@ pub(in crate::widgetry) use self::polymorphic::AnyWidget;
 
 use super::UI;
 
-pub struct Widget<'draw, T: Widgetlike<'draw, Out=Out>, Out> {
+pub struct Widget<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> {
     // TODO: Instead use a ref inside an arena allocator (not bump, we need drop)
     state: Rc<RefCell<WidgetCommon<T>>>,
 
     // TODO: Move this to state?
-    phantom: PhantomData<&'draw ()>, 
+    phantom: PhantomData<&'gamestate ()>, 
 }
 
 impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, Out> {

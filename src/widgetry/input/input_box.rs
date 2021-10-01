@@ -5,7 +5,7 @@ use euclid::{rect, size2};
 
 use crate::widgetry::{Widget, WidgetDimensions, Widgetlike, widget::WidgetMenu};
 
-pub type InputBox<'draw, Out> = Widget<'draw, InputBoxState<Out>, Out>;
+pub type InputBox<'gamestate, Out> = Widget<'gamestate, InputBoxState<Out>, Out>;
 
 pub struct InputBoxState<Out> {
     text: String,
