@@ -52,7 +52,7 @@ impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, 
 
     pub fn draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame, Out>) 
     where 'gamestate: 'frame {
-        let brush = self.estimate_dimensions(brush.rect().width()).tailor(brush);
+        let brush = self.estimate_dimensions(&ui, brush.rect().width()).tailor(brush);
         let offset = brush.cursor_offset();
         let widget_menu = WidgetMenu { 
             ui, state: self.state.clone(), menu, brush_offset: offset, phantom: PhantomData
@@ -60,8 +60,13 @@ impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, 
         self.state.borrow().draw(brush, widget_menu);
     }
 
-    pub fn estimate_dimensions(&self, width: isize) -> WidgetDimensions {
-        self.state.borrow().estimate_dimensions(width)
+    pub fn estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
+        self.clear_layout_cache_if_needed(ui);
+        self.state.borrow().estimate_dimensions(ui, width)
+    }
+
+    fn clear_layout_cache_if_needed(&self, ui: &UI) {
+        self.state.borrow_mut().clear_layout_cache_if_needed(ui)
     }
 }
 
@@ -69,5 +74,6 @@ pub trait Widgetlike<'gamestate>: 'gamestate+Default+Sized {
     type Out: 'gamestate;
 
     fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>);
-    fn estimate_dimensions(&self, width: isize) -> WidgetDimensions;
+    fn estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions;
+    fn clear_layout_cache(&self, ui: &UI);
 }

@@ -8,6 +8,7 @@ use super::{WidgetCommon, Widgetlike};
 
 pub struct UISource {
     selection: Cell<Selection>,
+    layout_token: Cell<u64>,
 }
 
 #[derive(Clone)]
@@ -18,7 +19,10 @@ pub struct UI {
 impl UI {
     pub fn new() -> UI {
         UI {
-            state: Rc::new(UISource { selection: Cell::new(Selection::none())})
+            state: Rc::new(UISource { 
+                selection: Cell::new(Selection::none()),
+                layout_token: Cell::new(0),
+            })
         }
     }
     pub fn share(&self) -> UI {
@@ -36,5 +40,13 @@ impl UI {
 
     pub fn is_selected(&self, other: Selection) -> bool {
         self.state.selection.get() == other
+    }
+
+    pub(crate) fn recompute_layout(&self) {
+        self.state.layout_token.replace(self.state.layout_token.get() + 1);
+    }
+
+    pub(in crate::widgetry) fn layout_token(&self) -> u64 {
+        self.state.layout_token.get()
     }
 }

@@ -1,14 +1,15 @@
 use std::cell::Cell;
 
-use chiropterm::{Brush, CellSize};
+use chiropterm::{Brush};
 
-use crate::widgetry::ui::Selection;
+use crate::widgetry::{UI, ui::Selection};
 
 use super::{WidgetDimensions, WidgetMenu, Widgetlike};
 
 pub struct WidgetCommon<T> {
     pub unique: T,
     pub(in crate::widgetry) selection: Selection,
+    pub(in crate::widgetry) layout_token: Cell<u64>,
 
     last_dimensions: Cell<(isize, WidgetDimensions)>,
 }
@@ -18,11 +19,8 @@ impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
         WidgetCommon {
             unique: value,
             selection: Selection::not_selected(),
-            last_dimensions: Cell::new((-1, WidgetDimensions { 
-                min: CellSize::zero(), 
-                preferred: CellSize::zero(), 
-                max: CellSize::zero() 
-            })),
+            last_dimensions: Cell::new((-1, WidgetDimensions::bogus())),
+            layout_token: Cell::new(0),
         }
     }
 
@@ -30,7 +28,7 @@ impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
         self.unique.draw(menu.ui.is_selected(self.selection), brush, menu)
     }
 
-    pub fn estimate_dimensions(&self, mut width: isize) -> WidgetDimensions {
+    pub fn estimate_dimensions(&self, ui: &UI, mut width: isize) -> WidgetDimensions {
         if width < 0 { width = 0; }
         // TODO: If it's 0, provide a stock answer
 
@@ -39,8 +37,16 @@ impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
             return last_dims;
         }
 
-        let new_dims = self.unique.estimate_dimensions(width).fixup();
+        let new_dims = self.unique.estimate_dimensions(ui, width).fixup();
         self.last_dimensions.replace((last_width, new_dims));
         new_dims
+    }
+
+    pub fn clear_layout_cache_if_needed(&self, ui: &UI) {
+        if self.layout_token.get() < ui.layout_token() {
+            self.last_dimensions.replace((-1, WidgetDimensions::bogus()));
+            self.unique.clear_layout_cache(&ui);
+            self.layout_token.replace(ui.layout_token());
+        }
     }
 }

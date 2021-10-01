@@ -4,7 +4,7 @@ use chiropterm::{Brush, CellSize};
 use euclid::{rect, size2};
 use smallvec::SmallVec;
 
-use crate::widgetry::{Widget, WidgetDimensions, WidgetMenu, Widgetlike, widget::AnyWidget};
+use crate::widgetry::{UI, Widget, WidgetDimensions, WidgetMenu, Widgetlike, widget::AnyWidget};
 
 // Smallvec size -- set this to "higher than most users will ever put in one column/row"
 const SM: usize = 32;
@@ -31,7 +31,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ColumnState<'gamest
     type Out = Out;
 
     fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, ColumnState<'gamestate, Out>, Out>) {
-        let plots = self.get_plots_practical(brush.rect().size);
+        let plots = self.get_plots_practical(&menu.ui, brush.rect().size);
 
         let mut total_y = 0;
         let width = brush.rect().width();
@@ -42,9 +42,17 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ColumnState<'gamest
         }
     }
 
-    fn estimate_dimensions(&self, width: isize) -> WidgetDimensions {
-        let plots = self.get_plots_desired(width);
+    fn estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
+        let plots = self.get_plots_desired(ui, width);
         plots.1.1
+    }
+
+    fn clear_layout_cache(&self, ui: &UI) {
+        self.plots_desired.replace((-1, (Plots::new(), WidgetDimensions::bogus())));
+        self.plots_practical.replace((size2(-1, -1), Plots::new()));
+        for i in self.widgets.iter() {
+            i.clear_layout_cache_if_needed(&ui)
+        }
     }
 }
 
@@ -55,7 +63,7 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
 }
 
 impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
-    fn get_plots_desired(&self, width: isize) -> Ref<'_, (isize, (Plots, WidgetDimensions))> {
+    fn get_plots_desired(&self, ui: &UI, width: isize) -> Ref<'_, (isize, (Plots, WidgetDimensions))> {
         {
             let b = self.plots_desired.borrow();
             let (sz, (pl, _)) = &*b;
@@ -63,11 +71,11 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
                 return b
             }
         }
-        self.plots_desired.replace((width, self.internal_compute_plots_desired(width)));
+        self.plots_desired.replace((width, self.internal_compute_plots_desired(&ui, width)));
         return self.plots_desired.borrow()
     }
 
-    fn get_plots_practical(&self, size: CellSize) -> Ref<'_, (CellSize, Plots)> {
+    fn get_plots_practical(&self, ui: &UI, size: CellSize) -> Ref<'_, (CellSize, Plots)> {
         {
             let b = self.plots_practical.borrow();
             let (sz, pl) = &*b;
@@ -75,11 +83,11 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
                 return b
             }
         }
-        self.plots_practical.replace((size, self.internal_compute_plots_practical(size)));
+        self.plots_practical.replace((size, self.internal_compute_plots_practical(ui, size)));
         return self.plots_practical.borrow()
     }
 
-    fn internal_compute_plots_desired(&self, width: isize) -> (Plots, WidgetDimensions) {
+    fn internal_compute_plots_desired(&self, ui: &UI, width: isize) -> (Plots, WidgetDimensions) {
         // TODO: Use the cache
         let mut preferred: SmallVec<[isize; SM]> = SmallVec::new();
 
@@ -92,7 +100,7 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
         let mut max_h = 0;
 
         for w in self.widgets.iter() {
-            let dim = w.estimate_dimensions(width);
+            let dim = w.estimate_dimensions(ui, width);
             preferred.push(dim.preferred.height);
 
             min_wmax = min_wmax.max(dim.min.width);
@@ -113,13 +121,13 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
         (Plots { plot_size: preferred }, dims)
     }
 
-    fn internal_compute_plots_practical(&self, size: CellSize) -> Plots {
+    fn internal_compute_plots_practical(&self, ui: &UI, size: CellSize) -> Plots {
         let mut minimum: SmallVec<[isize; SM]> = SmallVec::new();
         let mut practical: SmallVec<[isize; SM]> = SmallVec::new();
         let mut maximum: SmallVec<[isize; SM]> = SmallVec::new();
 
         for w in self.widgets.iter() {
-            let dim = w.estimate_dimensions(size.width);
+            let dim = w.estimate_dimensions(ui, size.width);
             minimum.push(dim.min.height);
             practical.push(dim.preferred.height);
             maximum.push(dim.max.height);

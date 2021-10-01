@@ -7,7 +7,7 @@ use crate::widgetry::ui::{UI};
 use super::{Widgetlike, common::WidgetCommon};
 
 pub struct WidgetMenu<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate, Out=Out>, Out> {
-    pub(in super) ui: UI,
+    pub ui: UI,
     pub(in super) state: Rc<RefCell<WidgetCommon<T>>>,
     pub(in super) menu: Menu<'frame, Out>,
     pub(in super) brush_offset: CellVector,

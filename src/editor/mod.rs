@@ -3,7 +3,7 @@ use std::{process::exit};
 use chiropterm::*;
 use euclid::*;
 use moogle::Id;
-use crate::{terrain::{Room, Terrain}, widgetry::{Column, InputBox, Label, UI}};
+use crate::{terrain::{Room, Terrain}, widgetry::{Button, Column, InputBox, Label, UI}};
 
 const ASPECT_CONFIG: AspectConfig = AspectConfig {
     pref_min_term_size: size2(64, 48),  // but expect ~112x60
@@ -56,13 +56,30 @@ fn load_file(io: &mut IO) -> Terrain {
     let prompt3: InputBox<()> = InputBox::new();
     let prompt4: InputBox<()> = InputBox::new();
 
+    let lbl = label.share();
+    let button = Button::new().setup(move |b| {
+        b.text = "D - Devour robot".to_owned();
+        b.command = Some(Box::new(move |ui, _, _| { 
+            let mut l_b = lbl.borrow_mut();
+            if l_b.unique.text.starts_with("P") {
+                l_b.unique.text = "Nyeh!".to_owned();
+            } else {
+                // l_b.unique.text += " Nyeh!"
+                l_b.unique.text = l_b.unique.text.replace("e", "ee"); // unique.text += " Nyeh!"
+            } 
+            ui.recompute_layout();
+            Signal::Continue
+        }));
+    });
+
     let col: Column<()> = Column::new();
     col.setup(|c| {
-        c.add(label);
+        c.add(label.share());
         c.add(prompt1.share());
         c.add(prompt2.share());
         c.add(prompt3.share());
         c.add(prompt4.share());
+        c.add(button);
     });
 
     io.menu(|out, menu| {
