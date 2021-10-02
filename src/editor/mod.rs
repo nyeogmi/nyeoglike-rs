@@ -82,13 +82,18 @@ fn load_file(io: &mut IO) -> Terrain {
         c.add(button);
     });
 
-    io.menu(|out, menu| {
-        let window = out.brush().region(out.rect().inflate(-2, -2));
+    io.menu(|out, menu: Menu<()>| {
+        let mut window = out.brush().region(out.rect().inflate(-2, -2));
+        window = window.reshape_for_font();
+
         let inner = window.region(window.rect().inflate(-1, -1));
         
         out.brush().fill(FSem::new().color(ui.theme().base.wallpaper));
         window.fill(FSem::new().color(ui.theme().window.color));
         window.bevel_w95(ui.theme().window.bevel);
+
+        window.font(Font::Normal).draw_box(true);
+        window.draw_box(true);
 
         // TODO: Use labels or something for this bit, when they're implemented
         col.draw(ui.share(), inner, menu)
