@@ -39,16 +39,16 @@ impl Theme {
 
     pub const W95_FRUITY: Theme = Theme::w95_fruity(
         (Dark[2], Dark[0]),
-        DkCyan, LtCyan,
+        DkGreen, LtGreen,
         White,
         // good for green and blue
-        // LtYellow[1], LtOrange[1],
+        LtYellow[1], LtOrange[1],
         // good for fuchsia 
         // DkPurple[0], LtPurple[1],
         // good for purple 
         // DkPurple[0], LtFuchsia[1],
-        // good for Dark/Light
-        DkRed[0], LtRed[1],
+        // good for Dark/Light and cyan
+        // DkRed[0], LtRed[1],
     );
 
     pub const fn w95_fruity(
