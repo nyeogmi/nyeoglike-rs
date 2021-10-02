@@ -37,16 +37,37 @@ impl Theme {
         }
     );
 
-    pub const W95_FRUITY: Theme = Theme::w95(
-        W95Args {
-            wallpaper: (Dark[2], Dark[0]),
-            inset: (DkGreen[2], LtGreen[1]),
-            window: (LtGreen[0], LtGreen[3]),
-            accent_preclick: (LtYellow[1], White),
-            accent_subselected: (LtOrange[1], LtGreen[3]),
-            enclave: (DkGreen[3], LtGreen[3]),
-        }
+    pub const W95_FRUITY: Theme = Theme::w95_fruity(
+        (Dark[2], Dark[0]),
+        Dark, Light, 
+        White,
+        // good for green and cyan
+        // LtYellow[1], LtOrange[1],
+        // good for fuchsia 
+        // DkPurple[0], LtPurple[1],
+        // good for purple 
+        // DkPurple[0], LtFuchsia[1],
+        // good for Dark/Light
+        DkRed[0], LtRed[1],
     );
+
+    pub const fn w95_fruity(
+        wallpaper: (u8, u8), 
+        dark: [u8; 4], 
+        light: [u8; 4], 
+        lightest: u8,  // recommended: White
+        accent_preclick: u8, // recommended: LtX[1]
+        accent_subselected: u8, // recommended: LtX[1]
+    ) -> Theme {
+        Theme::w95(W95Args {
+            wallpaper,
+            inset: (dark[2], light[1]),
+            window: (light[0], light[3]),
+            accent_preclick: (accent_preclick, lightest),
+            accent_subselected: (accent_subselected, lightest),
+            enclave: (dark[3], light[3]),
+        })
+    }
 
     pub const fn w95(args: W95Args) -> Theme {
         let wallpaper = args.wallpaper;
