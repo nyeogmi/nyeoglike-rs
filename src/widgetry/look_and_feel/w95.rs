@@ -16,22 +16,22 @@ pub struct W95Args {
 impl Theme {
     pub const W95: Theme = Theme::w95(
         W95Args {
-            wallpaper: (Green[0], Dark[0]),
+            wallpaper: (LtGreen[0], Dark[0]),
             inset: (Dark[0], Light[3]),
             window: (Light[2], Dark[0]),
-            accent_preclick: (Green[2], Dark[0]),
-            accent_subselected: (Orange[2], Dark[0]),
+            accent_preclick: (LtGreen[2], Dark[0]),
+            accent_subselected: (LtOrange[2], Dark[0]),
             enclave: (Light[3], Dark[0]),
         }
     );
 
     pub const W95_DARK: Theme = Theme::w95(
         W95Args {
-            wallpaper: (Orange[0], Dark[0]),
+            wallpaper: (LtOrange[0], Dark[0]),
             inset: (Dark[0], Light[0]),
             window: (Dark[1], Light[2]),
-            accent_preclick: (Blue[0], Light[2]),
-            accent_subselected: (Orange[2], Light[2]),
+            accent_preclick: (LtBlue[0], Light[2]),
+            accent_subselected: (LtOrange[2], Light[2]),
 
             enclave: (Dark[0], Light[2]),
         }
@@ -40,11 +40,11 @@ impl Theme {
     pub const W95_FRUITY: Theme = Theme::w95(
         W95Args {
             wallpaper: (Dark[2], Dark[0]),
-            inset: (Dark[1], Purple[3]),
-            window: (Purple[1], Light[2]),
-            accent_preclick: (Cyan[0], Light[2]),
-            accent_subselected: (Orange[0], Light[2]),
-            enclave: (Purple[0], Light[2]),
+            inset: (DkGreen[2], LtGreen[1]),
+            window: (LtGreen[0], LtGreen[3]),
+            accent_preclick: (LtYellow[1], White),
+            accent_subselected: (LtOrange[1], LtGreen[3]),
+            enclave: (DkGreen[3], LtGreen[3]),
         }
     );
 
