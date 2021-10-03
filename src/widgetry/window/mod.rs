@@ -115,6 +115,8 @@ impl<'gamestate, Out: 'gamestate> WindowState<'gamestate, Out> {
     }
 }
 
+// TODO: Do a title bar theme that uses code similar to this to just do a Powerline bar
+// Maybe just have two or three powerline bars to the far right, near the window buttons
 fn draw_gradient(brush: Brush, color_opts: [u8; 2]) {
     let glyph_opts = [(false, 0), (false, 0xb0), (false, 0xb1), /* (true, 0xb0) */];  // commented out for trypophobia reasons for now
     let glyph_opts_2 = [(false, 0xb0), (false, 0xb1), (false, 0xdb) /* (true, 0xb0) */];  // commented out for trypophobia reasons for now

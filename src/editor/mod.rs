@@ -95,10 +95,17 @@ fn load_file(io: &mut IO) -> Terrain {
         w.set_widget(col.share()) 
     });
 
-    let all = Column::new();
-    all.setup(|c| {
+    let all0 = Column::new();
+    all0.setup(|c| {
+        c.add(Spacer::new());
         c.add(win.share());
         c.add(Spacer::new());
+    });
+    let all = Row::new();
+    all.setup(|r| {
+        r.add(Spacer::new());
+        r.add(all0.share());
+        r.add(Spacer::new());
     });
 
     io.menu(|out, menu: Menu<()>| {
