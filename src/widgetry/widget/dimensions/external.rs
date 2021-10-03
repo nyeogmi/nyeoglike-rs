@@ -1,6 +1,6 @@
 use chiropterm::CellSize;
 
-pub struct ExternalWidgetDimensions {
+pub struct WidgetDimensions {
     pub min: CellSize,
     pub preferred: CellSize,
     pub align_size_to: CellSize,
@@ -8,6 +8,6 @@ pub struct ExternalWidgetDimensions {
     pub vertical_spacer_count: usize,
 }
 
-impl ExternalWidgetDimensions {
+impl WidgetDimensions {
 
 }

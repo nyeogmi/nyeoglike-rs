@@ -4,7 +4,7 @@ use chiropterm::{Brush};
 
 use crate::widgetry::{UI, ui::Selection};
 
-use super::{ExternalWidgetDimensions, InternalWidgetDimensions, WidgetMenu, Widgetlike};
+use super::{WidgetDimensions, InternalWidgetDimensions, WidgetMenu, Widgetlike};
 
 pub struct WidgetCommon<T> {
     pub unique: T,
@@ -42,7 +42,7 @@ impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
         new_dims
     }
 
-    pub fn apply_layout_hacks(&self, wd: ExternalWidgetDimensions) -> ExternalWidgetDimensions {
+    pub fn apply_layout_hacks(&self, wd: WidgetDimensions) -> WidgetDimensions {
         self.unique.layout_hacks().apply(wd)
     }
 

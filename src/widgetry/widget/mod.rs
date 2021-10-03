@@ -9,7 +9,7 @@ use std::{cell::{Ref, RefCell, RefMut}, marker::PhantomData, rc::Rc};
 use chiropterm::*;
 
 pub use self::common::WidgetCommon;
-pub use self::dimensions::{InternalWidgetDimensions, ExternalWidgetDimensions};
+pub use self::dimensions::{InternalWidgetDimensions, WidgetDimensions};
 pub use self::layout_hacks::LayoutHacks;
 pub use self::menu::WidgetMenu;
 pub(in crate::widgetry) use self::polymorphic::AnyWidget;
@@ -62,7 +62,7 @@ impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, 
         self.state.borrow().draw(brush, widget_menu);
     }
 
-    pub fn estimate_dimensions(&self, ui: &UI, width: isize) -> ExternalWidgetDimensions {
+    pub fn estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
         let mut dims = self.internal_estimate_dimensions(ui, width).to_external();
         dims = self.state.borrow().apply_layout_hacks(dims);
         dims

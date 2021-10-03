@@ -1,7 +1,7 @@
 use chiropterm::*;
 use euclid::{rect, size2};
 
-use super::ExternalWidgetDimensions;
+use super::WidgetDimensions;
 
 // TODO: "InternalWidgetDimensions" with an optional max and align
 // ExternalWidgetDimensions with no max or align
@@ -97,9 +97,9 @@ impl InternalWidgetDimensions {
         self
     }
 
-    pub(crate) fn to_external(mut self) -> super::ExternalWidgetDimensions {
+    pub(crate) fn to_external(mut self) -> super::WidgetDimensions {
         self = self.fixup();
-        ExternalWidgetDimensions {
+        WidgetDimensions {
             min: self.min,
             preferred: self.preferred,
             align_size_to: self.align_size_to,

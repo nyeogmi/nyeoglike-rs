@@ -1,4 +1,4 @@
-use super::ExternalWidgetDimensions;
+use super::WidgetDimensions;
 
 #[derive(Clone, Copy)]
 pub struct LayoutHacks {
@@ -21,7 +21,7 @@ impl LayoutHacks {
         }
     }
 
-    pub fn apply(&self, mut wd: ExternalWidgetDimensions) -> ExternalWidgetDimensions {
+    pub fn apply(&self, mut wd: WidgetDimensions) -> WidgetDimensions {
         if self.expand_horizontally { 
             wd.horizontal_spacer_count = wd.horizontal_spacer_count.max(1); 
         };

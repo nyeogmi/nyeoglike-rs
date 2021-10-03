@@ -2,7 +2,7 @@ use chiropterm::{Brush, Menu};
 
 use crate::widgetry::UI;
 
-use super::{ExternalWidgetDimensions, Widget, WidgetMenu, Widgetlike};
+use super::{WidgetDimensions, Widget, WidgetMenu, Widgetlike};
 
 pub struct AnyWidget<'gamestate, Out> {
     implementation: Box<dyn AWidget<'gamestate, Out>>,
@@ -15,7 +15,7 @@ impl<'gamestate, Out: 'gamestate> AnyWidget<'gamestate, Out> {
         }
     }
 
-    pub fn estimate_dimensions(&self, ui: &UI, width: isize) -> ExternalWidgetDimensions {
+    pub fn estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
         self.implementation.poly_estimate_dimensions(ui, width)
     }
 
@@ -32,14 +32,14 @@ impl<'gamestate, Out: 'gamestate> AnyWidget<'gamestate, Out> {
 }
 
 trait AWidget<'gamestate, Out>: 'gamestate {
-    fn poly_estimate_dimensions(&self, ui: &UI, width: isize) -> ExternalWidgetDimensions;
+    fn poly_estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions;
     fn poly_draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame, Out>)
     where 'gamestate: 'frame;
     fn poly_clear_layout_cache_if_needed(&self, ui: &UI);
 }
 
 impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out: 'gamestate> AWidget<'gamestate, Out> for Widget<'gamestate, T, Out> {
-    fn poly_estimate_dimensions(&self, ui: &UI, width: isize) -> ExternalWidgetDimensions {
+    fn poly_estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
         self.estimate_dimensions(ui, width)
     }
 
