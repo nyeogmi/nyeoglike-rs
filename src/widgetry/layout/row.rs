@@ -9,36 +9,35 @@ use crate::widgetry::{UI, Widget, WidgetDimensions, WidgetMenu, Widgetlike, widg
 // Smallvec size -- set this to "higher than most users will ever put in one column/row"
 const SM: usize = 32;
 
-pub type Column<'gamestate, Out> = Widget<'gamestate, ColumnState<'gamestate, Out>, Out>;
+pub type Row<'gamestate, Out> = Widget<'gamestate, RowState<'gamestate, Out>, Out>;
 
-pub struct ColumnState<'gamestate, Out> {
+pub struct RowState<'gamestate, Out> {
     widgets: SmallVec<[AnyWidget<'gamestate, Out>; SM]>,
     plots_desired: RefCell<(isize, (Plots, WidgetDimensions))>,
     plots_practical: RefCell<(CellSize, Plots)>,
 }
 
-impl<'gamestate, Out> Default for ColumnState<'gamestate, Out> {
+impl<'gamestate, Out> Default for RowState<'gamestate, Out> {
     fn default() -> Self {
-        ColumnState { 
+        RowState { 
             widgets: SmallVec::new(),
             plots_desired: RefCell::new((-1, (Plots::new(), WidgetDimensions::zero()))),
             plots_practical: RefCell::new((size2(-1, -1), Plots::new())),
         }
     }
 }
-
-impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ColumnState<'gamestate, Out> {
+impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for RowState<'gamestate, Out> {
     type Out = Out;
 
-    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, ColumnState<'gamestate, Out>, Out>) {
+    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, RowState<'gamestate, Out>, Out>) {
         let plots = self.get_plots_practical(&menu.ui, brush.rect().size);
 
-        let mut total_y = 0;
-        let width = brush.rect().width();
+        let mut total_x = 0;
+        let height = brush.rect().height();
         for (w, p) in self.widgets.iter().zip(plots.1.plot_size.iter()) {
-            let real_plot = brush.region(rect(0, total_y, width, *p));
+            let real_plot = brush.region(rect(total_x, 0, *p, height));
             w.draw(real_plot.clone(), menu.share());
-            total_y += p;
+            total_x += p;
         }
     }
 
@@ -46,7 +45,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ColumnState<'gamest
         let plots = self.get_plots_desired(ui, width);
         plots.1.1
     }
-
+        
     fn clear_layout_cache(&self, ui: &UI) {
         self.plots_desired.replace((-1, (Plots::new(), WidgetDimensions::zero())));
         self.plots_practical.replace((size2(-1, -1), Plots::new()));
@@ -56,13 +55,13 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ColumnState<'gamest
     }
 }
 
-impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
+impl<'gamestate, Out: 'gamestate> RowState<'gamestate, Out> {
     pub fn add<X: Widgetlike<'gamestate, Out=Out>>(&mut self, w: Widget<'gamestate, X, Out>) {
         self.widgets.push(AnyWidget::wrap(w))
     }
 }
 
-impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
+impl<'gamestate, Out: 'gamestate> RowState<'gamestate, Out> {
     fn get_plots_desired(&self, ui: &UI, width: isize) -> Ref<'_, (isize, (Plots, WidgetDimensions))> {
         {
             let b = self.plots_desired.borrow();
@@ -88,45 +87,44 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
     }
 }
 
-impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
+impl<'gamestate, Out: 'gamestate> RowState<'gamestate, Out> {
     fn internal_compute_plots_desired(&self, ui: &UI, width: isize) -> (Plots, WidgetDimensions) {
-        // TODO: Use the cache
         let mut preferred: SmallVec<[isize; SM]> = SmallVec::new();
 
-        let mut min_wmax = 0;
-        let mut preferred_wmax = 0;
-        let mut max_wmax = 0;
+        let mut min_hmax = 0;
+        let mut preferred_hmax = 0;
+        let mut max_hmax = 0;
 
-        let mut min_h = 0;
-        let mut preferred_h = 0;
-        let mut max_h = 0;
+        let mut min_w = 0;
+        let mut preferred_w = 0;
+        let mut max_w = 0;
 
-        let mut vertical_spacer_count = 0;
+        let mut horizontal_spacer_count = 0;
         // with no widgets: don't suddenly become a spacer
         // with widgets: be as much of a spacer as the widgets inside
-        let mut horizontal_spacer_count = if self.widgets.len() > 0 { usize::MAX } else { 0 };
+        let mut vertical_spacer_count = if self.widgets.len() > 0 { usize::MAX } else { 0 };
 
         for w in self.widgets.iter() {
             let dim = w.estimate_dimensions(ui, width);
-            preferred.push(dim.preferred.height);
+            preferred.push(dim.preferred.width);
 
-            min_wmax = min_wmax.max(dim.min.width);
-            preferred_wmax = preferred_wmax.max(dim.preferred.width);
-            max_wmax = max_wmax.max(dim.max.width);
+            min_hmax = min_hmax.max(dim.min.height);
+            preferred_hmax = preferred_hmax.max(dim.preferred.height);
+            max_hmax = max_hmax.max(dim.max.height);
 
-            min_h += dim.min.height;
-            preferred_h += dim.preferred.height;
-            max_h += dim.max.height;
+            min_w += dim.min.width;
+            preferred_w += dim.preferred.width;
+            max_w += dim.max.width;
 
-            vertical_spacer_count += dim.vertical_spacer_count;
-            horizontal_spacer_count = horizontal_spacer_count.min(dim.horizontal_spacer_count);
+            horizontal_spacer_count += dim.horizontal_spacer_count;
+            vertical_spacer_count = vertical_spacer_count.min(dim.vertical_spacer_count);
         }
-        assert_ne!(horizontal_spacer_count, usize::MAX);
+        assert_ne!(vertical_spacer_count, usize::MAX);
 
         let dims = WidgetDimensions {
-            min: size2(min_wmax, min_h),
-            preferred: size2(preferred_wmax, preferred_h),
-            max: size2(max_wmax, max_h),
+            min: size2(min_w, min_hmax),
+            preferred: size2(preferred_w, preferred_hmax),
+            max: size2(max_w, preferred_hmax),
             align_size_to: size2(1, 1),
             horizontal_spacer_count,
             vertical_spacer_count,
@@ -147,23 +145,23 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
             for _ in 0..dim.vertical_spacer_count {
                 likes_being_resized.push(w)
             }
-            minimum.push(dim.min.height);
-            practical.push(dim.preferred.height);
-            maximum.push(dim.max.height);
-            align.push(dim.align_size_to.height);
+            minimum.push(dim.min.width);
+            practical.push(dim.preferred.width);
+            maximum.push(dim.max.width);
+            align.push(dim.align_size_to.width);
         }
 
-        if practical.len() == 0 || size.height < 0 { return Plots { plot_size: practical }; }
+        if practical.len() == 0 || size.width < 0 { return Plots { plot_size: practical }; }
 
         let mut practical_sum: isize = practical.iter().sum();
-        if practical_sum < size.height {
+        if practical_sum < size.width {
             // Expand whatever likes being resized
             if likes_being_resized.len() == 0 {
-                // Just align to the top by expanding the bottom cell
-                likes_being_resized.push(practical.len() - 1)
+                // Expand every cell
+                likes_being_resized.extend(0..self.widgets.len())
             }
 
-            let og_rem = (size.height - practical_sum) as usize;
+            let og_rem = (size.width - practical_sum) as usize;
             let mut current_rem = og_rem;
             let portion = og_rem / likes_being_resized.len();
             for i in likes_being_resized.iter() {
@@ -177,7 +175,7 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
         else {
             let mut desperate = false;
 
-            'fix: while practical_sum > size.height {
+            'fix: while practical_sum > size.width {
                 // Steal from everyone equally, starting at bottom
                 let prev_sum = practical_sum;
                 for i in (0..practical.len()).rev() {
@@ -186,7 +184,7 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
 
                     practical[i] -= align[i];
                     practical_sum -= align[i];
-                    if practical_sum <= size.height { 
+                    if practical_sum <= size.width { 
                         break 'fix; 
                     }
                 }
@@ -194,6 +192,7 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
                     desperate = true; 
                 }
             }
+
         }
 
         return Plots { plot_size: practical }
