@@ -117,22 +117,26 @@ impl<'gamestate, Out: 'gamestate> WindowState<'gamestate, Out> {
 
 fn draw_gradient(brush: Brush, color_opts: [u8; 2]) {
     let glyph_opts = [(false, 0), (false, 0xb0), (false, 0xb1), /* (true, 0xb0) */];  // commented out for trypophobia reasons for now
+    let glyph_opts_2 = [(false, 0xb0), (false, 0xb1), (false, 0xdb) /* (true, 0xb0) */];  // commented out for trypophobia reasons for now
     let n_opts = color_opts.len() * glyph_opts.len() - (glyph_opts.len() - 1);
+    let max_x_offset = 1;
     for (y0, h, x_offset) in [(0, 1, 0), (1, 1, -1)] {
         for i in 0..n_opts as isize {
-            let x0 = (i * brush.rect().size.width) / n_opts as isize + x_offset;
-            let x1 = ((i + 1) * brush.rect().size.width) / n_opts as isize; // + x_offset;
+            let x0 = (i * brush.rect().size.width + max_x_offset) / n_opts as isize + x_offset;
+            let x1 = ((i + 1) * brush.rect().size.width + max_x_offset) / n_opts as isize + x_offset;
             let r = rect(x0, y0, x1 - x0, h);
+            let rend = rect(x1 - 1, y0, x1, h);
 
             let color_ix = (i/glyph_opts.len() as isize) as usize;
             let last_color = color_opts[color_ix];
             let next_color = color_opts[(color_ix + 1).min(color_opts.len() - 1)];
-            let (flip, c) = glyph_opts[i as usize % glyph_opts.len()];
-            let glyph = SemanticContent::Small(c);
+            let (flip, c1) = glyph_opts[i as usize % glyph_opts.len()];
+            let (_, c2) = glyph_opts_2[i as usize % glyph_opts.len()];
 
             let (bg, fg) = if flip { (next_color, last_color) } else { (last_color, next_color) };
 
-            brush.region(r).fill(FSem::new().bg(bg).fg(fg).sem(glyph));
+            brush.region(r).fill(FSem::new().bg(bg).fg(fg).sem(SemanticContent::Small(c1)));
+            brush.region(rend).fill(FSem::new().bg(bg).fg(fg).sem(SemanticContent::SmallPizza1(c1, c2)))
         }
     }
 }
