@@ -8,12 +8,14 @@ pub struct W95Args {
     window: (u8, u8),
     accent_preclick: (u8, u8),
     accent_subselected: (u8, u8),
+    title_bar: ([u8; 4], u8),
 
     // "enclaves" include text boxes
     enclave: (u8, u8),
 }
 
 impl Theme {
+    /*
     pub const W95: Theme = Theme::w95(
         W95Args {
             wallpaper: (LtGreen[0], Dark[0]),
@@ -36,17 +38,19 @@ impl Theme {
             enclave: (Dark[0], Light[2]),
         }
     );
+    */
 
     pub const W95_FRUITY: Theme = Theme::w95_fruity(
         (Dark[2], Dark[0]),
-        DkGreen, LtGreen,
+        // DkGreen, LtGreen, LtYellow,
+        DkPurple, LtPurple, LtFuchsia,
         White,
         // good for green and blue
-        LtYellow[1], LtOrange[1],
+        // LtYellow[1], LtOrange[1],
         // good for fuchsia 
         // DkPurple[0], LtPurple[1],
         // good for purple 
-        // DkPurple[0], LtFuchsia[1],
+        DkPurple[0], LtFuchsia[1],
         // good for Dark/Light and cyan
         // DkRed[0], LtRed[1],
     );
@@ -55,6 +59,7 @@ impl Theme {
         wallpaper: (u8, u8), 
         dark: [u8; 4], 
         light: [u8; 4], 
+        title_bar: [u8; 4],
         lightest: u8,  // recommended: White
         accent_preclick: u8, // recommended: LtX[1]
         accent_subselected: u8, // recommended: LtX[1]
@@ -65,6 +70,7 @@ impl Theme {
             window: (light[0], light[3]),
             accent_preclick: (accent_preclick, lightest),
             accent_subselected: (accent_subselected, lightest),
+            title_bar: (title_bar, lightest),
             enclave: (dark[3], light[3]),
         })
     }
@@ -76,6 +82,7 @@ impl Theme {
         let window = args.window;
         let accent_preclick = args.accent_preclick;
         let accent_subselected = args.accent_subselected;
+        let title_bar = args.title_bar;
         let enclave = args.enclave;
 
         Theme {
@@ -83,7 +90,10 @@ impl Theme {
                 wallpaper: wallpaper
             },
             window: WindowTheme {
-                borders: WindowBorders::W95 { bevel: outset },
+                borders: WindowBorders::W95 { 
+                    bevel: outset,
+                    title: title_bar,
+                },
                 color: window,
             },
             button: ButtonTheme { 

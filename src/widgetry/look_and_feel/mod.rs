@@ -23,7 +23,10 @@ pub struct WindowTheme {
 
 #[derive(Clone, Copy)]
 pub enum WindowBorders {
-    W95 { bevel: (u8, u8) }, // TODO: Default title bar color?
+    W95 { 
+        bevel: (u8, u8),
+        title: ([u8; 4], u8),
+    }, // TODO: Default title bar color?
     DOS { },
 }
 

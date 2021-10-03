@@ -48,7 +48,7 @@ fn load_file(io: &mut IO) -> Terrain {
     use chiropterm::colors::*;
 
     let mut theme = Theme::W95_FRUITY;
-    theme.window.borders = WindowBorders::DOS {};
+    // theme.window.borders = WindowBorders::DOS {};
 
     let ui = UI::new(theme);
     let label: Label<()> = Label::new().setup(|l| {
@@ -86,23 +86,14 @@ fn load_file(io: &mut IO) -> Terrain {
     });
 
     let win = Window::new();
-    win.setup(|w| { w.set_widget(col.share()) });
+    win.setup(|w| { 
+        w.title = Some("TITLE BAR!!!".to_owned());
+        w.set_widget(col.share()) 
+    });
 
     io.menu(|out, menu: Menu<()>| {
-        // let mut window = out.brush().region(out.rect().inflate(-2, -2));
-        // window = window.reshape_for_font();
-        
         out.brush().fill(FSem::new().color(ui.theme().base.wallpaper));
 
-        /*
-        window.fill(FSem::new().color(ui.theme().window.color));
-        window.bevel_w95(ui.theme().window.bevel);
-
-        window.font(Font::Normal).draw_box(true);
-        window.draw_box(true);
-        */
-
-        // TODO: Use labels or something for this bit, when they're implemented
         win.draw(ui.share(), out.brush().region(out.rect().inflate(-2, -2)), menu)
     });
 
