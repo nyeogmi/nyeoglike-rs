@@ -21,7 +21,7 @@ impl<'gamestate, Out> Default for ColumnState<'gamestate, Out> {
     fn default() -> Self {
         ColumnState { 
             widgets: SmallVec::new(),
-            plots_desired: RefCell::new((-1, (Plots::new(), WidgetDimensions::bogus()))),
+            plots_desired: RefCell::new((-1, (Plots::new(), WidgetDimensions::zero()))),
             plots_practical: RefCell::new((size2(-1, -1), Plots::new())),
         }
     }
@@ -48,7 +48,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ColumnState<'gamest
     }
 
     fn clear_layout_cache(&self, ui: &UI) {
-        self.plots_desired.replace((-1, (Plots::new(), WidgetDimensions::bogus())));
+        self.plots_desired.replace((-1, (Plots::new(), WidgetDimensions::zero())));
         self.plots_practical.replace((size2(-1, -1), Plots::new()));
         for i in self.widgets.iter() {
             i.clear_layout_cache_if_needed(&ui)
@@ -116,6 +116,7 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
             min: size2(min_wmax, min_h),
             preferred: size2(preferred_wmax, preferred_h),
             max: size2(max_wmax, max_h),
+            align_size_to: size2(1, 1),
         };
 
         (Plots { plot_size: preferred }, dims)
@@ -125,12 +126,14 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
         let mut minimum: SmallVec<[isize; SM]> = SmallVec::new();
         let mut practical: SmallVec<[isize; SM]> = SmallVec::new();
         let mut maximum: SmallVec<[isize; SM]> = SmallVec::new();
+        let mut align: SmallVec<[isize; SM]> = SmallVec::new();
 
         for w in self.widgets.iter() {
             let dim = w.estimate_dimensions(ui, size.width);
             minimum.push(dim.min.height);
             practical.push(dim.preferred.height);
             maximum.push(dim.max.height);
+            align.push(dim.align_size_to.height);
         }
 
         if practical.len() == 0 || size.height < 0 { return Plots { plot_size: practical }; }
@@ -151,8 +154,8 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
                     if !desperate && practical[i] <= minimum[i] { continue }
                     if practical[i] <= 0 { continue }
 
-                    practical[i] -= 1;
-                    practical_sum -= 1;
+                    practical[i] -= align[i];
+                    practical_sum -= align[i];
                     if practical_sum <= size.height { 
                         break 'fix; 
                     }

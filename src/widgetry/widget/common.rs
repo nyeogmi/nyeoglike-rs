@@ -19,7 +19,7 @@ impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
         WidgetCommon {
             unique: value,
             selection: Selection::not_selected(),
-            last_dimensions: Cell::new((-1, WidgetDimensions::bogus())),
+            last_dimensions: Cell::new((-1, WidgetDimensions::zero())),
             layout_token: Cell::new(0),
         }
     }
@@ -44,7 +44,7 @@ impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
 
     pub fn clear_layout_cache_if_needed(&self, ui: &UI) {
         if self.layout_token.get() < ui.layout_token() {
-            self.last_dimensions.replace((-1, WidgetDimensions::bogus()));
+            self.last_dimensions.replace((-1, WidgetDimensions::zero()));
             self.unique.clear_layout_cache(&ui);
             self.layout_token.replace(ui.layout_token());
         }

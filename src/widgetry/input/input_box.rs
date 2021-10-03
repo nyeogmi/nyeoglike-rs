@@ -93,6 +93,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for InputBoxState<Out> 
             min: size2(8, 2),
             preferred: size2(8.max(self.text.len() as isize), 2),
             max: size2(width, 2),
+            align_size_to: size2(1, 2),
         }
     }
 

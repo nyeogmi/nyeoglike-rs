@@ -3,10 +3,10 @@ use std::{process::exit};
 use chiropterm::*;
 use euclid::*;
 use moogle::Id;
-use crate::{terrain::{Room, Terrain}, widgetry::{Button, Column, InputBox, Label, Theme, UI}};
+use crate::{terrain::{Room, Terrain}, widgetry::{Button, Column, InputBox, Label, Theme, UI, Window, look_and_feel::WindowBorders}};
 
 const ASPECT_CONFIG: AspectConfig = AspectConfig {
-    pref_min_term_size: size2(64, 48),  // but expect ~112x60
+    pref_min_term_size: size2(80, 50),  // but expect ~112x60
     pref_max_term_size: size2(256, 256),
 };
 
@@ -47,7 +47,10 @@ fn main_loop(mut editor: EditorState) {
 fn load_file(io: &mut IO) -> Terrain {
     use chiropterm::colors::*;
 
-    let ui = UI::new(Theme::W95_FRUITY);
+    let mut theme = Theme::W95_FRUITY;
+    theme.window.borders = WindowBorders::DOS {};
+
+    let ui = UI::new(theme);
     let label: Label<()> = Label::new().setup(|l| {
         l.text = "Please enter a filename (will be created if the file does not exist). PS Bhijn drinks piss.".to_string()
     });
@@ -82,21 +85,25 @@ fn load_file(io: &mut IO) -> Terrain {
         c.add(button);
     });
 
-    io.menu(|out, menu: Menu<()>| {
-        let mut window = out.brush().region(out.rect().inflate(-2, -2));
-        window = window.reshape_for_font();
+    let win = Window::new();
+    win.setup(|w| { w.set_widget(col.share()) });
 
-        let inner = window.region(window.rect().inflate(-1, -1));
+    io.menu(|out, menu: Menu<()>| {
+        // let mut window = out.brush().region(out.rect().inflate(-2, -2));
+        // window = window.reshape_for_font();
         
         out.brush().fill(FSem::new().color(ui.theme().base.wallpaper));
+
+        /*
         window.fill(FSem::new().color(ui.theme().window.color));
         window.bevel_w95(ui.theme().window.bevel);
 
         window.font(Font::Normal).draw_box(true);
         window.draw_box(true);
+        */
 
         // TODO: Use labels or something for this bit, when they're implemented
-        col.draw(ui.share(), inner, menu)
+        win.draw(ui.share(), out.brush().region(out.rect().inflate(-2, -2)), menu)
     });
 
     Terrain::new()

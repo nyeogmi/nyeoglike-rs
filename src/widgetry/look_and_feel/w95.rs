@@ -83,7 +83,7 @@ impl Theme {
                 wallpaper: wallpaper
             },
             window: WindowTheme {
-                bevel: outset,
+                borders: WindowBorders::W95 { bevel: outset },
                 color: window,
             },
             button: ButtonTheme { 

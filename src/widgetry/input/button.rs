@@ -62,6 +62,7 @@ impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ButtonState<'games
             preferred: stamp.rect().size,
             // TODO: Better foundation for this number
             max: size2(self.text.len() as isize, 2),
+            align_size_to: size2(1, 2),
         }
     }
 

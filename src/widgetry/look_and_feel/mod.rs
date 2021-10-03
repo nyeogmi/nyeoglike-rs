@@ -17,8 +17,14 @@ pub struct BaseTheme {
 
 #[derive(Clone, Copy)]
 pub struct WindowTheme {
-    pub bevel: (u8, u8),
+    pub borders: WindowBorders,
     pub color: (u8, u8),
+}
+
+#[derive(Clone, Copy)]
+pub enum WindowBorders {
+    W95 { bevel: (u8, u8) }, // TODO: Default title bar color?
+    DOS { },
 }
 
 #[derive(Clone, Copy)]
