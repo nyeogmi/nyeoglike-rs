@@ -99,11 +99,9 @@ impl<'gamestate, Out: 'gamestate> RowState<'gamestate, Out> {
 
         let mut min_hmax = 0;
         let mut preferred_hmax = 0;
-        let mut max_hmax = 0;
 
         let mut min_w = 0;
         let mut preferred_w = 0;
-        let mut max_w = 0;
 
         let mut horizontal_spacer_count = 0;
         // with no widgets: don't suddenly become a spacer

@@ -90,7 +90,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for InputBoxState<Out> 
         }
     }
 
-    fn estimate_dimensions(&self, _: &UI, width: isize) -> InternalWidgetDimensions {
+    fn estimate_dimensions(&self, _: &UI, _width: isize) -> InternalWidgetDimensions {
         InternalWidgetDimensions { 
             min: size2(8, 2),
             preferred: size2(8.max(self.text.len() as isize), 2),

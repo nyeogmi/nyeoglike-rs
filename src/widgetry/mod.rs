@@ -11,6 +11,5 @@ pub use input::*;
 pub use layout::*;
 pub use look_and_feel::Theme;
 pub use ui::{Selection, UI, UISource};
-pub use widget::{WidgetDimensions, Widget, WidgetCommon, Widgetlike, WidgetMenu};
-pub(self) use widget::InternalWidgetDimensions;
+pub use widget::{InternalWidgetDimensions, Widget, WidgetCommon, WidgetDimensions, Widgetlike, WidgetMenu};
 pub use window::*;

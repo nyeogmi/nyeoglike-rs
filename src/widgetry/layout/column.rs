@@ -104,7 +104,6 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
 
         let mut min_h = 0;
         let mut preferred_h = 0;
-        let mut max_h = 0;
 
         let mut vertical_spacer_count = 0;
         // with no widgets: don't suddenly become a spacer
