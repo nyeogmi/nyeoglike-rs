@@ -81,8 +81,9 @@ fn load_file(io: &mut IO) -> Terrain {
         c.add(Row::new().setup(|r| {
             r.add(prompt1.setup(|f| f.layout_hacks.expand_horizontally = true).share());
             r.add(prompt2.share());
-            r.add(prompt3.share());
+            r.add(prompt3.setup(|f| f.layout_hacks.preferred_height = Some(1)).share());
             r.add(prompt4.share());
+            r.layout_hacks.preferred_height = Some(1);
         }));
         c.add(button);
         c.add(Spacer::new());

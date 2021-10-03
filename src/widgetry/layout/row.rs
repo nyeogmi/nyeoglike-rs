@@ -130,7 +130,7 @@ impl<'gamestate, Out: 'gamestate> RowState<'gamestate, Out> {
         let dims = WidgetDimensions {
             min: size2(min_w, min_hmax),
             preferred: size2(preferred_w, preferred_hmax),
-            max: size2(max_w, preferred_hmax),
+            max: size2(max_w, max_hmax),
             align_size_to: size2(1, 1),
             horizontal_spacer_count,
             vertical_spacer_count,
