@@ -114,7 +114,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for WindowState<'gamest
 }
 
 impl<'gamestate, Out: 'gamestate> WindowState<'gamestate, Out> {
-    pub fn set_widget<X: Widgetlike<'gamestate, Out=Out>>(&mut self, w: Widget<'gamestate, X, Out>) {
+    pub fn set<X: Widgetlike<'gamestate, Out=Out>>(&mut self, w: Widget<'gamestate, X, Out>) {
         self.widget = Some(AnyWidget::wrap(w))
     }
 }

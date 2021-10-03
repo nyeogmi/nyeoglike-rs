@@ -9,7 +9,7 @@ use super::{Widgetlike, common::WidgetCommon};
 pub struct WidgetMenu<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate, Out=Out>, Out> {
     pub ui: UI,
     pub(in super) state: Rc<RefCell<WidgetCommon<T>>>,
-    pub(in super) menu: Menu<'frame, Out>,
+    pub menu: Menu<'frame, Out>,
     pub(in super) brush_offset: CellVector,
     pub(in super) phantom: PhantomData<&'gamestate ()>,
 }

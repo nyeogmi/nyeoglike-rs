@@ -1,9 +1,9 @@
 use std::{process::exit};
 
-use chiropterm::*;
+use chiropterm::{*, colors::{LtRed, LtYellow, White}};
 use euclid::*;
 use moogle::Id;
-use crate::{terrain::{Room, Terrain}, widgetry::{Button, Canvas, Column, InputBox, Label, Row, Spacer, Theme, UI, Window}};
+use crate::{terrain::{Room, Terrain}, widgetry::{Border, Button, Canvas, Column, InputBox, Label, Row, Spacer, Theme, UI, Window}};
 
 const ASPECT_CONFIG: AspectConfig = AspectConfig {
     pref_min_term_size: size2(80, 50),  // but expect ~112x60
@@ -99,7 +99,7 @@ fn load_file(io: &mut IO) -> Terrain {
     let win = Window::new();
     win.setup(|w| { 
         w.title = Some("TITLE BAR!!!".to_owned());
-        w.set_widget(col.share()) 
+        w.set(col.share()) 
     });
 
     let all0 = Column::new();
@@ -107,6 +107,22 @@ fn load_file(io: &mut IO) -> Terrain {
         c.add(Spacer::new());
         c.add(win.share());
         c.add(Spacer::new());
+        c.add(Window::new().setup(|w|  {
+            w.set(Border::new().setup(|b| {
+                b.set_north(Label::new().setup(|l| l.text = "NORTH NORTH NORTH NORTH".to_string()));
+                b.set_west(Label::new().setup(|l| l.text = "WEST".to_string()));
+                b.set_center(Canvas::new().setup(|c| {
+                    c.set_draw(|b, _| {
+                        b.fill(FSem::new().color((LtRed[1], White)));
+                        b.putfs("HELLO, SNACK!!!");
+                    });
+                    c.layout_hacks.preferred_height = Some(20);
+                }));
+                b.set_east(Label::new().setup(|l| l.text = "EAST".to_string()));
+                b.set_south(Label::new().setup(|l| l.text = "SOUTH SOUTH SOUTH SOUTH".to_string()));
+            }))
+        }));
+        c.add(Spacer::new())
     });
     let all = Row::new();
     all.setup(|r| {

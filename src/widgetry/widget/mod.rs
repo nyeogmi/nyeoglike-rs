@@ -12,7 +12,7 @@ pub use self::common::WidgetCommon;
 pub use self::dimensions::{InternalWidgetDimensions, WidgetDimensions};
 pub use self::layout_hacks::LayoutHacks;
 pub use self::menu::WidgetMenu;
-pub(in crate::widgetry) use self::polymorphic::AnyWidget;
+pub use self::polymorphic::AnyWidget;
 
 use super::UI;
 
@@ -73,7 +73,7 @@ impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, 
         self.state.borrow().estimate_dimensions(ui, width)
     }
 
-    fn clear_layout_cache_if_needed(&self, ui: &UI) {
+    pub(in super) fn clear_layout_cache_if_needed(&self, ui: &UI) {
         self.state.borrow_mut().clear_layout_cache_if_needed(ui)
     }
 }
