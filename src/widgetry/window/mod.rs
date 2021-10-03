@@ -73,7 +73,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for WindowState<'gamest
                     inactive_title_fg
                 };
 
-                brush.draw_box(false);  // TODO. Box and box color in theme
+                brush.fg(title_color).draw_box(false);  // TODO. Box and box color in theme
 
                 if let Some(title) = &self.title {
                     brush.region(rect(2, 0, brush.rect().size.width - 4, 2)).fg(title_color).putfs(title);

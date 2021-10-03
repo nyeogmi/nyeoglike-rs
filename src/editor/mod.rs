@@ -46,12 +46,10 @@ fn main_loop(mut editor: EditorState) {
 
 fn load_file(io: &mut IO) -> Terrain {
     let mut theme = Theme::W95_FRUITY;
-    /*
     theme.window.borders = WindowBorders::DOS {
         active_title_fg: theme.window.color.1,
-        inactive_title_fg: Light[1],
+        inactive_title_fg: Light[2],
     };
-    */
 
     let ui = UI::new(theme);
     let label: Label<()> = Label::new().setup(|l| {
