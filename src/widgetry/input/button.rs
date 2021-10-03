@@ -1,6 +1,6 @@
-use std::{marker::PhantomData, mem};
+use std::{marker::PhantomData};
 
-use chiropterm::{Brush, Brushable, MouseEvent, Signal, Stamp, colors::*};
+use chiropterm::{Brush, Brushable, MouseEvent, Signal, Stamp};
 use euclid::{rect, size2};
 
 use crate::widgetry::{UI, Widget, WidgetCommon, WidgetDimensions, WidgetMenu, Widgetlike};
@@ -63,6 +63,8 @@ impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ButtonState<'games
             // TODO: Better foundation for this number
             max: size2(self.text.len() as isize, 2),
             align_size_to: size2(1, 2),
+            horizontal_spacer_count: 0,
+            vertical_spacer_count: 0,
         }
     }
 

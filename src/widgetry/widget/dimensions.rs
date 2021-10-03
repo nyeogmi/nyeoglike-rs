@@ -8,15 +8,19 @@ pub struct WidgetDimensions {
     pub preferred: CellSize,
     pub max: CellSize,
     pub align_size_to: CellSize,
+    pub horizontal_spacer_count: usize,
+    pub vertical_spacer_count: usize,
 }
 
 impl WidgetDimensions {
-    pub fn zero() -> WidgetDimensions {
+    pub const fn zero() -> WidgetDimensions {
         WidgetDimensions {
             min: size2(0, 0),
             preferred: size2(0, 0),
             max: size2(0, 0),
             align_size_to: size2(0, 0),
+            horizontal_spacer_count: 0,
+            vertical_spacer_count: 0,
         }
     }
 

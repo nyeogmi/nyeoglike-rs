@@ -41,6 +41,8 @@ impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for LabelState<Out> {
             // TODO: Better foundation for this number
             max: size2(self.text.len() as isize, self.text.len() as isize),
             align_size_to: size2(1, 2),
+            horizontal_spacer_count: 0,
+            vertical_spacer_count: 0,
         }
     }
 

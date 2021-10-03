@@ -3,7 +3,7 @@ use std::{process::exit};
 use chiropterm::*;
 use euclid::*;
 use moogle::Id;
-use crate::{terrain::{Room, Terrain}, widgetry::{Button, Column, InputBox, Label, Theme, UI, Window, look_and_feel::WindowBorders}};
+use crate::{terrain::{Room, Terrain}, widgetry::{Button, Column, InputBox, Label, Spacer, Theme, UI, Window}};
 
 const ASPECT_CONFIG: AspectConfig = AspectConfig {
     pref_min_term_size: size2(80, 50),  // but expect ~112x60
@@ -45,9 +45,7 @@ fn main_loop(mut editor: EditorState) {
 }
 
 fn load_file(io: &mut IO) -> Terrain {
-    use chiropterm::colors::*;
-
-    let mut theme = Theme::W95_FRUITY;
+    let theme = Theme::W95_FRUITY;
     // theme.window.borders = WindowBorders::DOS {};
 
     let ui = UI::new(theme);
@@ -77,12 +75,14 @@ fn load_file(io: &mut IO) -> Terrain {
 
     let col: Column<()> = Column::new();
     col.setup(|c| {
+        c.add(Spacer::new());
         c.add(label.share());
         c.add(prompt1.share());
         c.add(prompt2.share());
         c.add(prompt3.share());
         c.add(prompt4.share());
         c.add(button);
+        c.add(Spacer::new());
     });
 
     let win = Window::new();
@@ -91,10 +91,16 @@ fn load_file(io: &mut IO) -> Terrain {
         w.set_widget(col.share()) 
     });
 
+    let all = Column::new();
+    all.setup(|c| {
+        c.add(win.share());
+        c.add(Spacer::new());
+    });
+
     io.menu(|out, menu: Menu<()>| {
         out.brush().fill(FSem::new().color(ui.theme().base.wallpaper));
 
-        win.draw(ui.share(), out.brush().region(out.rect().inflate(-2, -2)), menu)
+        all.draw(ui.share(), out.brush().region(out.rect().inflate(-2, -2)), menu)
     });
 
     Terrain::new()

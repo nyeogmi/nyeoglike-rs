@@ -99,6 +99,8 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
         let mut preferred_h = 0;
         let mut max_h = 0;
 
+        let mut vertical_spacer_count = 0;
+
         for w in self.widgets.iter() {
             let dim = w.estimate_dimensions(ui, width);
             preferred.push(dim.preferred.height);
@@ -110,6 +112,8 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
             min_h += dim.min.height;
             preferred_h += dim.preferred.height;
             max_h += dim.max.height;
+
+            vertical_spacer_count += dim.vertical_spacer_count;
         }
 
         let dims = WidgetDimensions {
@@ -117,19 +121,25 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
             preferred: size2(preferred_wmax, preferred_h),
             max: size2(max_wmax, max_h),
             align_size_to: size2(1, 1),
+            horizontal_spacer_count: 0,
+            vertical_spacer_count: vertical_spacer_count,
         };
 
         (Plots { plot_size: preferred }, dims)
     }
 
     fn internal_compute_plots_practical(&self, ui: &UI, size: CellSize) -> Plots {
+        let mut likes_being_resized: SmallVec<[usize; SM]> = SmallVec::new();
         let mut minimum: SmallVec<[isize; SM]> = SmallVec::new();
         let mut practical: SmallVec<[isize; SM]> = SmallVec::new();
         let mut maximum: SmallVec<[isize; SM]> = SmallVec::new();
         let mut align: SmallVec<[isize; SM]> = SmallVec::new();
 
-        for w in self.widgets.iter() {
-            let dim = w.estimate_dimensions(ui, size.width);
+        for (w, widg) in self.widgets.iter().enumerate() {
+            let dim = widg.estimate_dimensions(ui, size.width);
+            for i in 0..dim.vertical_spacer_count {
+                likes_being_resized.push(w)
+            }
             minimum.push(dim.min.height);
             practical.push(dim.preferred.height);
             maximum.push(dim.max.height);
@@ -141,12 +151,29 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
         let mut practical_sum: isize = practical.iter().sum();
         if practical_sum < size.height {
             // Just align to the top-left by expanding the bottom cell
-            // TODO: Pick the index based on which widget loves to be expanded
-            let ix = practical.len() - 1;
-            practical[ix] += size.height - practical_sum;
+
+            if likes_being_resized.len() > 0 {
+                let og_rem = (size.height - practical_sum) as usize;
+                let mut current_rem = og_rem;
+                let portion = og_rem / likes_being_resized.len();
+                for i in likes_being_resized.iter() {
+                    practical[*i] += portion as isize;
+                    current_rem -= portion;
+                };
+                for i in likes_being_resized.iter().take(current_rem as usize) {
+                    practical[*i] += 1;
+                }
+            } else {
+                // todo: pick the index based on which widget loves to be expanded
+                let ix = practical.len() - 1;
+                practical[ix] += size.height - practical_sum;
+            }
         }
         else {
+            // todo: somehow consider "likes being resized" in this loop
+
             let mut desperate = false;
+
             'fix: while practical_sum > size.height {
                 // Steal from everyone equally, starting at bottom
                 let prev_sum = practical_sum;
