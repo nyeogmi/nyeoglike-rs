@@ -15,6 +15,7 @@ pub struct UISource {
 #[derive(Clone)]
 pub struct UI {
     state: Rc<UISource>, 
+    context: UIContext,
 }
 
 impl UI {
@@ -24,12 +25,13 @@ impl UI {
                 selection: Cell::new(Selection::none()),
                 layout_token: Cell::new(0),
                 theme: Cell::new(theme),
-            })
+            }),
+            context: UIContext::new(),
         }
     }
 
     pub fn share(&self) -> UI {
-        UI { state: self.state.clone() }
+        UI { state: self.state.clone(), context: self.context }
     }
 
     pub fn theme(&self) -> Theme {
@@ -55,5 +57,27 @@ impl UI {
 
     pub(in crate::widgetry) fn layout_token(&self) -> u64 {
         self.state.layout_token.get()
+    }
+
+    pub fn with_context(mut self, on_ctx: impl FnOnce(&mut UIContext)) -> UI {
+        on_ctx(&mut self.context);
+        self
+    }
+
+    pub fn context(&self) -> UIContext {
+        self.context
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct UIContext {
+    pub active: bool,
+}
+
+impl UIContext {
+    pub fn new() -> UIContext {
+        UIContext {
+            active: true,
+        }
     }
 }

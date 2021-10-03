@@ -92,7 +92,8 @@ impl Theme {
             window: WindowTheme {
                 borders: WindowBorders::W95 { 
                     bevel: outset,
-                    title: title_bar,
+                    active_title: title_bar,
+                    inactive_title: (Light, Light[3]),
                 },
                 color: window,
             },

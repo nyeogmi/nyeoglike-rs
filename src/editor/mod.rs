@@ -1,9 +1,9 @@
 use std::{process::exit};
 
-use chiropterm::{*, colors::{LtRed, LtYellow, White}};
+use chiropterm::{*, colors::{Light, LtRed, LtYellow, White}};
 use euclid::*;
 use moogle::Id;
-use crate::{terrain::{Room, Terrain}, widgetry::{Border, Button, Canvas, Column, InputBox, Label, Row, Spacer, Theme, UI, Window}};
+use crate::{terrain::{Room, Terrain}, widgetry::{Border, Button, Canvas, Column, Deck, InputBox, Label, Row, Spacer, Theme, UI, Window, look_and_feel::WindowBorders}};
 
 const ASPECT_CONFIG: AspectConfig = AspectConfig {
     pref_min_term_size: size2(80, 50),  // but expect ~112x60
@@ -45,8 +45,13 @@ fn main_loop(mut editor: EditorState) {
 }
 
 fn load_file(io: &mut IO) -> Terrain {
-    let theme = Theme::W95_FRUITY;
-    // theme.window.borders = WindowBorders::DOS {};
+    let mut theme = Theme::W95_FRUITY;
+    /*
+    theme.window.borders = WindowBorders::DOS {
+        active_title_fg: theme.window.color.1,
+        inactive_title_fg: Light[1],
+    };
+    */
 
     let ui = UI::new(theme);
     let label: Label<()> = Label::new().setup(|l| {
@@ -86,7 +91,7 @@ fn load_file(io: &mut IO) -> Terrain {
         }));
         c.add(Canvas::new().setup(|c| {
             c.layout_hacks.preferred_width = Some(30);
-            c.layout_hacks.preferred_height = Some(8);
+            c.layout_hacks.preferred_height = Some(2);
             c.set_draw(|b, _| {
                 use colors::*;
                 b.fill(FSem::new().color((LtRed[2], LtYellow[2])))
@@ -116,13 +121,21 @@ fn load_file(io: &mut IO) -> Terrain {
                         b.fill(FSem::new().color((LtRed[1], White)));
                         b.putfs("HELLO, SNACK!!!");
                     });
-                    c.layout_hacks.preferred_height = Some(20);
+                    c.layout_hacks.preferred_height = Some(4);
                 }));
                 b.set_east(Label::new().setup(|l| l.text = "EAST".to_string()));
                 b.set_south(Label::new().setup(|l| l.text = "SOUTH SOUTH SOUTH SOUTH".to_string()));
             }))
         }));
-        c.add(Spacer::new())
+        c.add(Spacer::new());
+        c.add(Deck::new().setup(|d| {
+            d.add(Window::new().setup(|w| w.title = Some("WINDOW 1".to_string())));
+            d.add(Window::new().setup(|w| w.title = Some("WINDOW 2".to_string())));
+            d.add(Window::new().setup(|w| {
+                w.title = Some("WINDOW 3".to_string());
+                w.set(Label::new().setup(|l| { l.text = "I'm a bat!".to_string(); }));
+            }));
+        }));
     });
     let all = Row::new();
     all.setup(|r| {

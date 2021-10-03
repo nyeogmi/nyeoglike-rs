@@ -25,9 +25,13 @@ pub struct WindowTheme {
 pub enum WindowBorders {
     W95 { 
         bevel: (u8, u8),
-        title: ([u8; 4], u8),
+        active_title: ([u8; 4], u8),
+        inactive_title: ([u8; 4], u8),
     }, // TODO: Default title bar color?
-    DOS { },
+    DOS { 
+        active_title_fg: u8,
+        inactive_title_fg: u8,
+    },
 }
 
 #[derive(Clone, Copy)]

@@ -2,7 +2,7 @@ use std::{cell::RefCell, marker::PhantomData, rc::Rc};
 
 use chiropterm::*;
 
-use crate::widgetry::ui::{UI};
+use crate::widgetry::ui::{UI, UIContext};
 
 use super::{Widgetlike, common::WidgetCommon};
 
@@ -56,5 +56,10 @@ impl<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate, Out=Out>, Out> Widget
         self.menu.on_text(move |inp| {
             cb(ui.share(), &mut state.borrow_mut(), inp)
         })
+    }
+
+    pub(crate) fn with_context(mut self, on_ctx: impl FnOnce(&mut UIContext)) -> Self {
+        self.ui = self.ui.with_context(on_ctx);
+        self
     }
 }

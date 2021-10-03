@@ -32,8 +32,14 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for WindowState<'gamest
         brush.fill(FSem::new().color(menu.ui.theme().window.color));
 
         let inner = match menu.ui.theme().window.borders {
-            WindowBorders::W95 { bevel, title: title_color } => {
+            WindowBorders::W95 { bevel, active_title: active_title_color, inactive_title: inactive_title_color } => {
                 brush.bevel_w95(bevel);
+
+                let title_color = if menu.ui.context().active {
+                    active_title_color
+                } else {
+                    inactive_title_color
+                };
 
                 if let Some(title) = &self.title {
                     let title_bar_outer = rect(0, 0, brush.rect().size.width, 2);
@@ -57,11 +63,22 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for WindowState<'gamest
 
                 // TODO: Use title
             }
-            WindowBorders::DOS {  } => {
+            WindowBorders::DOS { 
+                active_title_fg,
+                inactive_title_fg,
+            } => {
+                let title_color = if menu.ui.context().active {
+                    active_title_fg
+                } else {
+                    inactive_title_fg
+                };
+
                 brush.draw_box(false);  // TODO. Box and box color in theme
+
                 if let Some(title) = &self.title {
-                    brush.region(rect(2, 0, brush.rect().size.width - 4, 2)).putfs(title);
+                    brush.region(rect(2, 0, brush.rect().size.width - 4, 2)).fg(title_color).putfs(title);
                 }
+
                 brush.region(brush.rect().inflate(-2, -2))
             }
         };
@@ -81,7 +98,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for WindowState<'gamest
                     ((2, 2), (1, 1))
                 }
             }
-            WindowBorders::DOS {  } => {
+            WindowBorders::DOS { .. } => {
                 ((4, 4), (2, 2))
             }
         };

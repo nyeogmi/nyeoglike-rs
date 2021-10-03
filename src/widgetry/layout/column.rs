@@ -1,4 +1,4 @@
-use std::{cell::{Ref, RefCell}};
+use std::cell::{Ref, RefCell};
 
 use chiropterm::{Brush, CellSize};
 use euclid::{rect, size2};
