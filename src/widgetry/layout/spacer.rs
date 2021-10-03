@@ -26,10 +26,10 @@ impl<Out> Default for SpacerState<Out> {
 impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for SpacerState<Out> {
     type Out = Out;
 
-    fn draw<'frame>(&self, _selected: bool, brush: Brush, _menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
+    fn draw<'frame>(&self, _: bool, _: Brush, _: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
     }
 
-    fn estimate_dimensions(&self, _: &UI, width: isize) -> WidgetDimensions {
+    fn estimate_dimensions(&self, _: &UI, _: isize) -> WidgetDimensions {
         // TODO: Find a more efficient way to do this
         WidgetDimensions {
             min: size2(0, 0),

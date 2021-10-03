@@ -100,6 +100,9 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
         let mut max_h = 0;
 
         let mut vertical_spacer_count = 0;
+        // with no widgets: don't suddenly become a spacer
+        // with widgets: be as much of a spacer as the widgets inside
+        let mut horizontal_spacer_count = if self.widgets.len() > 0 { usize::MAX } else { 0 };
 
         for w in self.widgets.iter() {
             let dim = w.estimate_dimensions(ui, width);
@@ -114,14 +117,16 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
             max_h += dim.max.height;
 
             vertical_spacer_count += dim.vertical_spacer_count;
+            horizontal_spacer_count = horizontal_spacer_count.min(dim.horizontal_spacer_count);
         }
+        assert_ne!(horizontal_spacer_count, usize::MAX);
 
         let dims = WidgetDimensions {
             min: size2(min_wmax, min_h),
             preferred: size2(preferred_wmax, preferred_h),
             max: size2(max_wmax, max_h),
             align_size_to: size2(1, 1),
-            horizontal_spacer_count: 0,
+            horizontal_spacer_count,
             vertical_spacer_count: vertical_spacer_count,
         };
 
@@ -137,7 +142,7 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
 
         for (w, widg) in self.widgets.iter().enumerate() {
             let dim = widg.estimate_dimensions(ui, size.width);
-            for i in 0..dim.vertical_spacer_count {
+            for _ in 0..dim.vertical_spacer_count {
                 likes_being_resized.push(w)
             }
             minimum.push(dim.min.height);

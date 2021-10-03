@@ -52,7 +52,7 @@ impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ButtonState<'games
         brush.interactor(click_interactor, theme.preclick).putfs(&self.text);
     }
 
-    fn estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
+    fn estimate_dimensions(&self, _ui: &UI, width: isize) -> WidgetDimensions {
         // TODO: Find a more efficient way to do this
         let stamp = Stamp::new();
         let brush = stamp.brush_at(rect(0, 0, width, isize::MAX));
