@@ -18,7 +18,7 @@ impl WidgetDimensions {
             min: size2(0, 0),
             preferred: size2(0, 0),
             max: size2(0, 0),
-            align_size_to: size2(0, 0),
+            align_size_to: size2(1, 1),
             horizontal_spacer_count: 0,
             vertical_spacer_count: 0,
         }

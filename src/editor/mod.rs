@@ -3,7 +3,7 @@ use std::{process::exit};
 use chiropterm::*;
 use euclid::*;
 use moogle::Id;
-use crate::{terrain::{Room, Terrain}, widgetry::{Button, Column, InputBox, Label, Row, Spacer, Theme, UI, Window}};
+use crate::{terrain::{Room, Terrain}, widgetry::{Button, Canvas, Column, InputBox, Label, Row, Spacer, Theme, UI, Window}};
 
 const ASPECT_CONFIG: AspectConfig = AspectConfig {
     pref_min_term_size: size2(80, 50),  // but expect ~112x60
@@ -81,9 +81,16 @@ fn load_file(io: &mut IO) -> Terrain {
         c.add(Row::new().setup(|r| {
             r.add(prompt1.setup(|f| f.layout_hacks.expand_horizontally = true).share());
             r.add(prompt2.share());
-            r.add(prompt3.setup(|f| f.layout_hacks.preferred_height = Some(1)).share());
+            r.add(prompt3.share());
             r.add(prompt4.share());
-            r.layout_hacks.preferred_height = Some(1);
+        }));
+        c.add(Canvas::new().setup(|c| {
+            c.layout_hacks.preferred_width = Some(30);
+            c.layout_hacks.preferred_height = Some(8);
+            c.set_draw(|b, _| {
+                use colors::*;
+                b.fill(FSem::new().color((LtRed[2], LtYellow[2])))
+            })
         }));
         c.add(button);
         c.add(Spacer::new());

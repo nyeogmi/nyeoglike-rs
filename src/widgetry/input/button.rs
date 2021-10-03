@@ -28,6 +28,12 @@ impl<'gamestate, Out> Default for ButtonState<'gamestate, Out> {
     }
 }
 
+impl<'gamestate, Out> ButtonState<'gamestate, Out> {
+    pub fn set_command(&mut self, cmd: impl 'gamestate+FnMut(UI, &mut WidgetCommon<ButtonState<'gamestate, Out>>, MouseEvent) -> Signal<Out>) {
+        self.command = Some(Box::new(cmd))
+    }
+}
+
 impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ButtonState<'gamestate, Out> {
     type Out = Out;
 
