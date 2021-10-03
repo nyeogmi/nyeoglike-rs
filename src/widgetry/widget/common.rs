@@ -42,6 +42,10 @@ impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
         new_dims
     }
 
+    pub fn apply_layout_hacks(&self, wd: WidgetDimensions) -> WidgetDimensions {
+        self.unique.layout_hacks().apply(wd)
+    }
+
     pub fn clear_layout_cache_if_needed(&self, ui: &UI) {
         if self.layout_token.get() < ui.layout_token() {
             self.last_dimensions.replace((-1, WidgetDimensions::zero()));

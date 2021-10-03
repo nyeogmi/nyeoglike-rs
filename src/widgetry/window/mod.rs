@@ -1,7 +1,7 @@
 use chiropterm::*;
 use euclid::{rect, size2};
 
-use super::{UI, Widget, WidgetDimensions, WidgetMenu, Widgetlike, look_and_feel::WindowBorders, widget::AnyWidget};
+use super::{UI, Widget, WidgetDimensions, WidgetMenu, Widgetlike, look_and_feel::WindowBorders, widget::{AnyWidget, LayoutHacks}};
 
 pub type Window<'gamestate, Out> = Widget<'gamestate, WindowState<'gamestate, Out>, Out>;
 
@@ -10,6 +10,8 @@ pub type Window<'gamestate, Out> = Widget<'gamestate, WindowState<'gamestate, Ou
 pub struct WindowState<'gamestate, Out> {
     pub title: Option<String>,
     widget: Option<AnyWidget<'gamestate, Out>>,
+
+    pub layout_hacks: LayoutHacks,
 }
 
 impl<'gamestate, Out> Default for WindowState<'gamestate, Out> {
@@ -17,6 +19,8 @@ impl<'gamestate, Out> Default for WindowState<'gamestate, Out> {
         WindowState { 
             title: None,
             widget: None,
+
+            layout_hacks: LayoutHacks::new(),
         }
     }
 }
@@ -101,6 +105,8 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for WindowState<'gamest
             w.clear_layout_cache_if_needed(ui)
         }
     }
+
+    fn layout_hacks(&self) -> LayoutHacks { self.layout_hacks }
 }
 
 impl<'gamestate, Out: 'gamestate> WindowState<'gamestate, Out> {

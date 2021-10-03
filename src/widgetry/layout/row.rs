@@ -4,7 +4,7 @@ use chiropterm::{Brush, CellSize};
 use euclid::{rect, size2};
 use smallvec::SmallVec;
 
-use crate::widgetry::{UI, Widget, WidgetDimensions, WidgetMenu, Widgetlike, widget::AnyWidget};
+use crate::widgetry::{UI, Widget, WidgetDimensions, WidgetMenu, Widgetlike, widget::{AnyWidget, LayoutHacks}};
 
 // Smallvec size -- set this to "higher than most users will ever put in one column/row"
 const SM: usize = 32;
@@ -15,6 +15,8 @@ pub struct RowState<'gamestate, Out> {
     widgets: SmallVec<[AnyWidget<'gamestate, Out>; SM]>,
     plots_desired: RefCell<(isize, (Plots, WidgetDimensions))>,
     plots_practical: RefCell<(CellSize, Plots)>,
+
+    pub layout_hacks: LayoutHacks,
 }
 
 impl<'gamestate, Out> Default for RowState<'gamestate, Out> {
@@ -23,6 +25,8 @@ impl<'gamestate, Out> Default for RowState<'gamestate, Out> {
             widgets: SmallVec::new(),
             plots_desired: RefCell::new((-1, (Plots::new(), WidgetDimensions::zero()))),
             plots_practical: RefCell::new((size2(-1, -1), Plots::new())),
+
+            layout_hacks: LayoutHacks::new(),
         }
     }
 }
@@ -53,6 +57,8 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for RowState<'gamestate
             i.clear_layout_cache_if_needed(&ui)
         }
     }
+
+    fn layout_hacks(&self) -> LayoutHacks { self.layout_hacks }
 }
 
 impl<'gamestate, Out: 'gamestate> RowState<'gamestate, Out> {
@@ -142,7 +148,7 @@ impl<'gamestate, Out: 'gamestate> RowState<'gamestate, Out> {
 
         for (w, widg) in self.widgets.iter().enumerate() {
             let dim = widg.estimate_dimensions(ui, size.width);
-            for _ in 0..dim.vertical_spacer_count {
+            for _ in 0..dim.horizontal_spacer_count {
                 likes_being_resized.push(w)
             }
             minimum.push(dim.min.width);

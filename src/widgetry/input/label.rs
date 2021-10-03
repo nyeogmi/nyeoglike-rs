@@ -3,13 +3,14 @@ use std::marker::PhantomData;
 use chiropterm::{Brush, Brushable, Stamp};
 use euclid::{rect, size2};
 
-use crate::widgetry::{UI, Widget, WidgetDimensions, WidgetMenu, Widgetlike};
+use crate::widgetry::{UI, Widget, WidgetDimensions, WidgetMenu, Widgetlike, widget::LayoutHacks};
 
 pub type Label<'gamestate, Out> = Widget<'gamestate, LabelState<Out>, Out>;
 
 pub struct LabelState<Out> {
     pub text: String,
 
+    pub layout_hacks: LayoutHacks,
     phantom: PhantomData<*const Out>,
 }
 
@@ -18,6 +19,7 @@ impl<Out> Default for LabelState<Out> {
         Self {
             text: "".to_owned(),
 
+            layout_hacks: LayoutHacks::new(),
             phantom: PhantomData,
         }
     }
@@ -47,4 +49,6 @@ impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for LabelState<Out> {
     }
 
     fn clear_layout_cache(&self, _: &UI) { }
+
+    fn layout_hacks(&self) -> LayoutHacks { self.layout_hacks }
 }

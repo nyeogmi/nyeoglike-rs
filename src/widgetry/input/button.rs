@@ -3,7 +3,7 @@ use std::{marker::PhantomData};
 use chiropterm::{Brush, Brushable, MouseEvent, Signal, Stamp};
 use euclid::{rect, size2};
 
-use crate::widgetry::{UI, Widget, WidgetCommon, WidgetDimensions, WidgetMenu, Widgetlike};
+use crate::widgetry::{UI, Widget, WidgetCommon, WidgetDimensions, WidgetMenu, Widgetlike, widget::LayoutHacks};
 
 pub type Button<'gamestate, Out> = Widget<'gamestate, ButtonState<'gamestate, Out>, Out>;
 
@@ -12,6 +12,7 @@ pub struct ButtonState<'gamestate, Out> {
     pub text: String,
     pub command: Option<Box<dyn 'gamestate+FnMut(UI, &mut WidgetCommon<ButtonState<'gamestate, Out>>, MouseEvent) -> Signal<Out>>>,
 
+    pub layout_hacks: LayoutHacks,
     phantom: PhantomData<*const Out>,
 }
 
@@ -21,6 +22,7 @@ impl<'gamestate, Out> Default for ButtonState<'gamestate, Out> {
             text: "".to_owned(),
             command: None,
 
+            layout_hacks: LayoutHacks::new(),
             phantom: PhantomData,
         }
     }
@@ -69,4 +71,6 @@ impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ButtonState<'games
     }
 
     fn clear_layout_cache(&self, _: &UI) { }
+
+    fn layout_hacks(&self) -> LayoutHacks { self.layout_hacks }
 }

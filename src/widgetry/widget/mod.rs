@@ -1,5 +1,6 @@
 mod common;
 mod dimensions;
+mod layout_hacks;
 mod menu;
 mod polymorphic;
 
@@ -9,6 +10,7 @@ use chiropterm::*;
 
 pub use self::common::WidgetCommon;
 pub use self::dimensions::WidgetDimensions;
+pub use self::layout_hacks::LayoutHacks;
 pub use self::menu::WidgetMenu;
 pub(in crate::widgetry) use self::polymorphic::AnyWidget;
 
@@ -52,7 +54,7 @@ impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, 
 
     pub fn draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame, Out>) 
     where 'gamestate: 'frame {
-        let brush = self.estimate_dimensions(&ui, brush.rect().width()).tailor(brush);
+        let brush = self.internal_estimate_dimensions(&ui, brush.rect().width()).tailor(brush);
         let offset = brush.cursor_offset();
         let widget_menu = WidgetMenu { 
             ui, state: self.state.clone(), menu, brush_offset: offset, phantom: PhantomData
@@ -61,6 +63,12 @@ impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, 
     }
 
     pub fn estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
+        let mut dims = self.internal_estimate_dimensions(ui, width);
+        dims = self.state.borrow().apply_layout_hacks(dims);
+        dims
+    }
+
+    fn internal_estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
         self.clear_layout_cache_if_needed(ui);
         self.state.borrow().estimate_dimensions(ui, width)
     }
@@ -76,4 +84,5 @@ pub trait Widgetlike<'gamestate>: 'gamestate+Default+Sized {
     fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>);
     fn estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions;
     fn clear_layout_cache(&self, ui: &UI);
+    fn layout_hacks(&self) -> LayoutHacks;
 }

@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use chiropterm::{Brush};
 use euclid::{size2};
 
-use crate::widgetry::{UI, Widget, WidgetDimensions, WidgetMenu, Widgetlike};
+use crate::widgetry::{UI, Widget, WidgetDimensions, WidgetMenu, Widgetlike, widget::LayoutHacks};
 
 pub type Spacer<'gamestate, Out> = Widget<'gamestate, SpacerState<Out>, Out>;
 
@@ -11,6 +11,8 @@ pub struct SpacerState<Out> {
     phantom: PhantomData<*const Out>,
     pub horiz_count: usize,
     pub vert_count: usize,
+
+    pub layout_hacks: LayoutHacks,
 }
 
 impl<Out> Default for SpacerState<Out> {
@@ -19,6 +21,8 @@ impl<Out> Default for SpacerState<Out> {
             phantom: PhantomData,
             horiz_count: 1,
             vert_count: 1,
+
+            layout_hacks: LayoutHacks::new(),
         }
     }
 }
@@ -42,4 +46,6 @@ impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for SpacerState<Out> {
     }
 
     fn clear_layout_cache(&self, _: &UI) { }
+
+    fn layout_hacks(&self) -> LayoutHacks { self.layout_hacks }
 }

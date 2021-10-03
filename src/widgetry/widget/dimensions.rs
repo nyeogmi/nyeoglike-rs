@@ -1,7 +1,7 @@
 use chiropterm::*;
 use euclid::{rect, size2};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct WidgetDimensions {
     // widget will force its width below this if possible
     pub min: CellSize,
@@ -31,7 +31,6 @@ impl WidgetDimensions {
     }
 
     pub fn tailor<'a>(&self, brush: Brush<'a>) -> Brush<'a> {
-        // TODO: Make the brush region bigger if it's too small, or smaller if it's too big
         let existing_size = brush.rect().size;
 
         let region = brush.region(rect(

@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use chiropterm::*;
 use euclid::{rect, size2};
 
-use crate::widgetry::{UI, Widget, WidgetDimensions, Widgetlike, widget::WidgetMenu};
+use crate::widgetry::{UI, Widget, WidgetDimensions, Widgetlike, widget::{LayoutHacks, WidgetMenu}};
 
 pub type InputBox<'gamestate, Out> = Widget<'gamestate, InputBoxState<Out>, Out>;
 
@@ -13,6 +13,7 @@ pub struct InputBoxState<Out> {
     cursor_r: usize,
     // TODO: Store left position of window
 
+    pub layout_hacks: LayoutHacks,
     phantom: PhantomData<*const Out>,
 }
 
@@ -23,6 +24,7 @@ impl<Out> Default for InputBoxState<Out> {
             cursor_l: 0,
             cursor_r: 0,
 
+            layout_hacks: LayoutHacks::new(),
             phantom: PhantomData,
         }
     }
@@ -100,7 +102,10 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for InputBoxState<Out> 
     }
 
     fn clear_layout_cache(&self, _: &UI) { }
+
+    fn layout_hacks(&self) -> LayoutHacks { self.layout_hacks }
 }
+
 impl<Out> InputBoxState<Out> {
     fn type_character(&mut self, character: char) {
         if self.cursor_l != self.cursor_r {
