@@ -1,4 +1,4 @@
-use super::WidgetDimensions;
+use super::ExternalWidgetDimensions;
 
 #[derive(Clone, Copy)]
 pub struct LayoutHacks {
@@ -21,7 +21,7 @@ impl LayoutHacks {
         }
     }
 
-    pub fn apply(&self, mut wd: WidgetDimensions) -> WidgetDimensions {
+    pub fn apply(&self, mut wd: ExternalWidgetDimensions) -> ExternalWidgetDimensions {
         if self.expand_horizontally { 
             wd.horizontal_spacer_count = wd.horizontal_spacer_count.max(1); 
         };
@@ -31,12 +31,10 @@ impl LayoutHacks {
         if let Some(w) = self.preferred_width {
             wd.preferred.width = w as isize;
             wd.min.width = wd.min.width.min(w as isize);
-            wd.max.width = wd.max.width.max(w as isize);
         }
         if let Some(h) = self.preferred_height {
             wd.preferred.height = h as isize;
             wd.min.height = wd.min.height.min(h as isize);
-            wd.max.height = wd.max.height.max(h as isize);
         }
         wd
     }

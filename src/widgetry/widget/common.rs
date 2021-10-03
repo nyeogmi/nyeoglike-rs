@@ -4,14 +4,14 @@ use chiropterm::{Brush};
 
 use crate::widgetry::{UI, ui::Selection};
 
-use super::{WidgetDimensions, WidgetMenu, Widgetlike};
+use super::{ExternalWidgetDimensions, InternalWidgetDimensions, WidgetMenu, Widgetlike};
 
 pub struct WidgetCommon<T> {
     pub unique: T,
     pub(in crate::widgetry) selection: Selection,
     pub(in crate::widgetry) layout_token: Cell<u64>,
 
-    last_dimensions: Cell<(isize, WidgetDimensions)>,
+    last_dimensions: Cell<(isize, InternalWidgetDimensions)>,
 }
 
 impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
@@ -19,7 +19,7 @@ impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
         WidgetCommon {
             unique: value,
             selection: Selection::not_selected(),
-            last_dimensions: Cell::new((-1, WidgetDimensions::zero())),
+            last_dimensions: Cell::new((-1, InternalWidgetDimensions::zero())),
             layout_token: Cell::new(0),
         }
     }
@@ -28,7 +28,7 @@ impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
         self.unique.draw(menu.ui.is_selected(self.selection), brush, menu)
     }
 
-    pub fn estimate_dimensions(&self, ui: &UI, mut width: isize) -> WidgetDimensions {
+    pub fn estimate_dimensions(&self, ui: &UI, mut width: isize) -> InternalWidgetDimensions {
         if width < 0 { width = 0; }
         // TODO: If it's 0, provide a stock answer
 
@@ -42,13 +42,13 @@ impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
         new_dims
     }
 
-    pub fn apply_layout_hacks(&self, wd: WidgetDimensions) -> WidgetDimensions {
+    pub fn apply_layout_hacks(&self, wd: ExternalWidgetDimensions) -> ExternalWidgetDimensions {
         self.unique.layout_hacks().apply(wd)
     }
 
     pub fn clear_layout_cache_if_needed(&self, ui: &UI) {
         if self.layout_token.get() < ui.layout_token() {
-            self.last_dimensions.replace((-1, WidgetDimensions::zero()));
+            self.last_dimensions.replace((-1, InternalWidgetDimensions::zero()));
             self.unique.clear_layout_cache(&ui);
             self.layout_token.replace(ui.layout_token());
         }

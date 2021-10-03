@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use chiropterm::*;
 use euclid::{rect, size2};
 
-use crate::widgetry::{UI, Widget, WidgetDimensions, Widgetlike, widget::{LayoutHacks, WidgetMenu}};
+use crate::widgetry::{InternalWidgetDimensions, UI, Widget, Widgetlike, widget::{LayoutHacks, WidgetMenu}};
 
 pub type InputBox<'gamestate, Out> = Widget<'gamestate, InputBoxState<Out>, Out>;
 
@@ -90,11 +90,11 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for InputBoxState<Out> 
         }
     }
 
-    fn estimate_dimensions(&self, _: &UI, width: isize) -> WidgetDimensions {
-        WidgetDimensions { 
+    fn estimate_dimensions(&self, _: &UI, width: isize) -> InternalWidgetDimensions {
+        InternalWidgetDimensions { 
             min: size2(8, 2),
             preferred: size2(8.max(self.text.len() as isize), 2),
-            max: size2(width, 2),
+            max: None,
             align_size_to: size2(1, 2),
             horizontal_spacer_count: 0,
             vertical_spacer_count: 0,

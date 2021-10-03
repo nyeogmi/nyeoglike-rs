@@ -1,30 +1,34 @@
 use chiropterm::*;
 use euclid::{rect, size2};
 
+use super::ExternalWidgetDimensions;
+
+// TODO: "InternalWidgetDimensions" with an optional max and align
+// ExternalWidgetDimensions with no max or align
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct WidgetDimensions {
+pub struct InternalWidgetDimensions {
     // widget will force its width below this if possible
     pub min: CellSize,
     pub preferred: CellSize,
-    pub max: CellSize,
+    pub max: Option<CellSize>,
     pub align_size_to: CellSize,
     pub horizontal_spacer_count: usize,
     pub vertical_spacer_count: usize,
 }
 
-impl WidgetDimensions {
-    pub const fn zero() -> WidgetDimensions {
-        WidgetDimensions {
+impl InternalWidgetDimensions {
+    pub const fn zero() -> InternalWidgetDimensions {
+        InternalWidgetDimensions {
             min: size2(0, 0),
             preferred: size2(0, 0),
-            max: size2(0, 0),
+            max: None,
             align_size_to: size2(1, 1),
             horizontal_spacer_count: 0,
             vertical_spacer_count: 0,
         }
     }
 
-    pub(crate) fn fixup(mut self) -> WidgetDimensions {
+    pub(crate) fn fixup(mut self) -> InternalWidgetDimensions {
         // TODO: fix impossibilities
         self = self.shape_to_align(self.align_size_to);
         self
@@ -41,15 +45,23 @@ impl WidgetDimensions {
 
         let existing_size = brush.rect().size;
 
-        let region = region.region(rect(
-            0, 0,
-            self.min.width.max(self.max.width.min(existing_size.width)),
-            self.min.height.max(self.max.height.min(existing_size.height)),
-        ));
+        let region = if let Some(max) = self.max {
+            region.region(rect(
+                0, 0,
+                self.min.width.max(max.width.min(existing_size.width)),
+                self.min.height.max(max.height.min(existing_size.height)),
+            ))
+        } else {
+            region.region(rect(
+                0, 0,
+                self.min.width.max(existing_size.width),
+                self.min.height.max(existing_size.height),
+            ))
+        };
         region
     }
 
-    pub(crate) fn shape_to_align(mut self, align: CellSize) -> WidgetDimensions {
+    pub(crate) fn shape_to_align(mut self, align: CellSize) -> InternalWidgetDimensions {
         fn fix(align: CellSize, mut sz: CellSize) -> CellSize {
             if align.width > 0 && sz.width % align.width != 0 {
                 sz.width += align.width - (sz.width % align.width);
@@ -62,21 +74,37 @@ impl WidgetDimensions {
 
         self.min = fix(align, self.min);
         self.preferred = fix(align, self.preferred);
-        self.max = fix(align, self.max);
+        if let Some(max) = self.max {
+            self.max = Some(fix(align, max));
+        }
 
         self
     }
 
-    pub(crate) fn increase(mut self, amt: CellSize) -> WidgetDimensions {
+    pub(crate) fn increase(mut self, amt: CellSize) -> InternalWidgetDimensions {
         self.min.width += amt.width;
         self.min.height += amt.height;
 
         self.preferred.width += amt.width;
         self.preferred.height += amt.height;
 
-        self.max.width += amt.width;
-        self.max.height += amt.height;
+        if let Some(mut max) = self.max {
+            max.width += amt.width;
+            max.height += amt.height;
+            self.max = Some(max);
+        }
 
         self
+    }
+
+    pub(crate) fn to_external(mut self) -> super::ExternalWidgetDimensions {
+        self = self.fixup();
+        ExternalWidgetDimensions {
+            min: self.min,
+            preferred: self.preferred,
+            align_size_to: self.align_size_to,
+            horizontal_spacer_count: self.horizontal_spacer_count,
+            vertical_spacer_count: self.vertical_spacer_count,
+        }
     }
 }

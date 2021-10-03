@@ -1,7 +1,7 @@
 use chiropterm::*;
 use euclid::{rect, size2};
 
-use super::{UI, Widget, WidgetDimensions, WidgetMenu, Widgetlike, look_and_feel::WindowBorders, widget::{AnyWidget, LayoutHacks}};
+use super::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, look_and_feel::WindowBorders, widget::{AnyWidget, LayoutHacks}};
 
 pub type Window<'gamestate, Out> = Widget<'gamestate, WindowState<'gamestate, Out>, Out>;
 
@@ -72,7 +72,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for WindowState<'gamest
         }
     }
 
-    fn estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
+    fn estimate_dimensions(&self, ui: &UI, width: isize) -> InternalWidgetDimensions {
         let ((pad_x, pad_y), (align_x, align_y)) = match ui.theme().window.borders {
             WindowBorders::W95 { .. } => {
                 if self.title.is_some() {
@@ -85,19 +85,23 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for WindowState<'gamest
                 ((4, 4), (2, 2))
             }
         };
-        let mut d1 = if let Some(w) = self.widget.as_ref() {
+        let d1 = if let Some(w) = self.widget.as_ref() {
             w.estimate_dimensions(ui, width)
         } else {
-            WidgetDimensions::zero()
+            InternalWidgetDimensions::zero().to_external()
         };
-        d1 = d1.shape_to_align(size2(align_x, align_y));
-        d1 = d1.increase(size2(pad_x, pad_y));
-        d1.max = size2(1600, 1600);  // pointlessly huge
-        d1.align_size_to = size2(align_x, align_y);
-        // don't pass spacers through
-        d1.horizontal_spacer_count = 0;
-        d1.vertical_spacer_count = 0;
-        d1
+
+        let mut size = InternalWidgetDimensions { 
+            min: d1.min,
+            preferred: d1.preferred,
+            max: None,
+            align_size_to: size2(align_x, align_y),
+            // don't pass spacers through
+            horizontal_spacer_count: 0,
+            vertical_spacer_count: 0
+        };
+        size = size.increase(size2(pad_x, pad_y));
+        size
     }
 
     fn clear_layout_cache(&self, ui: &UI) { 

@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use chiropterm::{Brush};
 
-use crate::widgetry::{UI, Widget, WidgetDimensions, WidgetMenu, Widgetlike, widget::LayoutHacks};
+use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, widget::LayoutHacks};
 
 pub type Canvas<'gamestate, Out> = Widget<'gamestate, CanvasState<'gamestate, Out>, Out>;
 
@@ -37,12 +37,9 @@ impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for CanvasState<'games
         }
     }
 
-    fn estimate_dimensions(&self, _: &UI, _width: isize) -> WidgetDimensions {
-        // NOTE: Use the layout hacks for this
-        let mut wd = WidgetDimensions::zero();
-        wd.max.width = 1600;
-        wd.max.height = 1600;
-        wd
+    fn estimate_dimensions(&self, _: &UI, _width: isize) -> InternalWidgetDimensions {
+        // let the client use layout hacks
+        InternalWidgetDimensions::zero()
     }
 
     fn clear_layout_cache(&self, _: &UI) { }

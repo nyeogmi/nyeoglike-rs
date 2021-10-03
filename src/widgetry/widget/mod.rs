@@ -9,7 +9,7 @@ use std::{cell::{Ref, RefCell, RefMut}, marker::PhantomData, rc::Rc};
 use chiropterm::*;
 
 pub use self::common::WidgetCommon;
-pub use self::dimensions::WidgetDimensions;
+pub use self::dimensions::{InternalWidgetDimensions, ExternalWidgetDimensions};
 pub use self::layout_hacks::LayoutHacks;
 pub use self::menu::WidgetMenu;
 pub(in crate::widgetry) use self::polymorphic::AnyWidget;
@@ -62,13 +62,13 @@ impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, 
         self.state.borrow().draw(brush, widget_menu);
     }
 
-    pub fn estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
-        let mut dims = self.internal_estimate_dimensions(ui, width);
+    pub fn estimate_dimensions(&self, ui: &UI, width: isize) -> ExternalWidgetDimensions {
+        let mut dims = self.internal_estimate_dimensions(ui, width).to_external();
         dims = self.state.borrow().apply_layout_hacks(dims);
         dims
     }
 
-    fn internal_estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
+    fn internal_estimate_dimensions(&self, ui: &UI, width: isize) -> InternalWidgetDimensions {
         self.clear_layout_cache_if_needed(ui);
         self.state.borrow().estimate_dimensions(ui, width)
     }
@@ -82,7 +82,7 @@ pub trait Widgetlike<'gamestate>: 'gamestate+Default+Sized {
     type Out: 'gamestate;
 
     fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>);
-    fn estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions;
+    fn estimate_dimensions(&self, ui: &UI, width: isize) ->InternalWidgetDimensions;
     fn clear_layout_cache(&self, ui: &UI);
     fn layout_hacks(&self) -> LayoutHacks;
 }

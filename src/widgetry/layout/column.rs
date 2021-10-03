@@ -4,7 +4,7 @@ use chiropterm::{Brush, CellSize};
 use euclid::{rect, size2};
 use smallvec::SmallVec;
 
-use crate::widgetry::{UI, Widget, WidgetDimensions, WidgetMenu, Widgetlike, widget::{AnyWidget, LayoutHacks}};
+use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, widget::{AnyWidget, LayoutHacks}};
 
 // Smallvec size -- set this to "higher than most users will ever put in one column/row"
 const SM: usize = 32;
@@ -13,7 +13,7 @@ pub type Column<'gamestate, Out> = Widget<'gamestate, ColumnState<'gamestate, Ou
 
 pub struct ColumnState<'gamestate, Out> {
     widgets: SmallVec<[AnyWidget<'gamestate, Out>; SM]>,
-    plots_desired: RefCell<(isize, (Plots, WidgetDimensions))>,
+    plots_desired: RefCell<(isize, (Plots, InternalWidgetDimensions))>,
     plots_practical: RefCell<(CellSize, Plots)>,
 
     pub layout_hacks: LayoutHacks,
@@ -23,7 +23,7 @@ impl<'gamestate, Out> Default for ColumnState<'gamestate, Out> {
     fn default() -> Self {
         ColumnState { 
             widgets: SmallVec::new(),
-            plots_desired: RefCell::new((-1, (Plots::new(), WidgetDimensions::zero()))),
+            plots_desired: RefCell::new((-1, (Plots::new(), InternalWidgetDimensions::zero()))),
             plots_practical: RefCell::new((size2(-1, -1), Plots::new())),
 
             layout_hacks: LayoutHacks::new(),
@@ -46,13 +46,13 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ColumnState<'gamest
         }
     }
 
-    fn estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
+    fn estimate_dimensions(&self, ui: &UI, width: isize) -> InternalWidgetDimensions {
         let plots = self.get_plots_desired(ui, width);
         plots.1.1
     }
 
     fn clear_layout_cache(&self, ui: &UI) {
-        self.plots_desired.replace((-1, (Plots::new(), WidgetDimensions::zero())));
+        self.plots_desired.replace((-1, (Plots::new(), InternalWidgetDimensions::zero())));
         self.plots_practical.replace((size2(-1, -1), Plots::new()));
         for i in self.widgets.iter() {
             i.clear_layout_cache_if_needed(&ui)
@@ -69,7 +69,7 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
 }
 
 impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
-    fn get_plots_desired(&self, ui: &UI, width: isize) -> Ref<'_, (isize, (Plots, WidgetDimensions))> {
+    fn get_plots_desired(&self, ui: &UI, width: isize) -> Ref<'_, (isize, (Plots, InternalWidgetDimensions))> {
         {
             let b = self.plots_desired.borrow();
             let (sz, (pl, _)) = &*b;
@@ -95,13 +95,12 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
 }
 
 impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
-    fn internal_compute_plots_desired(&self, ui: &UI, width: isize) -> (Plots, WidgetDimensions) {
+    fn internal_compute_plots_desired(&self, ui: &UI, width: isize) -> (Plots, InternalWidgetDimensions) {
         // TODO: Use the cache
         let mut preferred: SmallVec<[isize; SM]> = SmallVec::new();
 
         let mut min_wmax = 0;
         let mut preferred_wmax = 0;
-        let mut max_wmax = 0;
 
         let mut min_h = 0;
         let mut preferred_h = 0;
@@ -118,21 +117,19 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
 
             min_wmax = min_wmax.max(dim.min.width);
             preferred_wmax = preferred_wmax.max(dim.preferred.width);
-            max_wmax = max_wmax.max(dim.max.width);
 
             min_h += dim.min.height;
             preferred_h += dim.preferred.height;
-            max_h += dim.max.height;
 
             vertical_spacer_count += dim.vertical_spacer_count;
             horizontal_spacer_count = horizontal_spacer_count.min(dim.horizontal_spacer_count);
         }
         assert_ne!(horizontal_spacer_count, usize::MAX);
 
-        let dims = WidgetDimensions {
+        let dims = InternalWidgetDimensions {
             min: size2(min_wmax, min_h),
             preferred: size2(preferred_wmax, preferred_h),
-            max: size2(max_wmax, max_h),
+            max: None,
             align_size_to: size2(1, 1),
             horizontal_spacer_count,
             vertical_spacer_count,
@@ -145,7 +142,6 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
         let mut likes_being_resized: SmallVec<[usize; SM]> = SmallVec::new();
         let mut minimum: SmallVec<[isize; SM]> = SmallVec::new();
         let mut practical: SmallVec<[isize; SM]> = SmallVec::new();
-        let mut maximum: SmallVec<[isize; SM]> = SmallVec::new();
         let mut align: SmallVec<[isize; SM]> = SmallVec::new();
 
         for (w, widg) in self.widgets.iter().enumerate() {
@@ -155,7 +151,6 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
             }
             minimum.push(dim.min.height);
             practical.push(dim.preferred.height);
-            maximum.push(dim.max.height);
             align.push(dim.align_size_to.height);
         }
 
