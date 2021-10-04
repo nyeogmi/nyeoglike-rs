@@ -4,12 +4,12 @@ use crate::widgetry::UI;
 
 use super::{WidgetDimensions, Widget, WidgetMenu, Widgetlike};
 
-pub struct AnyWidget<'gamestate, Out> {
-    implementation: Box<dyn AWidget<'gamestate, Out>>,
+pub struct AnyWidget<'gamestate> {
+    implementation: Box<dyn AWidget<'gamestate>>,
 }
 
-impl<'gamestate, Out: 'gamestate> AnyWidget<'gamestate, Out> {
-    pub fn wrap<X: Widgetlike<'gamestate, Out=Out>>(widget: Widget<'gamestate, X, Out>) -> AnyWidget<'gamestate, Out> {
+impl<'gamestate> AnyWidget<'gamestate> {
+    pub fn wrap<X: Widgetlike<'gamestate>>(widget: Widget<'gamestate, X>) -> AnyWidget<'gamestate> {
         AnyWidget { 
             implementation: Box::new(widget)
         }
@@ -19,7 +19,7 @@ impl<'gamestate, Out: 'gamestate> AnyWidget<'gamestate, Out> {
         self.implementation.poly_estimate_dimensions(ui, width)
     }
 
-    pub fn draw<'frame, X: Widgetlike<'gamestate, Out=Out>>(&self, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, X, Out>) {
+    pub fn draw<'frame, X: Widgetlike<'gamestate>>(&self, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, X>) {
         let ui = menu.ui;
         let menu = menu.menu;
 
@@ -31,19 +31,19 @@ impl<'gamestate, Out: 'gamestate> AnyWidget<'gamestate, Out> {
     }
 }
 
-trait AWidget<'gamestate, Out>: 'gamestate {
+trait AWidget<'gamestate>: 'gamestate {
     fn poly_estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions;
-    fn poly_draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame, Out>)
+    fn poly_draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame>)
     where 'gamestate: 'frame;
     fn poly_clear_layout_cache_if_needed(&self, ui: &UI);
 }
 
-impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out: 'gamestate> AWidget<'gamestate, Out> for Widget<'gamestate, T, Out> {
+impl<'gamestate, T: Widgetlike<'gamestate>> AWidget<'gamestate> for Widget<'gamestate, T> {
     fn poly_estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
         self.estimate_dimensions(ui, width)
     }
 
-    fn poly_draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame, Out>) 
+    fn poly_draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame>) 
     where 'gamestate: 'frame {
         self.draw(ui, brush, menu)
     }

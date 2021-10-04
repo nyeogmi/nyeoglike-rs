@@ -1,26 +1,20 @@
-use std::marker::PhantomData;
-
 use chiropterm::{Brush};
 use euclid::{size2};
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, widget::LayoutHacks};
 
-pub type Spacer<'gamestate, Out> = Widget<'gamestate, SpacerState<Out>, Out>;
+pub type Spacer<'gamestate> = Widget<'gamestate, SpacerState>;
 
-pub struct SpacerState<Out> {
-    phantom: PhantomData<*const Out>,
+pub struct SpacerState {
     pub horiz_count: usize,
     pub vert_count: usize,
 
     pub layout_hacks: LayoutHacks,
 }
 
-impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for SpacerState<Out> {
-    type Out = Out;
-
+impl <'gamestate> Widgetlike<'gamestate> for SpacerState {
     fn create() -> Self {
         Self {
-            phantom: PhantomData,
             horiz_count: 1,
             vert_count: 1,
 
@@ -28,7 +22,7 @@ impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for SpacerState<Out> {
         }
     }
 
-    fn draw<'frame>(&self, _: bool, _: Brush, _: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
+    fn draw<'frame>(&self, _: bool, _: Brush, _: WidgetMenu<'gamestate, 'frame, Self>) {
     }
 
     fn estimate_dimensions(&self, _: &UI, _: isize) -> InternalWidgetDimensions {

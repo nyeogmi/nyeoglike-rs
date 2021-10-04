@@ -4,16 +4,16 @@ use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetli
 
 use super::{Column, Container, Row};
 
-pub type Border<'gamestate, Out> = Widget<'gamestate, BorderState<'gamestate, Out>, Out>;
+pub type Border<'gamestate> = Widget<'gamestate, BorderState<'gamestate>>;
 
-pub struct BorderState<'gamestate, Out: 'gamestate> {
-    column: Column<'gamestate, Out>,
+pub struct BorderState<'gamestate> {
+    column: Column<'gamestate>,
 
-    north: Container<'gamestate, Out>,
-    west: Container<'gamestate, Out>,
-    center: Container<'gamestate, Out>,
-    east: Container<'gamestate, Out>,
-    south: Container<'gamestate, Out>,
+    north: Container<'gamestate>,
+    west: Container<'gamestate>,
+    center: Container<'gamestate>,
+    east: Container<'gamestate>,
+    south: Container<'gamestate>,
 
     pub layout_hacks: LayoutHacks,
 }
@@ -22,8 +22,8 @@ pub enum BorderSlot {
     North, West, East, South, Center,
 }
 
-impl <'gamestate, Out: 'gamestate> BorderState<'gamestate, Out> {
-    pub fn set<X: Widgetlike<'gamestate, Out=Out>>(&mut self, slot: BorderSlot, w: Widget<'gamestate, X, Out>) {
+impl <'gamestate> BorderState<'gamestate> {
+    pub fn set<X: Widgetlike<'gamestate>>(&mut self, slot: BorderSlot, w: Widget<'gamestate, X>) {
         match slot {
             BorderSlot::North => self.north.setup(|x| x.set(w)),
             BorderSlot::West => self.west.setup(|x| x.set(w)),
@@ -33,30 +33,28 @@ impl <'gamestate, Out: 'gamestate> BorderState<'gamestate, Out> {
         };
     }
 
-    pub fn set_north<X: Widgetlike<'gamestate, Out=Out>>(&mut self, w: Widget<'gamestate, X, Out>) {
+    pub fn set_north<X: Widgetlike<'gamestate>>(&mut self, w: Widget<'gamestate, X>) {
         self.set(BorderSlot::North, w)
     }
 
-    pub fn set_west<X: Widgetlike<'gamestate, Out=Out>>(&mut self, w: Widget<'gamestate, X, Out>) {
+    pub fn set_west<X: Widgetlike<'gamestate>>(&mut self, w: Widget<'gamestate, X>) {
         self.set(BorderSlot::West, w)
     }
 
-    pub fn set_east<X: Widgetlike<'gamestate, Out=Out>>(&mut self, w: Widget<'gamestate, X, Out>) {
+    pub fn set_east<X: Widgetlike<'gamestate>>(&mut self, w: Widget<'gamestate, X>) {
         self.set(BorderSlot::East, w)
     }
 
-    pub fn set_south<X: Widgetlike<'gamestate, Out=Out>>(&mut self, w: Widget<'gamestate, X, Out>) {
+    pub fn set_south<X: Widgetlike<'gamestate>>(&mut self, w: Widget<'gamestate, X>) {
         self.set(BorderSlot::South, w)
     }
 
-    pub fn set_center<X: Widgetlike<'gamestate, Out=Out>>(&mut self, w: Widget<'gamestate, X, Out>) {
+    pub fn set_center<X: Widgetlike<'gamestate>>(&mut self, w: Widget<'gamestate, X>) {
         self.set(BorderSlot::Center, w)
     }
 }
 
-impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for BorderState<'gamestate, Out> {
-    type Out = Out;
-
+impl <'gamestate> Widgetlike<'gamestate> for BorderState<'gamestate> {
     fn create() -> Self {
         let row = Row::new();
         let column = Column::new();
@@ -88,7 +86,7 @@ impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for BorderState<'games
         }
     }
 
-    fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) { 
+    fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self>) { 
         self.column.draw(menu.ui, brush, menu.menu)
     }
 

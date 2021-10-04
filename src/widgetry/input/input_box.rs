@@ -1,25 +1,20 @@
-use std::marker::PhantomData;
-
 use chiropterm::*;
 use euclid::{rect, size2};
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, Widgetlike, widget::{LayoutHacks, WidgetMenu}};
 
-pub type InputBox<'gamestate, Out> = Widget<'gamestate, InputBoxState<Out>, Out>;
+pub type InputBox<'gamestate> = Widget<'gamestate, InputBoxState>;
 
-pub struct InputBoxState<Out> {
+pub struct InputBoxState {
     text: String,
     cursor_l: usize,
     cursor_r: usize,
     // TODO: Store left position of window
 
     pub layout_hacks: LayoutHacks,
-    phantom: PhantomData<*const Out>,
 }
     
-impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for InputBoxState<Out> {
-    type Out = Out;
-
+impl<'gamestate> Widgetlike<'gamestate> for InputBoxState {
     fn create() -> Self {
         Self { 
             text: "".to_owned(),
@@ -27,11 +22,10 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for InputBoxState<Out> 
             cursor_r: 0,
 
             layout_hacks: LayoutHacks::new(),
-            phantom: PhantomData,
         }
     }
 
-    fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, InputBoxState<Out>, Out>) {
+    fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, InputBoxState>) {
         if selected {
             menu.on_text( |_, this, character| { this.unique.type_character(character); Signal::Continue });
             menu.on_key( Keycode::Backspace, |_, this, _| {this.unique.backspace(); Signal::Continue });
@@ -105,7 +99,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for InputBoxState<Out> 
     fn layout_hacks(&self) -> LayoutHacks { self.layout_hacks }
 }
 
-impl<Out> InputBoxState<Out> {
+impl InputBoxState {
     fn type_character(&mut self, character: char) {
         if self.cursor_l != self.cursor_r {
             self.text.drain(self.cursor_l..self.cursor_r + 1);

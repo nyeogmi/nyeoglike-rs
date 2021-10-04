@@ -16,7 +16,7 @@ pub use self::polymorphic::AnyWidget;
 
 use super::UI;
 
-pub struct Widget<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> {
+pub struct Widget<'gamestate, T: Widgetlike<'gamestate>> {
     // TODO: Instead use a ref inside an arena allocator (not bump, we need drop)
     state: Rc<RefCell<WidgetCommon<T>>>,
 
@@ -24,7 +24,7 @@ pub struct Widget<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> {
     phantom: PhantomData<&'gamestate ()>, 
 }
 
-impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, Out> {
+impl<'gamestate, T: Widgetlike<'gamestate>> Widget<'gamestate, T> {
     pub fn new() -> Self {
         Widget { 
             state: Rc::new(RefCell::new(WidgetCommon::new(T::create()))),
@@ -52,7 +52,7 @@ impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, 
         self.share()
     }
 
-    pub fn draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame, Out>) 
+    pub fn draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame>) 
     where 'gamestate: 'frame {
         let brush = self.internal_estimate_dimensions(&ui, brush.rect().width()).tailor(brush);
         let offset = brush.cursor_offset();
@@ -83,15 +83,13 @@ impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, 
 }
 
 pub trait Widgetlike<'gamestate>: 'gamestate+Sized {
-    type Out: 'gamestate;
-
     fn create() -> Self;
 
-    fn skip_draw<'frame>(&self, _selected: bool, _brush: Brush, _menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
+    fn skip_draw<'frame>(&self, _selected: bool, _brush: Brush, _menu: WidgetMenu<'gamestate, 'frame, Self>) {
         // NOTE: You can implement custom behavior if your widget must do work to pretend it was drawn when it wasn't drawn 
         // (ex: reshape to match the brush)
     }
-    fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>);
+    fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self>);
     fn estimate_dimensions(&self, ui: &UI, width: isize) ->InternalWidgetDimensions;
     fn clear_layout_cache(&self, ui: &UI);
     fn layout_hacks(&self) -> LayoutHacks;

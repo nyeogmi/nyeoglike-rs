@@ -1,32 +1,26 @@
-use std::marker::PhantomData;
-
 use chiropterm::{Brush, Brushable, Stamp};
 use euclid::{rect, size2};
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, widget::LayoutHacks};
 
-pub type Label<'gamestate, Out> = Widget<'gamestate, LabelState<Out>, Out>;
+pub type Label<'gamestate> = Widget<'gamestate, LabelState>;
 
-pub struct LabelState<Out> {
+pub struct LabelState {
     pub text: String,
 
     pub layout_hacks: LayoutHacks,
-    phantom: PhantomData<*const Out>,
 }
 
-impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for LabelState<Out> {
-    type Out = Out;
-
+impl <'gamestate> Widgetlike<'gamestate> for LabelState {
     fn create() -> Self {
         Self {
             text: "".to_owned(),
 
             layout_hacks: LayoutHacks::new(),
-            phantom: PhantomData,
         }
     }
 
-    fn draw<'frame>(&self, _selected: bool, brush: Brush, _menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
+    fn draw<'frame>(&self, _selected: bool, brush: Brush, _menu: WidgetMenu<'gamestate, 'frame, Self>) {
         brush.putfs(&self.text);
     }
 

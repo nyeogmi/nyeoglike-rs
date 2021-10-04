@@ -1,27 +1,21 @@
-use std::marker::PhantomData;
-
 use chiropterm::Brush;
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, widget::LayoutHacks};
 
-pub type Nop<'gamestate, Out> = Widget<'gamestate, NopState<Out>, Out>;
+pub type Nop<'gamestate> = Widget<'gamestate, NopState>;
 
-pub struct NopState<Out> {
+pub struct NopState {
     pub layout_hacks: LayoutHacks,
-    phantom: PhantomData<*const Out>,
 }
 
-impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for NopState<Out> {
-    type Out = Out;
-
+impl <'gamestate> Widgetlike<'gamestate> for NopState {
     fn create() -> Self {
         Self {
             layout_hacks: LayoutHacks::new(),
-            phantom: PhantomData,
         }
     }
 
-    fn draw<'frame>(&self, _selected: bool, _brush: Brush, _menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) { }
+    fn draw<'frame>(&self, _selected: bool, _brush: Brush, _menu: WidgetMenu<'gamestate, 'frame, Self>) { }
 
     fn estimate_dimensions(&self, _: &UI, _width: isize) -> InternalWidgetDimensions {
         InternalWidgetDimensions::zero()

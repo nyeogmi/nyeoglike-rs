@@ -3,20 +3,18 @@ use euclid::{rect, size2};
 
 use super::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, look_and_feel::WindowBorders, widget::{AnyWidget, LayoutHacks}};
 
-pub type Window<'gamestate, Out> = Widget<'gamestate, WindowState<'gamestate, Out>, Out>;
+pub type Window<'gamestate> = Widget<'gamestate, WindowState<'gamestate>>;
 
 // TODO: Support a w95-ish border type too
 
-pub struct WindowState<'gamestate, Out> {
+pub struct WindowState<'gamestate> {
     pub title: Option<String>,
-    widget: Option<AnyWidget<'gamestate, Out>>,
+    widget: Option<AnyWidget<'gamestate>>,
 
     pub layout_hacks: LayoutHacks,
 }
 
-impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for WindowState<'gamestate, Out> {
-    type Out = Out;
-
+impl<'gamestate> Widgetlike<'gamestate> for WindowState<'gamestate> {
     fn create() -> Self {
         WindowState { 
             title: None,
@@ -26,7 +24,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for WindowState<'gamest
         }
     }
 
-    fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
+    fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self>) {
         brush.fill(FSem::new().color(menu.ui.theme().window.color));
 
         let inner = match menu.ui.theme().window.borders {
@@ -128,8 +126,8 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for WindowState<'gamest
     fn layout_hacks(&self) -> LayoutHacks { self.layout_hacks }
 }
 
-impl<'gamestate, Out: 'gamestate> WindowState<'gamestate, Out> {
-    pub fn set<X: Widgetlike<'gamestate, Out=Out>>(&mut self, w: Widget<'gamestate, X, Out>) {
+impl<'gamestate> WindowState<'gamestate> {
+    pub fn set<X: Widgetlike<'gamestate>>(&mut self, w: Widget<'gamestate, X>) {
         self.widget = Some(AnyWidget::wrap(w))
     }
 }

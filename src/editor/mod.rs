@@ -39,7 +39,7 @@ pub fn main() {
 
 fn main_loop(mut editor: EditorState) {
     loop {
-        editor.io.menu(|_out, _menu: Menu<()>| {
+        editor.io.menu(|_out, _menu| {
         });
     }
 }
@@ -52,13 +52,13 @@ fn load_file(io: &mut IO) -> Terrain {
     };
 
     let ui = UI::new(theme);
-    let label: Label<()> = Label::new().setup(|l| {
+    let label: Label = Label::new().setup(|l| {
         l.text = "Please enter a filename (will be created if the file does not exist). PS Bhijn drinks piss.".to_string()
     });
-    let prompt1: InputBox<()> = InputBox::new();
-    let prompt2: InputBox<()> = InputBox::new();
-    let prompt3: InputBox<()> = InputBox::new();
-    let prompt4: InputBox<()> = InputBox::new();
+    let prompt1: InputBox = InputBox::new();
+    let prompt2: InputBox = InputBox::new();
+    let prompt3: InputBox = InputBox::new();
+    let prompt4: InputBox = InputBox::new();
 
     let lbl = label.share();
     let button = Button::new().setup(move |b| {
@@ -75,7 +75,7 @@ fn load_file(io: &mut IO) -> Terrain {
 
                 return Signal::Modal(Box::new(|io: &mut IO| {
                     io.menu(|out, menu| {
-                        let i = menu.on_click(|_| Signal::Break(()));
+                        let i = menu.on_click(|_| Signal::Break);
                         out.brush().region(rect(2, 2, 80, 80)).interactor(i, (255, 255)).putfs("HELLO, ROBOT!");
                     });
                     Signal::Continue
@@ -86,7 +86,7 @@ fn load_file(io: &mut IO) -> Terrain {
         }));
     });
 
-    let col: Column<()> = Column::new();
+    let col: Column = Column::new();
     col.setup(|c| {
         c.add(Spacer::new());
         c.add(label.share());
@@ -155,7 +155,7 @@ fn load_file(io: &mut IO) -> Terrain {
 
     let all2 = Scrollable::new().setup(|sb| sb.set(all));
 
-    io.menu(|out, menu: Menu<()>| {
+    io.menu(|out, menu: Menu| {
         out.brush().fill(FSem::new().color(ui.theme().base.wallpaper));
 
         all2.draw(ui.share(), out.brush().region(out.rect().inflate(-2, -2)), menu)

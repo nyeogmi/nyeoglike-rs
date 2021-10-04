@@ -1,41 +1,35 @@
-use std::{marker::PhantomData};
-
 use chiropterm::{Brush, Brushable, MouseEvent, Signal, Stamp};
 use euclid::{rect, size2};
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetCommon, WidgetMenu, Widgetlike, widget::LayoutHacks};
 
-pub type Button<'gamestate, Out> = Widget<'gamestate, ButtonState<'gamestate, Out>, Out>;
+pub type Button<'gamestate> = Widget<'gamestate, ButtonState<'gamestate>>;
 
 // TODO: Hotkeys
-pub struct ButtonState<'gamestate, Out> {
+pub struct ButtonState<'gamestate> {
     pub text: String,
-    pub command: Option<Box<dyn 'gamestate+FnMut(UI, &mut WidgetCommon<ButtonState<'gamestate, Out>>, MouseEvent) -> Signal<Out>>>,
+    pub command: Option<Box<dyn 'gamestate+FnMut(UI, &mut WidgetCommon<ButtonState<'gamestate>>, MouseEvent) -> Signal>>,
 
     pub layout_hacks: LayoutHacks,
-    phantom: PhantomData<*const Out>,
 }
 
-impl<'gamestate, Out> ButtonState<'gamestate, Out> {
-    pub fn set_command(&mut self, cmd: impl 'gamestate+FnMut(UI, &mut WidgetCommon<ButtonState<'gamestate, Out>>, MouseEvent) -> Signal<Out>) {
+impl<'gamestate> ButtonState<'gamestate> {
+    pub fn set_command(&mut self, cmd: impl 'gamestate+FnMut(UI, &mut WidgetCommon<ButtonState<'gamestate>>, MouseEvent) -> Signal) {
         self.command = Some(Box::new(cmd))
     }
 }
 
-impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ButtonState<'gamestate, Out> {
-    type Out = Out;
-
+impl <'gamestate> Widgetlike<'gamestate> for ButtonState<'gamestate> {
     fn create() -> Self {
         Self {
             text: "".to_owned(),
             command: None,
 
             layout_hacks: LayoutHacks::new(),
-            phantom: PhantomData,
         }
     }
 
-    fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
+    fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self>) {
         let click_interactor = menu.on_click(move |ui, this, click: MouseEvent| {
             match click {
                 MouseEvent::Click(_, _, _) => {

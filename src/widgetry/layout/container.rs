@@ -3,17 +3,15 @@ use chiropterm::{Brush};
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, widget::{AnyWidget, LayoutHacks}};
 
 // Smallvec size -- set this to "higher than most users will ever put in one column/row"
-pub type Container<'gamestate, Out> = Widget<'gamestate, ContainerState<'gamestate, Out>, Out>;
+pub type Container<'gamestate> = Widget<'gamestate, ContainerState<'gamestate>>;
 
-pub struct ContainerState<'gamestate, Out> {
-    widget: Option<AnyWidget<'gamestate, Out>>,
+pub struct ContainerState<'gamestate> {
+    widget: Option<AnyWidget<'gamestate>>,
 
     pub layout_hacks: LayoutHacks,
 }
 
-impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ContainerState<'gamestate, Out> {
-    type Out = Out;
-
+impl<'gamestate> Widgetlike<'gamestate> for ContainerState<'gamestate> {
     fn create() -> Self {
         ContainerState { 
             widget: None,
@@ -21,7 +19,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ContainerState<'gam
         }
     }
 
-    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, ContainerState<'gamestate, Out>, Out>) {
+    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, ContainerState<'gamestate>>) {
         if let Some(w) = &self.widget {
             w.draw(brush, menu);
         }
@@ -46,8 +44,8 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ContainerState<'gam
     }
 }
 
-impl<'gamestate, Out: 'gamestate> ContainerState<'gamestate, Out> {
-    pub fn set<X: Widgetlike<'gamestate, Out=Out>>(&mut self, w: Widget<'gamestate, X, Out>) {
+impl<'gamestate> ContainerState<'gamestate> {
+    pub fn set<X: Widgetlike<'gamestate>>(&mut self, w: Widget<'gamestate, X>) {
         self.widget = Some(AnyWidget::wrap(w))
     }
 }

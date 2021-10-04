@@ -9,19 +9,17 @@ use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetli
 // Smallvec size -- set this to "higher than most users will ever put in one column/row"
 const SM: usize = 32;
 
-pub type Column<'gamestate, Out> = Widget<'gamestate, ColumnState<'gamestate, Out>, Out>;
+pub type Column<'gamestate> = Widget<'gamestate, ColumnState<'gamestate>>;
 
-pub struct ColumnState<'gamestate, Out> {
-    widgets: SmallVec<[AnyWidget<'gamestate, Out>; SM]>,
+pub struct ColumnState<'gamestate> {
+    widgets: SmallVec<[AnyWidget<'gamestate>; SM]>,
     plots_desired: RefCell<(isize, (Plots, InternalWidgetDimensions))>,
     plots_practical: RefCell<(CellSize, Plots)>,
 
     pub layout_hacks: LayoutHacks,
 }
 
-impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ColumnState<'gamestate, Out> {
-    type Out = Out;
-    
+impl<'gamestate> Widgetlike<'gamestate> for ColumnState<'gamestate> {
     fn create() -> Self {
         ColumnState { 
             widgets: SmallVec::new(),
@@ -32,7 +30,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ColumnState<'gamest
         }
     }
 
-    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, ColumnState<'gamestate, Out>, Out>) {
+    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, ColumnState<'gamestate>>) {
         let plots = self.get_plots_practical(&menu.ui, brush.rect().size);
 
         let mut total_y = 0;
@@ -60,13 +58,13 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ColumnState<'gamest
     fn layout_hacks(&self) -> LayoutHacks { self.layout_hacks }
 }
 
-impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
-    pub fn add<X: Widgetlike<'gamestate, Out=Out>>(&mut self, w: Widget<'gamestate, X, Out>) {
+impl<'gamestate> ColumnState<'gamestate> {
+    pub fn add<X: Widgetlike<'gamestate>>(&mut self, w: Widget<'gamestate, X>) {
         self.widgets.push(AnyWidget::wrap(w))
     }
 }
 
-impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
+impl<'gamestate> ColumnState<'gamestate> {
     fn get_plots_desired(&self, ui: &UI, width: isize) -> Ref<'_, (isize, (Plots, InternalWidgetDimensions))> {
         {
             let b = self.plots_desired.borrow();
@@ -92,7 +90,7 @@ impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
     }
 }
 
-impl<'gamestate, Out: 'gamestate> ColumnState<'gamestate, Out> {
+impl<'gamestate> ColumnState<'gamestate> {
     fn internal_compute_plots_desired(&self, ui: &UI, width: isize) -> (Plots, InternalWidgetDimensions) {
         // TODO: Use the cache
         let mut preferred: SmallVec<[isize; SM]> = SmallVec::new();

@@ -6,16 +6,16 @@ use crate::widgetry::ui::{UI, UIContext};
 
 use super::{Widgetlike, common::WidgetCommon};
 
-pub struct WidgetMenu<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate, Out=Out>, Out> {
+pub struct WidgetMenu<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate>> {
     pub ui: UI,
     pub(in super) state: Rc<RefCell<WidgetCommon<T>>>,
-    pub menu: Menu<'frame, Out>,
+    pub menu: Menu<'frame>,
     pub(in super) brush_offset: CellVector,
     pub(in super) phantom: PhantomData<&'gamestate ()>,
 }
 
-impl<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate, Out=Out>, Out> WidgetMenu<'gamestate, 'frame, T, Out> {
-    pub fn share(&self) -> WidgetMenu<'gamestate, 'frame, T, Out> {
+impl<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate>> WidgetMenu<'gamestate, 'frame, T> {
+    pub fn share(&self) -> WidgetMenu<'gamestate, 'frame, T> {
         WidgetMenu {
             ui: self.ui.share(),
             state: self.state.clone(),
@@ -24,7 +24,7 @@ impl<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate, Out=Out>, Out> Widget
             phantom: PhantomData,
         }
     }
-    pub fn on(&self, k: Keycode, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, InputEvent) -> Signal<Out>) -> Interactor {
+    pub fn on(&self, k: Keycode, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, InputEvent) -> Signal) -> Interactor {
         let state = self.state.clone();
         let o = self.brush_offset;
         let ui = self.ui.share();
@@ -33,7 +33,7 @@ impl<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate, Out=Out>, Out> Widget
         })
     }
 
-    pub fn on_key(&self, k: Keycode, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, KeyEvent) -> Signal<Out>) {
+    pub fn on_key(&self, k: Keycode, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, KeyEvent) -> Signal) {
         let state = self.state.clone();
         let ui = self.ui.share();
         self.menu.on_key(k, move |inp| {
@@ -41,7 +41,7 @@ impl<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate, Out=Out>, Out> Widget
         })
     }
 
-    pub fn on_click(&self, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, MouseEvent) -> Signal<Out>) -> Interactor {
+    pub fn on_click(&self, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, MouseEvent) -> Signal) -> Interactor {
         let state = self.state.clone();
         let o = self.brush_offset;
         let ui = self.ui.share();
@@ -50,7 +50,7 @@ impl<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate, Out=Out>, Out> Widget
         })
     }
 
-    pub fn on_text(&self, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, char) -> Signal<Out>) {
+    pub fn on_text(&self, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, char) -> Signal) {
         let state = self.state.clone();
         let ui = self.ui.share();
         self.menu.on_text(move |inp| {
