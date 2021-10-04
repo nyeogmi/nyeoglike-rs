@@ -1,9 +1,9 @@
 use std::{process::exit};
 
-use chiropterm::{*, colors::{Light, LtRed, LtYellow, White}};
+use chiropterm::{*, colors::{LtRed, White}};
 use euclid::*;
 use moogle::Id;
-use crate::{terrain::{Room, Terrain}, widgetry::{Border, Button, Canvas, Column, Deck, InputBox, Label, Row, Scrollable, Spacer, Theme, UI, Window, look_and_feel::WindowBorders}};
+use crate::{terrain::{Room, Terrain}, widgetry::{Border, Button, Canvas, Column, Deck, InputBox, Label, Row, Scrollable, Spacer, Theme, UI, Window}};
 
 const ASPECT_CONFIG: AspectConfig = AspectConfig {
     pref_min_term_size: size2(80, 50),  // but expect ~112x60
