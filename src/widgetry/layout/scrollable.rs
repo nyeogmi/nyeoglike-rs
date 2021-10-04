@@ -43,9 +43,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
 
             let space_to_adjust = (inner_height - brush_height).max(0);
 
-            if space_to_adjust >= 0 {
-                // TODO: Adjust by a different amount if the scrollbar is small
-
+            if space_to_adjust > 0 {
                 let scrollbar = brush.region(rect(brush.rect().width() - 2, 0, 2, brush_height));
 
                 let top_button = scrollbar.region(rect(0, 0, 2, 2));
