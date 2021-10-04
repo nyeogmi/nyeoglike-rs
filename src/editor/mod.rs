@@ -68,11 +68,21 @@ fn load_file(io: &mut IO) -> Terrain {
             let mut l_b = lbl.borrow_mut();
             if l_b.unique.text.starts_with("P") {
                 l_b.unique.text = "Nyeh!".to_owned();
+                ui.recompute_layout();
             } else {
                 // l_b.unique.text += " Nyeh!"
                 l_b.unique.text = l_b.unique.text.replace("e", "eeeeee"); // unique.text += " Nyeh!"
+                ui.recompute_layout();
+
+                return Signal::Modal(Box::new(|io: &mut IO| {
+                    io.menu(|out, menu| {
+                        let i = menu.on_click(|_| Signal::Break(()));
+                        out.brush().region(rect(2, 2, 80, 80)).interactor(i, (255, 255)).putfs("HELLO, ROBOT!");
+                    });
+                    Signal::Continue
+                }));
             } 
-            ui.recompute_layout();
+
             Signal::Continue
         }));
     });
