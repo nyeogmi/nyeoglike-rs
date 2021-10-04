@@ -3,7 +3,7 @@ use std::{process::exit};
 use chiropterm::{*, colors::{Light, LtRed, LtYellow, White}};
 use euclid::*;
 use moogle::Id;
-use crate::{terrain::{Room, Terrain}, widgetry::{Border, Button, Canvas, Column, Deck, InputBox, Label, Row, Spacer, Theme, UI, Window, look_and_feel::WindowBorders}};
+use crate::{terrain::{Room, Terrain}, widgetry::{Border, Button, Canvas, Column, Deck, InputBox, Label, Row, Scrollable, Spacer, Theme, UI, Window, look_and_feel::WindowBorders}};
 
 const ASPECT_CONFIG: AspectConfig = AspectConfig {
     pref_min_term_size: size2(80, 50),  // but expect ~112x60
@@ -46,10 +46,11 @@ fn main_loop(mut editor: EditorState) {
 
 fn load_file(io: &mut IO) -> Terrain {
     let mut theme = Theme::W95_FRUITY;
+    /*
     theme.window.borders = WindowBorders::DOS {
         active_title_fg: theme.window.color.1,
         inactive_title_fg: Light[2],
-    };
+    };*/
 
     let ui = UI::new(theme);
     let label: Label<()> = Label::new().setup(|l| {
@@ -69,7 +70,7 @@ fn load_file(io: &mut IO) -> Terrain {
                 l_b.unique.text = "Nyeh!".to_owned();
             } else {
                 // l_b.unique.text += " Nyeh!"
-                l_b.unique.text = l_b.unique.text.replace("e", "ee"); // unique.text += " Nyeh!"
+                l_b.unique.text = l_b.unique.text.replace("e", "eeeeee"); // unique.text += " Nyeh!"
             } 
             ui.recompute_layout();
             Signal::Continue
@@ -134,6 +135,7 @@ fn load_file(io: &mut IO) -> Terrain {
                 w.set(Label::new().setup(|l| { l.text = "I'm a bat!".to_string(); }));
             }));
         }));
+        c.add(Spacer::new());
     });
     let all = Row::new();
     all.setup(|r| {
@@ -142,10 +144,12 @@ fn load_file(io: &mut IO) -> Terrain {
         r.add(Spacer::new());
     });
 
+    let all2 = Scrollable::new().setup(|sb| sb.set(all));
+
     io.menu(|out, menu: Menu<()>| {
         out.brush().fill(FSem::new().color(ui.theme().base.wallpaper));
 
-        all.draw(ui.share(), out.brush().region(out.rect().inflate(-2, -2)), menu)
+        all2.draw(ui.share(), out.brush().region(out.rect().inflate(-2, -2)), menu)
     });
 
     Terrain::new()

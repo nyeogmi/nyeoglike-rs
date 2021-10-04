@@ -2,7 +2,7 @@ use chiropterm::{Brush};
 use euclid::{rect, size2};
 use smallvec::SmallVec;
 
-use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, Window, widget::{AnyWidget, LayoutHacks}};
+use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, widget::{AnyWidget, LayoutHacks}};
 
 // Smallvec size -- set this to "higher than most users will ever put in one column/row"
 const SM: usize = 32;
