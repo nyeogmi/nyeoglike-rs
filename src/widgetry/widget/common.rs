@@ -14,6 +14,7 @@ pub struct WidgetCommon<T> {
     last_dimensions: Cell<(isize, InternalWidgetDimensions)>,
 }
 
+// TODO: Store last 3 dimension estimates, since some widgets (like scrollable) try several widths
 impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
     pub fn new(value: T) -> Self {
         WidgetCommon {

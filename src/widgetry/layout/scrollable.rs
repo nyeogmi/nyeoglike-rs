@@ -32,9 +32,8 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
     type Out = Out;
 
     fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, ScrollableState<'gamestate, Out>, Out>) {
-        let inner_width = brush.rect().width() - 2;
         if let Some(w) = &self.widget {
-            let dims = w.estimate_dimensions(&menu.ui, inner_width);
+            let dims = w.estimate_dimensions(&menu.ui, brush.rect().width() - 2);
 
             let inner_height = dims.preferred.height;
             let brush_height = brush.rect().height();
@@ -44,6 +43,8 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
             let space_to_adjust = (inner_height - brush_height).max(0);
 
             if space_to_adjust > 0 {
+                let inner_width = brush.rect().width() - 2;
+
                 let scrollbar = brush.region(rect(brush.rect().width() - 2, 0, 2, brush_height));
 
                 let top_button = scrollbar.region(rect(0, 0, 2, 2));
@@ -146,14 +147,21 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
                 btm_button.interactor(btm_button_interactor, menu.ui.theme().button.preclick).font(Font::Set).putch(0x1f);
 
                 brush.dont_interfere_with_interactor().scroll_interactor(bar_interactor).fill(FSem::new());
-            }
 
-            w.draw(
-                brush.region(
-                    rect(0, 0, inner_width, dims.preferred.height.max(brush_height))
-                ).offset_rect(vec2(0, -offset_to_use)), 
-                menu.share()
-            );
+                w.draw(
+                    brush.region(
+                        rect(0, 0, inner_width, dims.preferred.height.max(brush_height))
+                    ).offset_rect(vec2(0, -offset_to_use)), 
+                    menu.share()
+                );
+            } else {
+                w.draw(
+                    brush.region(
+                        rect(0, 0, brush.rect().width(), dims.preferred.height.max(brush_height))
+                    ).offset_rect(vec2(0, -offset_to_use)), 
+                    menu.share()
+                )
+            }
         } 
     }
 
