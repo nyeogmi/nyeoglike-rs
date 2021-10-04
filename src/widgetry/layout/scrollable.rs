@@ -47,11 +47,6 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
 
                 let top_button = scrollbar.region(rect(0, 0, 1, 2));
                 let btm_button = scrollbar.region(rect(0, scrollbar.rect().height() - 2, 1, 2));
-                
-                let position_top = if space_to_adjust == 0 { 0.0 } else { offset_to_use as f64 / inner_height as f64 };
-                let position_bot = if space_to_adjust == 0 { 1.0 } else { 
-                    (offset_to_use + brush.rect().height()) as f64 / inner_height as f64 
-                };
 
                 let scrollable_height = scrollbar.rect().height() - 4;
                 let scroll_offset_for = move |dy: f32| {
@@ -60,8 +55,14 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
                     dy as f64 * scrolls_per_cell
                 };
 
+                let position_top = if space_to_adjust == 0 { 0.0 } else { offset_to_use as f64 / inner_height as f64 };
                 let ix_top = (scrollable_height as f64 * position_top).floor() as isize;
-                let mut ix_bot = (scrollable_height as f64 * position_bot).ceil() as isize;
+                let barpart_height = if inner_height == 0 { 1 } else { 
+                    (((brush_height as f64 / inner_height as f64) * scrollable_height as f64).ceil() as isize)
+                    .max(1).min(scrollable_height) 
+                };
+                let mut ix_bot = ix_top + barpart_height;
+
                 if ix_bot == ix_top { ix_bot += 1; }
 
                 let scrollbar_rect = rect(0, ix_top + 2, 1, ix_bot - ix_top);
