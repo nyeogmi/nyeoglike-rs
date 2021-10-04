@@ -30,8 +30,9 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
     type Out = Out;
 
     fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, ScrollableState<'gamestate, Out>, Out>) {
+        let inner_width = brush.rect().width() - 2;
         if let Some(w) = &self.widget {
-            let dims = w.estimate_dimensions(&menu.ui, brush.rect().width() - 2);
+            let dims = w.estimate_dimensions(&menu.ui, inner_width);
 
             let inner_height = dims.preferred.height;
             let brush_height = brush.rect().height();
@@ -139,7 +140,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
 
             w.draw(
                 brush.region(
-                    rect(0, 0, brush.rect().width() - 2, dims.preferred.height.max(brush_height))
+                    rect(0, 0, inner_width, dims.preferred.height.max(brush_height))
                 ).offset_rect(vec2(0, -offset_to_use)), 
                 menu.share()
             );
@@ -150,6 +151,8 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
         if let Some(w) = &self.widget {
             let mut dims = w.estimate_dimensions(ui, width - 2).to_internal();
             dims.min.height = 4; // smallest capable of rendering a scrollbar, for now. consider an even smaller scrollbar later
+            dims.min.width += 2;
+            dims.preferred.width += 2;
             dims
         } else {
             return InternalWidgetDimensions::zero();

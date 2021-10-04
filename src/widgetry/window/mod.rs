@@ -103,7 +103,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for WindowState<'gamest
             }
         };
         let d1 = if let Some(w) = self.widget.as_ref() {
-            w.estimate_dimensions(ui, width)
+            w.estimate_dimensions(ui, width - pad_x)
         } else {
             InternalWidgetDimensions::zero().to_external()
         };

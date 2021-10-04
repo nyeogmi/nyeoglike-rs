@@ -85,7 +85,7 @@ impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, 
 pub trait Widgetlike<'gamestate>: 'gamestate+Default+Sized {
     type Out: 'gamestate;
 
-    fn skip_draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
+    fn skip_draw<'frame>(&self, _selected: bool, _brush: Brush, _menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
         // NOTE: You can implement custom behavior if your widget must do work to pretend it was drawn when it wasn't drawn 
         // (ex: reshape to match the brush)
     }
