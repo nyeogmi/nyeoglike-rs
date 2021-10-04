@@ -14,8 +14,10 @@ pub struct LabelState<Out> {
     phantom: PhantomData<*const Out>,
 }
 
-impl<Out> Default for LabelState<Out> {
-    fn default() -> Self {
+impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for LabelState<Out> {
+    type Out = Out;
+
+    fn create() -> Self {
         Self {
             text: "".to_owned(),
 
@@ -23,10 +25,6 @@ impl<Out> Default for LabelState<Out> {
             phantom: PhantomData,
         }
     }
-}
-
-impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for LabelState<Out> {
-    type Out = Out;
 
     fn draw<'frame>(&self, _selected: bool, brush: Brush, _menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
         brush.putfs(&self.text);

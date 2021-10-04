@@ -19,8 +19,10 @@ pub struct ColumnState<'gamestate, Out> {
     pub layout_hacks: LayoutHacks,
 }
 
-impl<'gamestate, Out> Default for ColumnState<'gamestate, Out> {
-    fn default() -> Self {
+impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ColumnState<'gamestate, Out> {
+    type Out = Out;
+    
+    fn create() -> Self {
         ColumnState { 
             widgets: SmallVec::new(),
             plots_desired: RefCell::new((-1, (Plots::new(), InternalWidgetDimensions::zero()))),
@@ -29,10 +31,6 @@ impl<'gamestate, Out> Default for ColumnState<'gamestate, Out> {
             layout_hacks: LayoutHacks::new(),
         }
     }
-}
-
-impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ColumnState<'gamestate, Out> {
-    type Out = Out;
 
     fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, ColumnState<'gamestate, Out>, Out>) {
         let plots = self.get_plots_practical(&menu.ui, brush.rect().size);

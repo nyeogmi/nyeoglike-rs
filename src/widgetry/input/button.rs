@@ -16,18 +16,6 @@ pub struct ButtonState<'gamestate, Out> {
     phantom: PhantomData<*const Out>,
 }
 
-impl<'gamestate, Out> Default for ButtonState<'gamestate, Out> {
-    fn default() -> Self {
-        Self {
-            text: "".to_owned(),
-            command: None,
-
-            layout_hacks: LayoutHacks::new(),
-            phantom: PhantomData,
-        }
-    }
-}
-
 impl<'gamestate, Out> ButtonState<'gamestate, Out> {
     pub fn set_command(&mut self, cmd: impl 'gamestate+FnMut(UI, &mut WidgetCommon<ButtonState<'gamestate, Out>>, MouseEvent) -> Signal<Out>) {
         self.command = Some(Box::new(cmd))
@@ -36,6 +24,16 @@ impl<'gamestate, Out> ButtonState<'gamestate, Out> {
 
 impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ButtonState<'gamestate, Out> {
     type Out = Out;
+
+    fn create() -> Self {
+        Self {
+            text: "".to_owned(),
+            command: None,
+
+            layout_hacks: LayoutHacks::new(),
+            phantom: PhantomData,
+        }
+    }
 
     fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
         let click_interactor = menu.on_click(move |ui, this, click: MouseEvent| {

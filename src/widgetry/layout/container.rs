@@ -11,17 +11,15 @@ pub struct ContainerState<'gamestate, Out> {
     pub layout_hacks: LayoutHacks,
 }
 
-impl<'gamestate, Out> Default for ContainerState<'gamestate, Out> {
-    fn default() -> Self {
+impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ContainerState<'gamestate, Out> {
+    type Out = Out;
+
+    fn create() -> Self {
         ContainerState { 
             widget: None,
             layout_hacks: LayoutHacks::new(),
         }
     }
-}
-
-impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ContainerState<'gamestate, Out> {
-    type Out = Out;
 
     fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, ContainerState<'gamestate, Out>, Out>) {
         if let Some(w) = &self.widget {

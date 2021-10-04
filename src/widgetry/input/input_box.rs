@@ -16,9 +16,11 @@ pub struct InputBoxState<Out> {
     pub layout_hacks: LayoutHacks,
     phantom: PhantomData<*const Out>,
 }
+    
+impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for InputBoxState<Out> {
+    type Out = Out;
 
-impl<Out> Default for InputBoxState<Out> {
-    fn default() -> Self {
+    fn create() -> Self {
         Self { 
             text: "".to_owned(),
             cursor_l: 0,
@@ -28,10 +30,6 @@ impl<Out> Default for InputBoxState<Out> {
             phantom: PhantomData,
         }
     }
-}
-    
-impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for InputBoxState<Out> {
-    type Out = Out;
 
     fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, InputBoxState<Out>, Out>) {
         if selected {

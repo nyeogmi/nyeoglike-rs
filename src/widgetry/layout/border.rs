@@ -22,39 +22,6 @@ pub enum BorderSlot {
     North, West, East, South, Center,
 }
 
-impl<'gamestate, Out: 'gamestate> Default for BorderState<'gamestate, Out> {
-    fn default() -> Self {
-        let row = Row::new();
-        let column = Column::new();
-
-        let north = Container::new();
-        let west = Container::new();
-        let center = Container::new().setup(|l| {
-            l.layout_hacks.expand_horizontally = true;
-            l.layout_hacks.expand_vertically = true;
-        });
-        let east = Container::new();
-        let south = Container::new();
-
-        row.setup(|r| {
-            r.add(west.share());
-            r.add(center.share());
-            r.add(east.share());
-        });
-        column.setup(|c| {
-            c.add(north.share());
-            c.add(row.share());
-            c.add(south.share());
-        });
-
-        Self {
-            column, 
-            north, west, east, south, center,
-            layout_hacks: LayoutHacks::new(),
-        }
-    }
-}
-
 impl <'gamestate, Out: 'gamestate> BorderState<'gamestate, Out> {
     pub fn set<X: Widgetlike<'gamestate, Out=Out>>(&mut self, slot: BorderSlot, w: Widget<'gamestate, X, Out>) {
         match slot {
@@ -89,6 +56,37 @@ impl <'gamestate, Out: 'gamestate> BorderState<'gamestate, Out> {
 
 impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for BorderState<'gamestate, Out> {
     type Out = Out;
+
+    fn create() -> Self {
+        let row = Row::new();
+        let column = Column::new();
+
+        let north = Container::new();
+        let west = Container::new();
+        let center = Container::new().setup(|l| {
+            l.layout_hacks.expand_horizontally = true;
+            l.layout_hacks.expand_vertically = true;
+        });
+        let east = Container::new();
+        let south = Container::new();
+
+        row.setup(|r| {
+            r.add(west.share());
+            r.add(center.share());
+            r.add(east.share());
+        });
+        column.setup(|c| {
+            c.add(north.share());
+            c.add(row.share());
+            c.add(south.share());
+        });
+
+        Self {
+            column, 
+            north, west, east, south, center,
+            layout_hacks: LayoutHacks::new(),
+        }
+    }
 
     fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) { 
         self.column.draw(menu.ui, brush, menu.menu)

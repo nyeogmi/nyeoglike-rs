@@ -15,18 +15,16 @@ pub struct DeckState<'gamestate, Out: 'gamestate> {
     pub layout_hacks: LayoutHacks,
 }
 
-impl<'gamestate, Out> Default for DeckState<'gamestate, Out> {
-    fn default() -> Self {
+impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for DeckState<'gamestate, Out> {
+    type Out = Out;
+
+    fn create() -> Self {
         DeckState { 
             widgets: SmallVec::new(),
 
             layout_hacks: LayoutHacks::new(),
         }
     }
-}
-
-impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for DeckState<'gamestate, Out> {
-    type Out = Out;
 
     fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, DeckState<'gamestate, Out>, Out>) {
         let top = if let Some(top) = self.widgets.last() {

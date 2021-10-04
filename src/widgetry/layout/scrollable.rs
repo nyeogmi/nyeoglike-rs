@@ -17,8 +17,10 @@ pub struct ScrollableState<'gamestate, Out> {
     pub layout_hacks: LayoutHacks,
 }
 
-impl<'gamestate, Out> Default for ScrollableState<'gamestate, Out> {
-    fn default() -> Self {
+impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'gamestate, Out> {
+    type Out = Out;
+
+    fn create() -> Self {
         ScrollableState { 
             widget: None,
             offset: Cell::new(0.0),
@@ -26,10 +28,6 @@ impl<'gamestate, Out> Default for ScrollableState<'gamestate, Out> {
             layout_hacks: LayoutHacks::new(),
         }
     }
-}
-
-impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'gamestate, Out> {
-    type Out = Out;
 
     fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, ScrollableState<'gamestate, Out>, Out>) {
         if let Some(w) = &self.widget {

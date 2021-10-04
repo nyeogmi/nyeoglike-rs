@@ -12,16 +12,6 @@ pub struct CanvasState<'gamestate, Out> {
     phantom: PhantomData<*const Out>,
 }
 
-impl<'gamestate, Out> Default for CanvasState<'gamestate, Out> {
-    fn default() -> Self {
-        Self {
-            layout_hacks: LayoutHacks::new(),
-            draw: None,
-            phantom: PhantomData,
-        }
-    }
-}
-
 impl<'gamestate, Out> CanvasState<'gamestate, Out> {
     pub fn set_draw(&mut self, draw: impl 'gamestate+for<'frame> Fn(Brush, WidgetMenu<'gamestate, 'frame, CanvasState<Out>, Out>)) {
         self.draw = Some(Box::new(draw))
@@ -30,6 +20,14 @@ impl<'gamestate, Out> CanvasState<'gamestate, Out> {
 
 impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for CanvasState<'gamestate, Out> {
     type Out = Out;
+
+    fn create() -> Self {
+        Self {
+            layout_hacks: LayoutHacks::new(),
+            draw: None,
+            phantom: PhantomData,
+        }
+    }
 
     fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
         if let Some(d) = &self.draw {

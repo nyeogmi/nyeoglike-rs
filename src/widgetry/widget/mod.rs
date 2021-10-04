@@ -27,7 +27,7 @@ pub struct Widget<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> {
 impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, Out> {
     pub fn new() -> Self {
         Widget { 
-            state: Rc::new(RefCell::new(WidgetCommon::new(T::default()))),
+            state: Rc::new(RefCell::new(WidgetCommon::new(T::create()))),
             phantom: PhantomData,
         }
     }
@@ -82,8 +82,10 @@ impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, 
     }
 }
 
-pub trait Widgetlike<'gamestate>: 'gamestate+Default+Sized {
+pub trait Widgetlike<'gamestate>: 'gamestate+Sized {
     type Out: 'gamestate;
+
+    fn create() -> Self;
 
     fn skip_draw<'frame>(&self, _selected: bool, _brush: Brush, _menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
         // NOTE: You can implement custom behavior if your widget must do work to pretend it was drawn when it wasn't drawn 

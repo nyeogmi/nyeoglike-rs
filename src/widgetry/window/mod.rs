@@ -14,8 +14,10 @@ pub struct WindowState<'gamestate, Out> {
     pub layout_hacks: LayoutHacks,
 }
 
-impl<'gamestate, Out> Default for WindowState<'gamestate, Out> {
-    fn default() -> Self {
+impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for WindowState<'gamestate, Out> {
+    type Out = Out;
+
+    fn create() -> Self {
         WindowState { 
             title: None,
             widget: None,
@@ -23,10 +25,6 @@ impl<'gamestate, Out> Default for WindowState<'gamestate, Out> {
             layout_hacks: LayoutHacks::new(),
         }
     }
-}
-
-impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for WindowState<'gamestate, Out> {
-    type Out = Out;
 
     fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
         brush.fill(FSem::new().color(menu.ui.theme().window.color));

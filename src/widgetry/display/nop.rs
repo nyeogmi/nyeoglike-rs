@@ -11,17 +11,15 @@ pub struct NopState<Out> {
     phantom: PhantomData<*const Out>,
 }
 
-impl<Out> Default for NopState<Out> {
-    fn default() -> Self {
+impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for NopState<Out> {
+    type Out = Out;
+
+    fn create() -> Self {
         Self {
             layout_hacks: LayoutHacks::new(),
             phantom: PhantomData,
         }
     }
-}
-
-impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for NopState<Out> {
-    type Out = Out;
 
     fn draw<'frame>(&self, _selected: bool, _brush: Brush, _menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) { }
 

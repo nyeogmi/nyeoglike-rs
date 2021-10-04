@@ -15,8 +15,10 @@ pub struct SpacerState<Out> {
     pub layout_hacks: LayoutHacks,
 }
 
-impl<Out> Default for SpacerState<Out> {
-    fn default() -> Self {
+impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for SpacerState<Out> {
+    type Out = Out;
+
+    fn create() -> Self {
         Self {
             phantom: PhantomData,
             horiz_count: 1,
@@ -25,10 +27,6 @@ impl<Out> Default for SpacerState<Out> {
             layout_hacks: LayoutHacks::new(),
         }
     }
-}
-
-impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for SpacerState<Out> {
-    type Out = Out;
 
     fn draw<'frame>(&self, _: bool, _: Brush, _: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
     }
