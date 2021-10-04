@@ -1,6 +1,8 @@
+// TODO: Add scrollbar stuff to theme
+
 use std::{cell::Cell};
 
-use chiropterm::{Brush, FSem, MouseButton, MouseEvent, Signal};
+use chiropterm::{Brush, FSem, Font, MouseButton, MouseEvent, Signal};
 use euclid::{rect, vec2};
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, widget::{AnyWidget, LayoutHacks}};
@@ -44,17 +46,12 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
             if space_to_adjust >= 0 {
                 // TODO: Adjust by a different amount if the scrollbar is small
 
-                let scrollbar = brush.region(rect(brush.rect().width() - 1, 0, 1, brush_height));
+                let scrollbar = brush.region(rect(brush.rect().width() - 2, 0, 2, brush_height));
 
-                let top_button = scrollbar.region(rect(0, 0, 1, 2));
-                let btm_button = scrollbar.region(rect(0, scrollbar.rect().height() - 2, 1, 2));
+                let top_button = scrollbar.region(rect(0, 0, 2, 2));
+                let btm_button = scrollbar.region(rect(0, scrollbar.rect().height() - 2, 2, 2));
 
                 let scrollable_height = scrollbar.rect().height() - 4;
-                let scroll_offset_for = move |dy: f32| {
-                    if scrollable_height == 0 { return 0.0; }
-                    let scrolls_per_cell = inner_height as f64 / scrollable_height as f64;
-                    dy as f64 * scrolls_per_cell
-                };
 
                 let position_top = if space_to_adjust == 0 { 0.0 } else { offset_to_use as f64 / inner_height as f64 };
                 let ix_top = (scrollable_height as f64 * position_top).floor() as isize;
@@ -62,11 +59,19 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
                     (((brush_height as f64 / inner_height as f64) * scrollable_height as f64).ceil() as isize)
                     .max(1).min(scrollable_height) 
                 };
+
+                let scroll_offset_for = move |dy: f32| {
+                    // TODO: This calculation is subtly wrong but I don't know why yet.
+                    if scrollable_height == 0 { return 0.0; }
+                    let scrolls_per_cell = inner_height as f64 / scrollable_height as f64;
+                    dy as f64 * scrolls_per_cell
+                };
+
                 let mut ix_bot = ix_top + barpart_height;
 
                 if ix_bot == ix_top { ix_bot += 1; }
 
-                let scrollbar_rect = rect(0, ix_top + 2, 1, ix_bot - ix_top);
+                let scrollbar_rect = rect(0, ix_top + 2, 2, ix_bot - ix_top);
 
                 let top_button_interactor = menu.on_click(move |_, w, me| {
                     match me {
@@ -129,12 +134,19 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
                     Signal::Continue
                 });
 
-                let scrollbar_region = scrollbar.region(scrollbar_rect);
-                scrollbar.interactor(bar_interactor, (255, 255)).fill(FSem::new().color(menu.ui.theme().input_box.deselected));
-                scrollbar_region.interactor(bar_interactor, menu.ui.theme().button.preclick).fill(FSem::new().color(menu.ui.theme().input_box.cursor));
+                let sb_brush = scrollbar.interactor(bar_interactor, menu.ui.theme().input_box.selected);
+                sb_brush.fill(FSem::new().color(menu.ui.theme().input_box.deselected));
+                sb_brush.bevel_w95(menu.ui.theme().input_box.bevel);
 
-                top_button.interactor(top_button_interactor, menu.ui.theme().button.preclick).putch(0x1e);
-                btm_button.interactor(btm_button_interactor, menu.ui.theme().button.preclick).putch(0x1f);
+                let scrollbar_region = scrollbar.region(scrollbar_rect);
+                scrollbar_region.bevel_w95(menu.ui.theme().button.bevel);
+                scrollbar_region.interactor(bar_interactor, menu.ui.theme().input_box.cursor).fill(FSem::new().color(menu.ui.theme().input_box.cursor));
+
+                top_button.bevel_w95(menu.ui.theme().button.bevel);
+                btm_button.bevel_w95(menu.ui.theme().button.bevel);
+                top_button.interactor(top_button_interactor, menu.ui.theme().button.preclick).font(Font::Set).putch(0x1e);
+                btm_button.interactor(btm_button_interactor, menu.ui.theme().button.preclick).font(Font::Set).putch(0x1f);
+
                 brush.dont_interfere_with_interactor().scroll_interactor(bar_interactor).fill(FSem::new());
             }
 
