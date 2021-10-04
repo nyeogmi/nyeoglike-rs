@@ -24,6 +24,10 @@ impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
         }
     }
 
+    pub fn skip_draw<'frame>(&self, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, T, T::Out>) {
+        self.unique.skip_draw(menu.ui.is_selected(self.selection), brush, menu)
+    }
+
     pub fn draw<'frame>(&self, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, T, T::Out>) {
         self.unique.draw(menu.ui.is_selected(self.selection), brush, menu)
     }

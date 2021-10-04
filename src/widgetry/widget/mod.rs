@@ -59,7 +59,11 @@ impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, 
         let widget_menu = WidgetMenu { 
             ui, state: self.state.clone(), menu, brush_offset: offset, phantom: PhantomData
         };
-        self.state.borrow().draw(brush, widget_menu);
+        if brush.clip().is_empty() {
+            self.state.borrow().skip_draw(brush, widget_menu)
+        } else {
+            self.state.borrow().draw(brush, widget_menu);
+        }
     }
 
     pub fn estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
@@ -81,6 +85,10 @@ impl<'gamestate, T: Widgetlike<'gamestate, Out=Out>, Out> Widget<'gamestate, T, 
 pub trait Widgetlike<'gamestate>: 'gamestate+Default+Sized {
     type Out: 'gamestate;
 
+    fn skip_draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>) {
+        // NOTE: You can implement custom behavior if your widget must do work to pretend it was drawn when it wasn't drawn 
+        // (ex: reshape to match the brush)
+    }
     fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self, Self::Out>);
     fn estimate_dimensions(&self, ui: &UI, width: isize) ->InternalWidgetDimensions;
     fn clear_layout_cache(&self, ui: &UI);
