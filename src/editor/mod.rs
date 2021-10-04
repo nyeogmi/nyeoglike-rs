@@ -1,9 +1,9 @@
 use std::{process::exit};
 
-use chiropterm::{*, colors::{LtRed, White}};
+use chiropterm::{*, colors::{Light, LtRed, White}};
 use euclid::*;
 use moogle::Id;
-use crate::{terrain::{Room, Terrain}, widgetry::{Border, Button, Canvas, Column, Deck, InputBox, Label, Row, Scrollable, Spacer, Theme, UI, Window}};
+use crate::{terrain::{Room, Terrain}, widgetry::{Border, Button, Canvas, Column, Deck, InputBox, Label, Row, Scrollable, Spacer, Theme, UI, Window, look_and_feel::WindowBorders}};
 
 const ASPECT_CONFIG: AspectConfig = AspectConfig {
     pref_min_term_size: size2(80, 50),  // but expect ~112x60
@@ -46,11 +46,10 @@ fn main_loop(mut editor: EditorState) {
 
 fn load_file(io: &mut IO) -> Terrain {
     let mut theme = Theme::W95_FRUITY;
-    /*
     theme.window.borders = WindowBorders::DOS {
         active_title_fg: theme.window.color.1,
         inactive_title_fg: Light[2],
-    };*/
+    };
 
     let ui = UI::new(theme);
     let label: Label<()> = Label::new().setup(|l| {
