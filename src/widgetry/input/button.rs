@@ -51,6 +51,7 @@ impl <'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ButtonState<'games
                 },
                 MouseEvent::Up(_, _, _) => {}
                 MouseEvent::Drag {..} => {}
+                MouseEvent::Scroll(_, _, _) => {}
             };
             Signal::Continue
         });

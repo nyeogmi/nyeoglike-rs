@@ -1,6 +1,6 @@
 use std::{cell::Cell};
 
-use chiropterm::{Brush, FSem, MouseButton, Signal};
+use chiropterm::{Brush, FSem, MouseButton, MouseEvent, Signal};
 use euclid::{rect, vec2};
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, widget::{AnyWidget, LayoutHacks}};
@@ -40,13 +40,6 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
 
             let space_to_adjust = (inner_height - brush_height).max(0);
 
-            w.draw(
-                brush.region(
-                    rect(0, 0, brush.rect().width() - 2, dims.preferred.height.max(brush_height))
-                ).offset_rect(vec2(0, -offset_to_use)), 
-                menu.share()
-            );
-
             if space_to_adjust >= 0 {
                 // TODO: Adjust by a different amount if the scrollbar is small
 
@@ -61,7 +54,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
                 };
 
                 let scrollable_height = scrollbar.rect().height() - 4;
-                let scroll_offset_for = move |dy: isize| {
+                let scroll_offset_for = move |dy: f32| {
                     if scrollable_height == 0 { return 0.0; }
                     let scrolls_per_cell = inner_height as f64 / scrollable_height as f64;
                     dy as f64 * scrolls_per_cell
@@ -75,24 +68,26 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
 
                 let top_button_interactor = menu.on_click(move |_, w, me| {
                     match me {
-                        chiropterm::MouseEvent::Click(MouseButton::Left, _, _) => { 
-                            w.unique.set_offset(w.unique.offset.get() - scroll_offset_for(1).max(2.0), inner_height, brush_height); 
+                        MouseEvent::Click(MouseButton::Left, _, _) => { 
+                            w.unique.set_offset(w.unique.offset.get() - scroll_offset_for(1 as f32).max(2.0), inner_height, brush_height); 
                         }
-                        chiropterm::MouseEvent::Click(_, _, _) => {}
-                        chiropterm::MouseEvent::Up(_, _, _) => {}
-                        chiropterm::MouseEvent::Drag { .. } => {}
+                        MouseEvent::Click(_, _, _) => {}
+                        MouseEvent::Up(_, _, _) => {}
+                        MouseEvent::Drag { .. } => {}
+                        MouseEvent::Scroll(_, _, _) => {}
                     };
                     Signal::Continue
                 });
 
                 let btm_button_interactor = menu.on_click(move |_, w, me| {
                     match me {
-                        chiropterm::MouseEvent::Click(MouseButton::Left, _, _) => { 
-                            w.unique.set_offset(w.unique.offset.get() + scroll_offset_for(1).max(2.0), inner_height, brush_height); 
+                        MouseEvent::Click(MouseButton::Left, _, _) => { 
+                            w.unique.set_offset(w.unique.offset.get() + scroll_offset_for(1 as f32).max(2.0), inner_height, brush_height); 
                         }
-                        chiropterm::MouseEvent::Click(_, _, _) => {}
-                        chiropterm::MouseEvent::Up(_, _, _) => {}
-                        chiropterm::MouseEvent::Drag { .. } => {}
+                        MouseEvent::Click(_, _, _) => {}
+                        MouseEvent::Up(_, _, _) => {}
+                        MouseEvent::Drag { .. } => {}
+                        MouseEvent::Scroll(_, _, _) => {}
                     };
                     Signal::Continue
                 });
@@ -101,27 +96,33 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
                     // let me = me.offset(size2(scrollbar_rect.min_x() - brush.rect().min_x(), 0));
                     // may be no need, X doesn't matter
                     match me {
-                        chiropterm::MouseEvent::Click(MouseButton::Left, point, _) => {
+                        MouseEvent::Click(MouseButton::Left, point, _) => {
                             let scrollbar_center = (ix_top + ix_bot) / 2;
                             w.unique.set_offset(
-                                w.unique.offset.get() + scroll_offset_for(point.y - scrollbar_center),
+                                w.unique.offset.get() + scroll_offset_for((point.y - scrollbar_center) as f32),
                                     inner_height, brush_height,
                             ); 
                         }
-                        chiropterm::MouseEvent::Click(_, _, _) => {}
-                        chiropterm::MouseEvent::Up(_, _, _) => {}
-                        chiropterm::MouseEvent::Drag { 
+                        MouseEvent::Click(_, _, _) => {}
+                        MouseEvent::Up(_, _, _) => {}
+                        MouseEvent::Drag { 
                             mouse_button: MouseButton::Left,
                             last_point,
                             now_point,
                             .. 
                         } => {
                             w.unique.set_offset(
-                                w.unique.offset.get() + scroll_offset_for(now_point.y - last_point.y),
+                                w.unique.offset.get() + scroll_offset_for((now_point.y - last_point.y) as f32),
                                 inner_height, brush_height,
                             );
                         }
-                        chiropterm::MouseEvent::Drag { .. } => {} 
+                        MouseEvent::Drag { .. } => {} 
+                        MouseEvent::Scroll(amt, _, _) => {
+                            w.unique.set_offset(
+                                w.unique.offset.get() + scroll_offset_for(amt),
+                                inner_height, brush_height,
+                            );
+                        }
                     }
                     Signal::Continue
                 });
@@ -132,8 +133,15 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for ScrollableState<'ga
 
                 top_button.interactor(top_button_interactor, menu.ui.theme().button.preclick).putch(0x1e);
                 btm_button.interactor(btm_button_interactor, menu.ui.theme().button.preclick).putch(0x1f);
+                brush.dont_interfere_with_interactor().scroll_interactor(bar_interactor).fill(FSem::new());
             }
-            // TODO: Draw scrollbar
+
+            w.draw(
+                brush.region(
+                    rect(0, 0, brush.rect().width() - 2, dims.preferred.height.max(brush_height))
+                ).offset_rect(vec2(0, -offset_to_use)), 
+                menu.share()
+            );
         } 
     }
 

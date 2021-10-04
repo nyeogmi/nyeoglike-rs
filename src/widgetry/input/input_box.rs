@@ -67,6 +67,7 @@ impl<'gamestate, Out: 'gamestate> Widgetlike<'gamestate> for InputBoxState<Out> 
                     this.unique.highlight(start_point.x as usize, now_x);
                 },
                 MouseEvent::Drag {..} => {}
+                MouseEvent::Scroll(_, _, _) => {}
             };
             Signal::Continue
         });
