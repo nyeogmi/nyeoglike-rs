@@ -62,6 +62,7 @@ fn load_file(io: &mut IO) -> Terrain {
 
     let lbl = label.share();
     let button = Button::new().setup(move |b| {
+        b.hotkey = Some(Keycode::D);
         b.text = "D - Devour robot".to_owned();
         b.command = Some(Box::new(move |ui, _, _| { 
             let mut l_b = lbl.borrow_mut();

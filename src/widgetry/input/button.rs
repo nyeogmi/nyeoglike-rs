@@ -1,4 +1,4 @@
-use chiropterm::{Brush, Brushable, MouseEvent, Signal, Stamp};
+use chiropterm::{Brush, Brushable, InputEvent, Keycode, MouseEvent, Signal, Stamp};
 use euclid::{rect, size2};
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetCommon, WidgetMenu, Widgetlike, widget::LayoutHacks};
@@ -7,14 +7,15 @@ pub type Button<'gamestate> = Widget<'gamestate, ButtonState<'gamestate>>;
 
 // TODO: Hotkeys
 pub struct ButtonState<'gamestate> {
+    pub hotkey: Option<Keycode>,
     pub text: String,
-    pub command: Option<Box<dyn 'gamestate+FnMut(UI, &mut WidgetCommon<ButtonState<'gamestate>>, MouseEvent) -> Signal>>,
+    pub command: Option<Box<dyn 'gamestate+FnMut(UI, &mut WidgetCommon<ButtonState<'gamestate>>, InputEvent) -> Signal>>,
 
     pub layout_hacks: LayoutHacks,
 }
 
 impl<'gamestate> ButtonState<'gamestate> {
-    pub fn set_command(&mut self, cmd: impl 'gamestate+FnMut(UI, &mut WidgetCommon<ButtonState<'gamestate>>, MouseEvent) -> Signal) {
+    pub fn set_command(&mut self, cmd: impl 'gamestate+FnMut(UI, &mut WidgetCommon<ButtonState<'gamestate>>, InputEvent) -> Signal) {
         self.command = Some(Box::new(cmd))
     }
 }
@@ -22,6 +23,7 @@ impl<'gamestate> ButtonState<'gamestate> {
 impl <'gamestate> Widgetlike<'gamestate> for ButtonState<'gamestate> {
     fn create() -> Self {
         Self {
+            hotkey: None,
             text: "".to_owned(),
             command: None,
 
@@ -32,14 +34,8 @@ impl <'gamestate> Widgetlike<'gamestate> for ButtonState<'gamestate> {
     fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self>) {
         let click_interactor = menu.on_click(move |ui, this, click: MouseEvent| {
             match click {
-                MouseEvent::Click(_, _, _) => {
-                    ui.select(this); // this button can be selected, not that it matters
-                    let command = this.unique.command.take();
-                    if let Some(mut c) = command {
-                        let result = c(ui, this, click);
-                        this.unique.command.replace(c);
-                        return result
-                    }
+                MouseEvent::Click(_, _, _) => { 
+                    return ButtonState::click(ui, this, InputEvent::Mouse(click));
                 },
                 MouseEvent::Up(_, _, _) => {}
                 MouseEvent::Drag {..} => {}
@@ -47,6 +43,12 @@ impl <'gamestate> Widgetlike<'gamestate> for ButtonState<'gamestate> {
             };
             Signal::Continue
         });
+        
+        if let Some(hotkey) = self.hotkey {
+            menu.on_key(hotkey, move |ui, this, key| {
+                ButtonState::click(ui, this, InputEvent::Keyboard(key))
+            });
+        }
 
         let theme = menu.ui.theme().button;
         brush.bevel_w95(theme.bevel);
@@ -72,4 +74,17 @@ impl <'gamestate> Widgetlike<'gamestate> for ButtonState<'gamestate> {
     fn clear_layout_cache(&self, _: &UI) { }
 
     fn layout_hacks(&self) -> LayoutHacks { self.layout_hacks }
+}
+
+impl<'gamestate> ButtonState<'gamestate> {
+    fn click(ui: UI, this: &mut WidgetCommon<Self>, input: InputEvent) -> Signal {
+        ui.select(this); // this button can be selected, not that it matters. just deselect other stuff
+        let command = this.unique.command.take();
+        if let Some(mut c) = command {
+            let result = c(ui, this, input);
+            this.unique.command.replace(c);
+            return result
+        }
+        Signal::Continue
+    }
 }

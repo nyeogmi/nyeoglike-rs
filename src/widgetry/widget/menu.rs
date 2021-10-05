@@ -33,10 +33,27 @@ impl<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate>> WidgetMenu<'gamestat
         })
     }
 
+    pub fn on_hprio(&self, k: Keycode, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, InputEvent) -> Signal) -> Interactor {
+        let state = self.state.clone();
+        let o = self.brush_offset;
+        let ui = self.ui.share();
+        self.menu.on_hprio(k, move |inp| {
+            cb(ui.share(), &mut state.borrow_mut(), inp.offset(-o))
+        })
+    }
+
     pub fn on_key(&self, k: Keycode, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, KeyEvent) -> Signal) {
         let state = self.state.clone();
         let ui = self.ui.share();
         self.menu.on_key(k, move |inp| {
+            cb(ui.share(), &mut state.borrow_mut(), inp)
+        })
+    }
+
+    pub fn on_key_hprio(&self, k: Keycode, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, KeyEvent) -> Signal) {
+        let state = self.state.clone();
+        let ui = self.ui.share();
+        self.menu.on_key_hprio(k, move |inp| {
             cb(ui.share(), &mut state.borrow_mut(), inp)
         })
     }
@@ -54,6 +71,14 @@ impl<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate>> WidgetMenu<'gamestat
         let state = self.state.clone();
         let ui = self.ui.share();
         self.menu.on_text(move |inp| {
+            cb(ui.share(), &mut state.borrow_mut(), inp)
+        })
+    }
+
+    pub(crate) fn on_text_hprio(&self, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, char) -> Signal) {
+        let state = self.state.clone();
+        let ui = self.ui.share();
+        self.menu.on_text_hprio(move |inp| {
             cb(ui.share(), &mut state.borrow_mut(), inp)
         })
     }

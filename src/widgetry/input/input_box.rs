@@ -27,14 +27,14 @@ impl<'gamestate> Widgetlike<'gamestate> for InputBoxState {
 
     fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, InputBoxState>) {
         if selected {
-            menu.on_text( |_, this, character| { this.unique.type_character(character); Signal::Continue });
-            menu.on_key( Keycode::Backspace, |_, this, _| {this.unique.backspace(); Signal::Continue });
-            menu.on_key( Keycode::Delete, |_, this, _| {this.unique.delete(); Signal::Continue });
-            menu.on_key( Keycode::Left, |_, this, _| {this.unique.move_cursor(-1); Signal::Continue });
-            menu.on_key( Keycode::Right, |_, this, _| {this.unique.move_cursor(1); Signal::Continue });
-            menu.on_key( Keycode::Home, |_, this, _| {this.unique.set_cursor(0); Signal::Continue });
-            menu.on_key( Keycode::End, |_, this, _| {this.unique.set_cursor(this.unique.text.len()); Signal::Continue });
-            menu.on_key(Keycode::Enter, |ui, this, _| {
+            menu.on_text_hprio( |_, this, character| { this.unique.type_character(character); Signal::Continue });
+            menu.on_key_hprio( Keycode::Backspace, |_, this, _| {this.unique.backspace(); Signal::Continue });
+            menu.on_key_hprio( Keycode::Delete, |_, this, _| {this.unique.delete(); Signal::Continue });
+            menu.on_key_hprio( Keycode::Left, |_, this, _| {this.unique.move_cursor(-1); Signal::Continue });
+            menu.on_key_hprio( Keycode::Right, |_, this, _| {this.unique.move_cursor(1); Signal::Continue });
+            menu.on_key_hprio( Keycode::Home, |_, this, _| {this.unique.set_cursor(0); Signal::Continue });
+            menu.on_key_hprio( Keycode::End, |_, this, _| {this.unique.set_cursor(this.unique.text.len()); Signal::Continue });
+            menu.on_key_hprio(Keycode::Enter, |ui, this, _| {
                 ui.deselect(this);
                 Signal::Continue  // TODO: Make the UI hit the submit button
             })
