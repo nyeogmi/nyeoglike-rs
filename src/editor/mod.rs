@@ -55,10 +55,10 @@ fn load_file(io: &mut IO) -> Terrain {
     let label: Label = Label::new().setup(|l| {
         l.set_text("Please enter a filename (will be created if the file does not exist). PS Bhijn drinks piss.")
     });
-    let prompt1: InputBox = InputBox::new();
-    let prompt2: InputBox = InputBox::new();
-    let prompt3: InputBox = InputBox::new();
-    let prompt4: InputBox = InputBox::new();
+    let prompt1: InputBox = InputBox::new().setup(|ib| ib.max_width = Some(20));
+    let prompt2: InputBox = InputBox::new().setup(|ib| ib.max_width = Some(20));
+    let prompt3: InputBox = InputBox::new().setup(|ib| ib.max_width = Some(2));
+    let prompt4: InputBox = InputBox::new().setup(|ib| ib.max_width = Some(2));
 
     let lbl = label.share();
     let button = Button::new().setup(move |b| {
@@ -93,10 +93,11 @@ fn load_file(io: &mut IO) -> Terrain {
         c.add(label.share());
 
         c.add(Row::new().setup(|r| {
-            r.add(prompt1.setup(|f| f.layout_hacks.expand_horizontally = true).share());
+            r.add(prompt1.share());
             r.add(prompt2.share());
             r.add(prompt3.share());
             r.add(prompt4.share());
+            // r.add(Spacer::new());
         }));
         c.add(Canvas::new().setup(|c| {
             c.layout_hacks.preferred_width = Some(30);

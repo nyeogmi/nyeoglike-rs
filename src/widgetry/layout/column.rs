@@ -156,6 +156,7 @@ impl<'gamestate> ColumnState<'gamestate> {
             // Expand whatever likes being resized
             if likes_being_resized.len() == 0 {
                 // Just align to the top by expanding the bottom cell
+                // (Basically, we're implicitly adding a spacer.)
                 likes_being_resized.push(practical.len() - 1)
             }
 

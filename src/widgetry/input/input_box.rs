@@ -9,6 +9,7 @@ pub struct InputBoxState {
     text: String,
     cursor_l: usize,
     cursor_r: usize,
+    pub max_width: Option<usize>,
     // TODO: Store left position of window
 
     pub layout_hacks: LayoutHacks,
@@ -20,6 +21,7 @@ impl<'gamestate> Widgetlike<'gamestate> for InputBoxState {
             text: "".to_owned(),
             cursor_l: 0,
             cursor_r: 0,
+            max_width: None,
 
             layout_hacks: LayoutHacks::new(),
         }
@@ -84,10 +86,23 @@ impl<'gamestate> Widgetlike<'gamestate> for InputBoxState {
     }
 
     fn estimate_dimensions(&self, _: &UI, _width: isize) -> InternalWidgetDimensions {
+        let mut preferred_w;
+        let mut max = size2(isize::MAX, 2);
+        if let Some(mx) = self.max_width {
+            preferred_w = mx as isize;
+            max.width = preferred_w;
+        } else {
+            preferred_w = 80;  // assume the text is quite long!
+        }
+
+        if self.text.len() as isize > preferred_w {
+            preferred_w = self.text.len() as isize;
+        }
+
         InternalWidgetDimensions { 
-            min: size2(8, 2),
-            preferred: size2(8.max(self.text.len() as isize), 2),
-            max: None,
+            min: size2(preferred_w, 2),
+            preferred: size2(preferred_w, 2),
+            max: Some(max),
             align_size_to: size2(1, 2),
             horizontal_spacer_count: 0,
             vertical_spacer_count: 0,
@@ -104,6 +119,12 @@ impl InputBoxState {
         if self.cursor_l != self.cursor_r {
             self.text.drain(self.cursor_l..self.cursor_r + 1);
             self.cursor_r = self.cursor_l;
+        }
+
+        if let Some(mx) = self.max_width {
+            if self.text.len() >= mx {
+                return;
+            }
         }
 
         if self.cursor_l < self.text.len() {
