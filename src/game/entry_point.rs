@@ -21,16 +21,16 @@ pub fn main() {
 
 fn main_loop(globals: Globals, io: &mut IO) {
     let theme = globals.ui.theme();
-    let sitemode = globals.sitemode;
-    let sitemode_display = Canvas::new().setup(|c| {
-        c.set_draw(|brush, menu| {
-            // sitemode.borrow_mut().draw(brush, menu);
+    let sitemode = globals.sitemode.clone();
+    let sitemode_display = Canvas::new().setup(move |c| {
+        c.set_draw(move |brush, menu| {
+            sitemode.borrow_mut().draw(brush, menu);
         });
     });
 
     io.menu(|out, menu: Menu| {
         out.brush().fill(FSem::new().color(theme.base.wallpaper));
 
-        // win.draw(globals.ui.share(), out.brush().region(out.rect().inflate(-2, -2)), menu)
+        sitemode_display.draw(globals.ui.share(), out.brush().region(out.rect().inflate(-2, -2)), menu)
     });
 }
