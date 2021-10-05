@@ -78,6 +78,11 @@ fn load_file(io: &mut IO) -> Terrain {
                     io.menu(|out, menu| {
                         let i = menu.on_click(|_| Signal::Break);
                         out.brush().region(rect(2, 2, 80, 80)).interactor(i, (255, 255)).putfs("HELLO, ROBOT!");
+
+                        menu.on_key(Keycode::A, |k| {
+                            println!("key A: {:?}", k);
+                            Signal::Continue
+                        })
                     });
                     Signal::Continue
                 }));

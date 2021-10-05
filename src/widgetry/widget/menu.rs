@@ -24,23 +24,6 @@ impl<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate>> WidgetMenu<'gamestat
             phantom: PhantomData,
         }
     }
-    pub fn on(&self, k: Keycode, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, InputEvent) -> Signal) -> Interactor {
-        let state = self.state.clone();
-        let o = self.brush_offset;
-        let ui = self.ui.share();
-        self.menu.on(k, move |inp| {
-            cb(ui.share(), &mut state.borrow_mut(), inp.offset(-o))
-        })
-    }
-
-    pub fn on_hprio(&self, k: Keycode, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, InputEvent) -> Signal) -> Interactor {
-        let state = self.state.clone();
-        let o = self.brush_offset;
-        let ui = self.ui.share();
-        self.menu.on_hprio(k, move |inp| {
-            cb(ui.share(), &mut state.borrow_mut(), inp.offset(-o))
-        })
-    }
 
     pub fn on_key(&self, k: Keycode, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, KeyEvent) -> Signal) {
         let state = self.state.clone();
