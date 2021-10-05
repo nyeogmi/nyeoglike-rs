@@ -29,8 +29,6 @@ dependencies = [
 [[package]]
 name = "areaportal2d"
 version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e0015e94c6b1c6a28d5bf8bfe68e2107ee65076b9d0449748e153f81b2b1325"
 dependencies = [
  "euclid",
  "gridd-euclid",

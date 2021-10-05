@@ -4,7 +4,7 @@ mod layout_hacks;
 mod menu;
 mod polymorphic;
 
-use std::{cell::{Ref, RefCell, RefMut}, marker::PhantomData, rc::Rc};
+use std::{cell::{Ref, RefCell, RefMut}, rc::Rc};
 
 use chiropterm::*;
 

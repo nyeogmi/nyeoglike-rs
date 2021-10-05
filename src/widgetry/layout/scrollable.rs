@@ -139,8 +139,8 @@ impl Widgetlike for ScrollableState {
 
                 top_button.bevel_w95(menu.ui.theme().button.bevel);
                 btm_button.bevel_w95(menu.ui.theme().button.bevel);
-                top_button.interactor(top_button_interactor, menu.ui.theme().button.preclick).font(Font::Set).putch(0x1e);
-                btm_button.interactor(btm_button_interactor, menu.ui.theme().button.preclick).font(Font::Set).putch(0x1f);
+                top_button.interactor(top_button_interactor, menu.ui.theme().button.preclick).font(Font::Set).putch(0x1eu16);
+                btm_button.interactor(btm_button_interactor, menu.ui.theme().button.preclick).font(Font::Set).putch(0x1fu16);
 
                 brush.dont_interfere_with_interactor().scroll_interactor(bar_interactor).fill(FSem::new());
 
