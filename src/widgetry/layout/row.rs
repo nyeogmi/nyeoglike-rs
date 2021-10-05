@@ -9,17 +9,17 @@ use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetli
 // Smallvec size -- set this to "higher than most users will ever put in one column/row"
 const SM: usize = 32;
 
-pub type Row<'gamestate> = Widget<'gamestate, RowState<'gamestate>>;
+pub type Row = Widget<RowState>;
 
-pub struct RowState<'gamestate> {
-    widgets: SmallVec<[AnyWidget<'gamestate>; SM]>,
+pub struct RowState {
+    widgets: SmallVec<[AnyWidget; SM]>,
     plots_desired: RefCell<(isize, (Plots, InternalWidgetDimensions))>,
     plots_practical: RefCell<(CellSize, Plots)>,
 
     pub layout_hacks: LayoutHacks,
 }
 
-impl<'gamestate> Widgetlike<'gamestate> for RowState<'gamestate> {
+impl Widgetlike for RowState {
     fn create() -> Self {
         RowState { 
             widgets: SmallVec::new(),
@@ -30,7 +30,7 @@ impl<'gamestate> Widgetlike<'gamestate> for RowState<'gamestate> {
         }
     }
 
-    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, RowState<'gamestate>>) {
+    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'frame, RowState>) {
         let plots = self.get_plots_practical(&menu.ui, brush.rect().size);
 
         let mut total_x = 0;
@@ -58,13 +58,13 @@ impl<'gamestate> Widgetlike<'gamestate> for RowState<'gamestate> {
     fn layout_hacks(&self) -> LayoutHacks { self.layout_hacks }
 }
 
-impl<'gamestate> RowState<'gamestate> {
-    pub fn add<X: Widgetlike<'gamestate>>(&mut self, w: Widget<'gamestate, X>) {
+impl RowState {
+    pub fn add<X: Widgetlike>(&mut self, w: Widget<X>) {
         self.widgets.push(AnyWidget::wrap(w))
     }
 }
 
-impl<'gamestate> RowState<'gamestate> {
+impl RowState {
     fn get_plots_desired(&self, ui: &UI, width: isize) -> Ref<'_, (isize, (Plots, InternalWidgetDimensions))> {
         {
             let b = self.plots_desired.borrow();
@@ -90,7 +90,7 @@ impl<'gamestate> RowState<'gamestate> {
     }
 }
 
-impl<'gamestate> RowState<'gamestate> {
+impl RowState {
     fn internal_compute_plots_desired(&self, ui: &UI, width: isize) -> (Plots, InternalWidgetDimensions) {
         let mut preferred: SmallVec<[isize; SM]> = SmallVec::new();
 

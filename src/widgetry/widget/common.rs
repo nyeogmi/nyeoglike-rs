@@ -15,7 +15,7 @@ pub struct WidgetCommon<T> {
 }
 
 // TODO: Store last 3 dimension estimates, since some widgets (like scrollable) try several widths
-impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
+impl<T: Widgetlike> WidgetCommon<T> {
     pub fn new(value: T) -> Self {
         WidgetCommon {
             unique: value,
@@ -25,11 +25,11 @@ impl<'gamestate, T: Widgetlike<'gamestate>> WidgetCommon<T> {
         }
     }
 
-    pub fn skip_draw<'frame>(&self, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, T>) {
+    pub fn skip_draw<'frame>(&self, brush: Brush, menu: WidgetMenu<'frame, T>) {
         self.unique.skip_draw(menu.ui.is_selected(self.selection), brush, menu)
     }
 
-    pub fn draw<'frame>(&self, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, T>) {
+    pub fn draw<'frame>(&self, brush: Brush, menu: WidgetMenu<'frame, T>) {
         self.unique.draw(menu.ui.is_selected(self.selection), brush, menu)
     }
 

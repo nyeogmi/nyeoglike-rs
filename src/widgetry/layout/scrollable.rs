@@ -8,16 +8,16 @@ use euclid::{rect, vec2};
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, widget::{AnyWidget, LayoutHacks}};
 
 // Smallvec size -- set this to "higher than most users will ever put in one column/row"
-pub type Scrollable<'gamestate> = Widget<'gamestate, ScrollableState<'gamestate>>;
+pub type Scrollable = Widget<ScrollableState>;
 
-pub struct ScrollableState<'gamestate> {
-    widget: Option<AnyWidget<'gamestate>>,
+pub struct ScrollableState {
+    widget: Option<AnyWidget>,
     offset: Cell<f64>,
 
     pub layout_hacks: LayoutHacks,
 }
 
-impl<'gamestate> Widgetlike<'gamestate> for ScrollableState<'gamestate> {
+impl Widgetlike for ScrollableState {
     fn create() -> Self {
         ScrollableState { 
             widget: None,
@@ -27,7 +27,7 @@ impl<'gamestate> Widgetlike<'gamestate> for ScrollableState<'gamestate> {
         }
     }
 
-    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, ScrollableState<'gamestate>>) {
+    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'frame, ScrollableState>) {
         if let Some(w) = &self.widget {
             let dims = w.estimate_dimensions(&menu.ui, brush.rect().width() - 2);
 
@@ -184,7 +184,7 @@ impl<'gamestate> Widgetlike<'gamestate> for ScrollableState<'gamestate> {
     }
 }
 
-impl<'gamestate> ScrollableState<'gamestate> {
+impl ScrollableState {
     fn fix_offset(&self, inner_height: isize, brush_height: isize) -> isize {
         let space_to_adjust = (inner_height - brush_height).max(0);
 
@@ -201,8 +201,8 @@ impl<'gamestate> ScrollableState<'gamestate> {
     }
 }
 
-impl<'gamestate> ScrollableState<'gamestate> {
-    pub fn set<X: Widgetlike<'gamestate>>(&mut self, w: Widget<'gamestate, X>) {
+impl ScrollableState {
+    pub fn set<X: Widgetlike>(&mut self, w: Widget<X>) {
         self.widget = Some(AnyWidget::wrap(w))
     }
 }

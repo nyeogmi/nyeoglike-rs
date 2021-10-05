@@ -3,24 +3,24 @@ use euclid::{rect, size2};
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetCommon, WidgetMenu, Widgetlike, widget::LayoutHacks};
 
-pub type Button<'gamestate> = Widget<'gamestate, ButtonState<'gamestate>>;
+pub type Button = Widget<ButtonState>;
 
 // TODO: Hotkeys
-pub struct ButtonState<'gamestate> {
+pub struct ButtonState {
     pub hotkey: Option<Keycode>,
     pub text: String,
-    pub command: Option<Box<dyn 'gamestate+FnMut(UI, &mut WidgetCommon<ButtonState<'gamestate>>, InputEvent) -> Signal>>,
+    pub command: Option<Box<dyn FnMut(UI, &mut WidgetCommon<ButtonState>, InputEvent) -> Signal>>,
 
     pub layout_hacks: LayoutHacks,
 }
 
-impl<'gamestate> ButtonState<'gamestate> {
-    pub fn set_command(&mut self, cmd: impl 'gamestate+FnMut(UI, &mut WidgetCommon<ButtonState<'gamestate>>, InputEvent) -> Signal) {
+impl ButtonState {
+    pub fn set_command(&mut self, cmd: impl 'static+FnMut(UI, &mut WidgetCommon<ButtonState>, InputEvent) -> Signal) {
         self.command = Some(Box::new(cmd))
     }
 }
 
-impl <'gamestate> Widgetlike<'gamestate> for ButtonState<'gamestate> {
+impl Widgetlike for ButtonState {
     fn create() -> Self {
         Self {
             hotkey: None,
@@ -31,7 +31,7 @@ impl <'gamestate> Widgetlike<'gamestate> for ButtonState<'gamestate> {
         }
     }
 
-    fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self>) {
+    fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'frame, Self>) {
         let click_interactor = menu.on_click(move |ui, this, click: MouseEvent| {
             match click {
                 MouseEvent::Click(_, _, _) => { 
@@ -76,7 +76,7 @@ impl <'gamestate> Widgetlike<'gamestate> for ButtonState<'gamestate> {
     fn layout_hacks(&self) -> LayoutHacks { self.layout_hacks }
 }
 
-impl<'gamestate> ButtonState<'gamestate> {
+impl ButtonState {
     fn click(ui: UI, this: &mut WidgetCommon<Self>, input: InputEvent) -> Signal {
         ui.select(this); // this button can be selected, not that it matters. just deselect other stuff
         let command = this.unique.command.take();

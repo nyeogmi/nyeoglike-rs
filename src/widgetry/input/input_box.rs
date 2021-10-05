@@ -3,7 +3,7 @@ use euclid::{rect, size2};
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, Widgetlike, widget::{LayoutHacks, WidgetMenu}};
 
-pub type InputBox<'gamestate> = Widget<'gamestate, InputBoxState>;
+pub type InputBox = Widget<InputBoxState>;
 
 pub struct InputBoxState {
     text: String,
@@ -15,7 +15,7 @@ pub struct InputBoxState {
     pub layout_hacks: LayoutHacks,
 }
     
-impl<'gamestate> Widgetlike<'gamestate> for InputBoxState {
+impl Widgetlike for InputBoxState {
     fn create() -> Self {
         Self { 
             text: "".to_owned(),
@@ -27,7 +27,7 @@ impl<'gamestate> Widgetlike<'gamestate> for InputBoxState {
         }
     }
 
-    fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, InputBoxState>) {
+    fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'frame, InputBoxState>) {
         if selected {
             menu.on_text_hprio( |_, this, character| { this.unique.type_character(character); Signal::Continue });
             menu.on_key_hprio( Keycode::Backspace, |_, this, _| {this.unique.backspace(); Signal::Continue });

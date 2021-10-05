@@ -2,16 +2,15 @@ use chiropterm::{Brush};
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, widget::{AnyWidget, LayoutHacks}};
 
-// Smallvec size -- set this to "higher than most users will ever put in one column/row"
-pub type Container<'gamestate> = Widget<'gamestate, ContainerState<'gamestate>>;
+pub type Container = Widget<ContainerState>;
 
-pub struct ContainerState<'gamestate> {
-    widget: Option<AnyWidget<'gamestate>>,
+pub struct ContainerState {
+    widget: Option<AnyWidget>,
 
     pub layout_hacks: LayoutHacks,
 }
 
-impl<'gamestate> Widgetlike<'gamestate> for ContainerState<'gamestate> {
+impl Widgetlike for ContainerState {
     fn create() -> Self {
         ContainerState { 
             widget: None,
@@ -19,7 +18,7 @@ impl<'gamestate> Widgetlike<'gamestate> for ContainerState<'gamestate> {
         }
     }
 
-    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, ContainerState<'gamestate>>) {
+    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'frame, ContainerState>) {
         if let Some(w) = &self.widget {
             w.draw(brush, menu);
         }
@@ -44,8 +43,8 @@ impl<'gamestate> Widgetlike<'gamestate> for ContainerState<'gamestate> {
     }
 }
 
-impl<'gamestate> ContainerState<'gamestate> {
-    pub fn set<X: Widgetlike<'gamestate>>(&mut self, w: Widget<'gamestate, X>) {
+impl ContainerState {
+    pub fn set<X: Widgetlike>(&mut self, w: Widget<X>) {
         self.widget = Some(AnyWidget::wrap(w))
     }
 }

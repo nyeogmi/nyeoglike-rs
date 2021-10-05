@@ -6,22 +6,20 @@ use crate::widgetry::ui::{UI, UIContext};
 
 use super::{Widgetlike, common::WidgetCommon};
 
-pub struct WidgetMenu<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate>> {
+pub struct WidgetMenu<'frame, T: Widgetlike> {
     pub ui: UI,
     pub(in super) state: Rc<RefCell<WidgetCommon<T>>>,
     pub menu: Menu<'frame>,
     pub(in super) brush_offset: CellVector,
-    pub(in super) phantom: PhantomData<&'gamestate ()>,
 }
 
-impl<'gamestate: 'frame, 'frame, T: Widgetlike<'gamestate>> WidgetMenu<'gamestate, 'frame, T> {
-    pub fn share(&self) -> WidgetMenu<'gamestate, 'frame, T> {
+impl<'frame, T: Widgetlike> WidgetMenu<'frame, T> {
+    pub fn share(&self) -> WidgetMenu<'frame, T> {
         WidgetMenu {
             ui: self.ui.share(),
             state: self.state.clone(),
             menu: self.menu.share(),
             brush_offset: self.brush_offset,
-            phantom: PhantomData,
         }
     }
 

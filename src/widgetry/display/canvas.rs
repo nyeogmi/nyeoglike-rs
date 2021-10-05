@@ -2,20 +2,20 @@ use chiropterm::{Brush};
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, widget::LayoutHacks};
 
-pub type Canvas<'gamestate> = Widget<'gamestate, CanvasState<'gamestate>>;
+pub type Canvas = Widget<CanvasState>;
 
-pub struct CanvasState<'gamestate> {
+pub struct CanvasState {
     pub layout_hacks: LayoutHacks,
-    pub draw: Option<Box<dyn 'gamestate+for<'frame> Fn(Brush, WidgetMenu<'gamestate, 'frame, CanvasState>)>>,
+    pub draw: Option<Box<dyn for<'frame> Fn(Brush, WidgetMenu<'frame, CanvasState>)>>,
 }
 
-impl<'gamestate> CanvasState<'gamestate> {
-    pub fn set_draw(&mut self, draw: impl 'gamestate+for<'frame> Fn(Brush, WidgetMenu<'gamestate, 'frame, CanvasState>)) {
+impl CanvasState {
+    pub fn set_draw(&mut self, draw: impl 'static+for<'frame> Fn(Brush, WidgetMenu<'frame, CanvasState>)) {
         self.draw = Some(Box::new(draw))
     }
 }
 
-impl <'gamestate> Widgetlike<'gamestate> for CanvasState<'gamestate> {
+impl Widgetlike for CanvasState {
     fn create() -> Self {
         Self {
             layout_hacks: LayoutHacks::new(),
@@ -23,7 +23,7 @@ impl <'gamestate> Widgetlike<'gamestate> for CanvasState<'gamestate> {
         }
     }
 
-    fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self>) {
+    fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'frame, Self>) {
         if let Some(d) = &self.draw {
             d(brush, menu)
         }

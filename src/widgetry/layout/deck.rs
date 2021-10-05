@@ -7,15 +7,15 @@ use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetli
 // Smallvec size -- set this to "higher than most users will ever put in one column/row"
 const SM: usize = 32;
 
-pub type Deck<'gamestate> = Widget<'gamestate, DeckState<'gamestate>>;
+pub type Deck = Widget<DeckState>;
 
-pub struct DeckState<'gamestate> {
-    widgets: SmallVec<[AnyWidget<'gamestate>; SM]>,
+pub struct DeckState {
+    widgets: SmallVec<[AnyWidget; SM]>,
 
     pub layout_hacks: LayoutHacks,
 }
 
-impl<'gamestate> Widgetlike<'gamestate> for DeckState<'gamestate> {
+impl Widgetlike for DeckState {
     fn create() -> Self {
         DeckState { 
             widgets: SmallVec::new(),
@@ -24,7 +24,7 @@ impl<'gamestate> Widgetlike<'gamestate> for DeckState<'gamestate> {
         }
     }
 
-    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, DeckState<'gamestate>>) {
+    fn draw<'frame>(&self, _: bool, brush: Brush, menu: WidgetMenu<'frame, DeckState>) {
         let top = if let Some(top) = self.widgets.last() {
             top
         } else { return };
@@ -100,8 +100,8 @@ impl<'gamestate> Widgetlike<'gamestate> for DeckState<'gamestate> {
     fn layout_hacks(&self) -> LayoutHacks { self.layout_hacks }
 }
 
-impl<'gamestate> DeckState<'gamestate> {
-    pub fn add<X: Widgetlike<'gamestate>>(&mut self, w: Widget<'gamestate, X>) {
+impl DeckState {
+    pub fn add<X: Widgetlike>(&mut self, w: Widget<X>) {
         self.widgets.push(AnyWidget::wrap(w))
     }
 }

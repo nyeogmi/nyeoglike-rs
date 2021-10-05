@@ -3,7 +3,7 @@ use euclid::{size2};
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, widget::LayoutHacks};
 
-pub type Spacer<'gamestate> = Widget<'gamestate, SpacerState>;
+pub type Spacer = Widget<SpacerState>;
 
 pub struct SpacerState {
     pub horiz_count: usize,
@@ -12,7 +12,7 @@ pub struct SpacerState {
     pub layout_hacks: LayoutHacks,
 }
 
-impl <'gamestate> Widgetlike<'gamestate> for SpacerState {
+impl Widgetlike for SpacerState {
     fn create() -> Self {
         Self {
             horiz_count: 1,
@@ -22,7 +22,7 @@ impl <'gamestate> Widgetlike<'gamestate> for SpacerState {
         }
     }
 
-    fn draw<'frame>(&self, _: bool, _: Brush, _: WidgetMenu<'gamestate, 'frame, Self>) {
+    fn draw<'frame>(&self, _: bool, _: Brush, _: WidgetMenu<'frame, Self>) {
     }
 
     fn estimate_dimensions(&self, _: &UI, _: isize) -> InternalWidgetDimensions {

@@ -3,19 +3,19 @@ use euclid::{rect, size2};
 
 use super::{InternalWidgetDimensions, Label, UI, Widget, WidgetMenu, Widgetlike, look_and_feel::WindowBorders, widget::{AnyWidget, LayoutHacks}};
 
-pub type Window<'gamestate> = Widget<'gamestate, WindowState<'gamestate>>;
+pub type Window = Widget<WindowState>;
 
 // TODO: Support a w95-ish border type too
 
-pub struct WindowState<'gamestate> {
-    title: Option<Label<'gamestate>>,
+pub struct WindowState {
+    title: Option<Label>,
     title_text: Option<String>,  // all labels are potentially shared, so we have to clone it to provide a getter
-    widget: Option<AnyWidget<'gamestate>>,
+    widget: Option<AnyWidget>,
 
     pub layout_hacks: LayoutHacks,
 }
 
-impl<'gamestate> Widgetlike<'gamestate> for WindowState<'gamestate> {
+impl Widgetlike for WindowState {
     fn create() -> Self {
         WindowState { 
             title: None,
@@ -26,7 +26,7 @@ impl<'gamestate> Widgetlike<'gamestate> for WindowState<'gamestate> {
         }
     }
 
-    fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self>) {
+    fn draw<'frame>(&self, _selected: bool, brush: Brush, menu: WidgetMenu<'frame, Self>) {
         brush.fill(FSem::new().color(menu.ui.theme().window.color));
 
         let inner = match menu.ui.theme().window.borders {
@@ -130,8 +130,8 @@ impl<'gamestate> Widgetlike<'gamestate> for WindowState<'gamestate> {
     fn layout_hacks(&self) -> LayoutHacks { self.layout_hacks }
 }
 
-impl<'gamestate> WindowState<'gamestate> {
-    pub fn set<X: Widgetlike<'gamestate>>(&mut self, w: Widget<'gamestate, X>) {
+impl WindowState {
+    pub fn set<X: Widgetlike>(&mut self, w: Widget<X>) {
         self.widget = Some(AnyWidget::wrap(w))
     }
 }
@@ -164,7 +164,7 @@ fn draw_gradient(brush: Brush, color_opts: [u8; 2]) {
     }
 }
 
-impl<'gamestate> WindowState<'gamestate> {
+impl WindowState {
     pub fn set_title(&mut self, title: impl Into<String>) {
         let s = title.into();
         self.title_text = Some(s.clone());

@@ -16,26 +16,21 @@ pub use self::polymorphic::AnyWidget;
 
 use super::UI;
 
-pub struct Widget<'gamestate, T: Widgetlike<'gamestate>> {
+pub struct Widget<T: Widgetlike> {
     // TODO: Instead use a ref inside an arena allocator (not bump, we need drop)
     state: Rc<RefCell<WidgetCommon<T>>>,
-
-    // TODO: Move this to state?
-    phantom: PhantomData<&'gamestate ()>, 
 }
 
-impl<'gamestate, T: Widgetlike<'gamestate>> Widget<'gamestate, T> {
+impl<T: Widgetlike> Widget<T> {
     pub fn new() -> Self {
         Widget { 
             state: Rc::new(RefCell::new(WidgetCommon::new(T::create()))),
-            phantom: PhantomData,
         }
     }
 
     pub fn share(&self) -> Self {
         Widget { 
             state: self.state.clone(), 
-            phantom: PhantomData,
         }
     }
 
@@ -52,12 +47,11 @@ impl<'gamestate, T: Widgetlike<'gamestate>> Widget<'gamestate, T> {
         self.share()
     }
 
-    pub fn draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame>) 
-    where 'gamestate: 'frame {
+    pub fn draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame>) {
         let brush = self.internal_estimate_dimensions(&ui, brush.rect().width()).tailor(brush);
         let offset = brush.cursor_offset();
         let widget_menu = WidgetMenu { 
-            ui, state: self.state.clone(), menu, brush_offset: offset, phantom: PhantomData
+            ui, state: self.state.clone(), menu, brush_offset: offset,
         };
         if brush.clip().is_empty() {
             self.state.borrow().skip_draw(brush, widget_menu)
@@ -82,14 +76,14 @@ impl<'gamestate, T: Widgetlike<'gamestate>> Widget<'gamestate, T> {
     }
 }
 
-pub trait Widgetlike<'gamestate>: 'gamestate+Sized {
+pub trait Widgetlike: 'static+Sized {
     fn create() -> Self;
 
-    fn skip_draw<'frame>(&self, _selected: bool, _brush: Brush, _menu: WidgetMenu<'gamestate, 'frame, Self>) {
+    fn skip_draw<'frame>(&self, _selected: bool, _brush: Brush, _menu: WidgetMenu<'frame, Self>) {
         // NOTE: You can implement custom behavior if your widget must do work to pretend it was drawn when it wasn't drawn 
         // (ex: reshape to match the brush)
     }
-    fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, Self>);
+    fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'frame, Self>);
     fn estimate_dimensions(&self, ui: &UI, width: isize) ->InternalWidgetDimensions;
     fn clear_layout_cache(&self, ui: &UI);
     fn layout_hacks(&self) -> LayoutHacks;

@@ -5,7 +5,7 @@ use euclid::{rect, size2};
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, widget::LayoutHacks};
 
-pub type Label<'gamestate> = Widget<'gamestate, LabelState>;
+pub type Label = Widget<LabelState>;
 
 pub struct LabelState {
     text: String,
@@ -14,7 +14,7 @@ pub struct LabelState {
     pub layout_hacks: LayoutHacks,
 }
 
-impl <'gamestate> Widgetlike<'gamestate> for LabelState {
+impl Widgetlike for LabelState {
     fn create() -> Self {
         Self {
             text: "".to_owned(),
@@ -24,7 +24,7 @@ impl <'gamestate> Widgetlike<'gamestate> for LabelState {
         }
     }
 
-    fn draw<'frame>(&self, _selected: bool, brush: Brush, _menu: WidgetMenu<'gamestate, 'frame, Self>) {
+    fn draw<'frame>(&self, _selected: bool, brush: Brush, _menu: WidgetMenu<'frame, Self>) {
         let stamp = self.stamp(brush.rect().width());
         stamp.1.draw(brush);
     }

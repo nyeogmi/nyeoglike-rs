@@ -4,12 +4,12 @@ use crate::widgetry::UI;
 
 use super::{WidgetDimensions, Widget, WidgetMenu, Widgetlike};
 
-pub struct AnyWidget<'gamestate> {
-    implementation: Box<dyn AWidget<'gamestate>>,
+pub struct AnyWidget {
+    implementation: Box<dyn AWidget>,
 }
 
-impl<'gamestate> AnyWidget<'gamestate> {
-    pub fn wrap<X: Widgetlike<'gamestate>>(widget: Widget<'gamestate, X>) -> AnyWidget<'gamestate> {
+impl AnyWidget {
+    pub fn wrap<X: Widgetlike>(widget: Widget<X>) -> AnyWidget {
         AnyWidget { 
             implementation: Box::new(widget)
         }
@@ -19,7 +19,7 @@ impl<'gamestate> AnyWidget<'gamestate> {
         self.implementation.poly_estimate_dimensions(ui, width)
     }
 
-    pub fn draw<'frame, X: Widgetlike<'gamestate>>(&self, brush: Brush, menu: WidgetMenu<'gamestate, 'frame, X>) {
+    pub fn draw<'frame, X: Widgetlike>(&self, brush: Brush, menu: WidgetMenu<'frame, X>) {
         let ui = menu.ui;
         let menu = menu.menu;
 
@@ -31,20 +31,18 @@ impl<'gamestate> AnyWidget<'gamestate> {
     }
 }
 
-trait AWidget<'gamestate>: 'gamestate {
+trait AWidget: 'static {
     fn poly_estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions;
-    fn poly_draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame>)
-    where 'gamestate: 'frame;
+    fn poly_draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame>);
     fn poly_clear_layout_cache_if_needed(&self, ui: &UI);
 }
 
-impl<'gamestate, T: Widgetlike<'gamestate>> AWidget<'gamestate> for Widget<'gamestate, T> {
+impl<T: Widgetlike> AWidget for Widget<T> {
     fn poly_estimate_dimensions(&self, ui: &UI, width: isize) -> WidgetDimensions {
         self.estimate_dimensions(ui, width)
     }
 
-    fn poly_draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame>) 
-    where 'gamestate: 'frame {
+    fn poly_draw<'frame>(&self, ui: UI, brush: Brush, menu: Menu<'frame>) {
         self.draw(ui, brush, menu)
     }
 
