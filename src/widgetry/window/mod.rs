@@ -1,14 +1,15 @@
 use chiropterm::*;
 use euclid::{rect, size2};
 
-use super::{InternalWidgetDimensions, UI, Widget, WidgetMenu, Widgetlike, look_and_feel::WindowBorders, widget::{AnyWidget, LayoutHacks}};
+use super::{InternalWidgetDimensions, Label, UI, Widget, WidgetMenu, Widgetlike, look_and_feel::WindowBorders, widget::{AnyWidget, LayoutHacks}};
 
 pub type Window<'gamestate> = Widget<'gamestate, WindowState<'gamestate>>;
 
 // TODO: Support a w95-ish border type too
 
 pub struct WindowState<'gamestate> {
-    pub title: Option<String>,
+    title: Option<Label<'gamestate>>,
+    title_text: Option<String>,  // all labels are potentially shared, so we have to clone it to provide a getter
     widget: Option<AnyWidget<'gamestate>>,
 
     pub layout_hacks: LayoutHacks,
@@ -18,6 +19,7 @@ impl<'gamestate> Widgetlike<'gamestate> for WindowState<'gamestate> {
     fn create() -> Self {
         WindowState { 
             title: None,
+            title_text: None,
             widget: None,
 
             layout_hacks: LayoutHacks::new(),
@@ -48,7 +50,8 @@ impl<'gamestate> Widgetlike<'gamestate> for WindowState<'gamestate> {
 
                     draw_gradient(brush.region(title_bar_outer), [title_color.0[1], title_color.0[2]]);
 
-                    brush.region(title_bar_inner).fg(title_color.1).putfs(title);
+                    let title_brush = brush.region(title_bar_inner).fg(title_color.1);
+                    title.draw(menu.ui.share(), title_brush, menu.menu.share());
 
                     let inner = rect(1, 2, brush.rect().size.width - 2, brush.rect().size.height - 3);
                     brush.region(inner)
@@ -72,7 +75,8 @@ impl<'gamestate> Widgetlike<'gamestate> for WindowState<'gamestate> {
                 brush.fg(title_color).draw_box(false);  // TODO. Box and box color in theme
 
                 if let Some(title) = &self.title {
-                    brush.region(rect(2, 0, brush.rect().size.width - 4, 2)).fg(title_color).putfs(title);
+                    let title_brush = brush.region(rect(2, 0, brush.rect().size.width - 4, 2)).fg(title_color);
+                    title.draw(menu.ui.share(), title_brush, menu.menu.share());
                 }
 
                 brush.region(brush.rect().inflate(-2, -2))
@@ -157,5 +161,21 @@ fn draw_gradient(brush: Brush, color_opts: [u8; 2]) {
             brush.region(r).fill(FSem::new().bg(bg).fg(fg).sem(SemanticContent::Small(c1)));
             brush.region(rend).fill(FSem::new().bg(bg).fg(fg).sem(SemanticContent::SmallPizza1(c1, c2)))
         }
+    }
+}
+
+impl<'gamestate> WindowState<'gamestate> {
+    pub fn set_title(&mut self, title: impl Into<String>) {
+        let s = title.into();
+        self.title_text = Some(s.clone());
+        if let Some(widg) = &self.title {
+            widg.setup(|w| w.set_text(s));
+        } else {
+            self.title = Some(Label::new().setup(|w| w.set_text(s)));
+        }
+    }
+
+    pub fn get_title(&self) -> Option<&str> {
+        self.title_text.as_ref().map(|t| &t[..])
     }
 }

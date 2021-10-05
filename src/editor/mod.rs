@@ -53,7 +53,7 @@ fn load_file(io: &mut IO) -> Terrain {
 
     let ui = UI::new(theme);
     let label: Label = Label::new().setup(|l| {
-        l.text = "Please enter a filename (will be created if the file does not exist). PS Bhijn drinks piss.".to_string()
+        l.set_text("Please enter a filename (will be created if the file does not exist). PS Bhijn drinks piss.")
     });
     let prompt1: InputBox = InputBox::new();
     let prompt2: InputBox = InputBox::new();
@@ -65,12 +65,12 @@ fn load_file(io: &mut IO) -> Terrain {
         b.text = "D - Devour robot".to_owned();
         b.command = Some(Box::new(move |ui, _, _| { 
             let mut l_b = lbl.borrow_mut();
-            if l_b.unique.text.starts_with("P") {
-                l_b.unique.text = "Nyeh!".to_owned();
+            if l_b.unique.get_text().starts_with("P") {
+                l_b.unique.set_text("Nyeh!");
                 ui.recompute_layout();
             } else {
-                // l_b.unique.text += " Nyeh!"
-                l_b.unique.text = l_b.unique.text.replace("e", "eeeeee"); // unique.text += " Nyeh!"
+                let tx = l_b.unique.get_text().replace("e", "eeeeee"); // unique.text += " Nyeh!"
+                l_b.unique.set_text(tx);
                 ui.recompute_layout();
 
                 return Signal::Modal(Box::new(|io: &mut IO| {
@@ -111,7 +111,7 @@ fn load_file(io: &mut IO) -> Terrain {
 
     let win = Window::new();
     win.setup(|w| { 
-        w.title = Some("TITLE BAR!!!".to_owned());
+        w.set_title("TITLE BAR!!!");
         w.set(col.share()) 
     });
 
@@ -122,8 +122,8 @@ fn load_file(io: &mut IO) -> Terrain {
         c.add(Spacer::new());
         c.add(Window::new().setup(|w|  {
             w.set(Border::new().setup(|b| {
-                b.set_north(Label::new().setup(|l| l.text = "NORTH NORTH NORTH NORTH".to_string()));
-                b.set_west(Label::new().setup(|l| l.text = "WEST".to_string()));
+                b.set_north(Label::new().setup(|l| l.set_text("NORTH NORTH NORTH NORTH")));
+                b.set_west(Label::new().setup(|l| l.set_text("WEST")));
                 b.set_center(Canvas::new().setup(|c| {
                     c.set_draw(|b, _| {
                         b.fill(FSem::new().color((LtRed[1], White)));
@@ -131,17 +131,17 @@ fn load_file(io: &mut IO) -> Terrain {
                     });
                     c.layout_hacks.preferred_height = Some(4);
                 }));
-                b.set_east(Label::new().setup(|l| l.text = "EAST".to_string()));
-                b.set_south(Label::new().setup(|l| l.text = "SOUTH SOUTH SOUTH SOUTH".to_string()));
+                b.set_east(Label::new().setup(|l| l.set_text("EAST")));
+                b.set_south(Label::new().setup(|l| l.set_text("SOUTH SOUTH SOUTH SOUTH")));
             }))
         }));
         c.add(Spacer::new());
         c.add(Deck::new().setup(|d| {
-            d.add(Window::new().setup(|w| w.title = Some("WINDOW 1".to_string())));
-            d.add(Window::new().setup(|w| w.title = Some("WINDOW 2".to_string())));
+            d.add(Window::new().setup(|w| w.set_title("WINDOW 1")));
+            d.add(Window::new().setup(|w| w.set_title("WINDOW 2")));
             d.add(Window::new().setup(|w| {
-                w.title = Some("WINDOW 3".to_string());
-                w.set(Label::new().setup(|l| { l.text = "I'm a bat!".to_string(); }));
+                w.set_title("WINDOW 3");
+                w.set(Label::new().setup(|l| { l.set_text("I'm a bat!"); }));
             }));
         }));
         c.add(Spacer::new());
