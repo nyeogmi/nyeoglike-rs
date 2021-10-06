@@ -69,6 +69,7 @@ fn load_file(io: &mut IO) -> Terrain {
             if l_b.unique.get_text().starts_with("P") {
                 l_b.unique.set_text("Nyeh!");
                 ui.recompute_layout();
+                return Signal::Refresh;
             } else {
                 let tx = l_b.unique.get_text().replace("e", "eeeeee"); // unique.text += " Nyeh!"
                 l_b.unique.set_text(tx);
@@ -79,16 +80,14 @@ fn load_file(io: &mut IO) -> Terrain {
                         let i = menu.on_click(|_| Signal::Break);
                         out.brush().region(rect(2, 2, 80, 80)).interactor(i, (255, 255)).putfs("HELLO, ROBOT!");
 
-                        menu.on_key(Keycode::A, |k| {
+                        menu.on_key(OnKey::only(Keycode::A).pressed(), |k| {
                             println!("key A: {:?}", k);
                             Signal::Continue
                         })
                     });
-                    Signal::Continue
+                    Signal::Refresh
                 }));
             } 
-
-            Signal::Continue
         }));
     });
 

@@ -1,4 +1,4 @@
-use chiropterm::{Brush, Brushable, InputEvent, Keycode, MouseEvent, Signal, Stamp};
+use chiropterm::*;
 use euclid::{rect, size2};
 
 use crate::widgetry::{InternalWidgetDimensions, UI, Widget, WidgetCommon, WidgetMenu, Widgetlike, widget::LayoutHacks};
@@ -41,11 +41,11 @@ impl Widgetlike for ButtonState {
                 MouseEvent::Drag {..} => {}
                 MouseEvent::Scroll(_, _, _) => {}
             };
-            Signal::Continue
+            Signal::Refresh
         });
         
         if let Some(hotkey) = self.hotkey {
-            menu.on_key(hotkey, move |ui, this, key| {
+            menu.on_key(OnKey::only(hotkey).pressed(), move |ui, this, key| {
                 ButtonState::click(ui, this, InputEvent::Keyboard(key))
             });
         }
@@ -85,6 +85,6 @@ impl ButtonState {
             this.unique.command.replace(c);
             return result
         }
-        Signal::Continue
+        Signal::Refresh
     }
 }

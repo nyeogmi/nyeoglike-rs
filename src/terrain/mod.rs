@@ -65,7 +65,15 @@ impl Terrain {
         self.player_start_xy
     }
 
-    pub(crate) fn create_room(&mut self) -> Id<Room> {
+    pub fn create_room(&mut self) -> Id<Room> {
         self.rooms.insert(Room::new())
+    }
+
+    pub fn add_area_portal(&mut self, area_portal: AreaPortal) {
+        self.portals.add_area_portal(area_portal)
+    }
+
+    pub fn step_offset(&self, point: GlobalView, offset: EgoVec) -> GlobalView {
+        self.portals.step_offset(point, offset)
     }
 }

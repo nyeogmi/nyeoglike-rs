@@ -7,6 +7,7 @@ pub use euclid::{size2, point2, rect, vec2, Rect};
 pub use super::constants::*;
 pub use super::{
     Globals,
+    GlobalState,
     SiteMode,
 };
 pub use std::cell::{Ref, RefCell, Cell};

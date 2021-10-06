@@ -4,7 +4,8 @@ use crate::terrain::Terrain;
 
 use super::reexports::*;
 
-pub struct Globals {
+pub type Globals = Rc<GlobalState>;
+pub struct GlobalState {
     // UI stuff
     pub ui: UI,
 

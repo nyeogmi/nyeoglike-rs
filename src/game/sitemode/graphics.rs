@@ -8,6 +8,7 @@ pub(super) const SCCELL_Y: isize = 6;
 
 impl SiteMode {
     pub fn draw<'frame>(&self, globals: &Globals, brush: Brush, menu: WidgetMenu<'frame, CanvasState>) {
+        self.add_basic_controls(globals, menu);
         brush.fill(FSem::new().color(FADE));
 
         if let Some(viewport) = self.get_viewport(brush.rect()) {
@@ -44,7 +45,7 @@ impl SiteMode {
         }
     }
 
-    fn vis_cell(&self, globals: &Globals, at: Option<GlobalView>) -> Option<VisCell> {
+    fn vis_cell(&self, globals: &GlobalState, at: Option<GlobalView>) -> Option<VisCell> {
         // NOTE: if we don't know what's in it we can't use it
         let block = if let Some(x) = at {
             globals.terrain.borrow_mut().get(x.point())
@@ -55,11 +56,11 @@ impl SiteMode {
         Some(match block {
             Block::Plain => VisCell { 
                 height: 2,
-                msg: format!("{:?},{:?}\n{:?}", at.unwrap().x.x, at.unwrap().x.y, at.unwrap().c),
+                msg: format!("{:?},{:?}\n{:?}\n{:?}", at.unwrap().x.x, at.unwrap().x.y, at.unwrap().c, at.unwrap().r.get_value()),
             },
             Block::Empty => VisCell { 
                 height: 0,
-                msg: format!("{:?},{:?}\n{:?}", at.unwrap().x.x, at.unwrap().x.y, at.unwrap().c),
+                msg: format!("{:?},{:?}\n{:?}\n{:?}", at.unwrap().x.x, at.unwrap().x.y, at.unwrap().c, at.unwrap().r.get_value()),
             },
         })
     }

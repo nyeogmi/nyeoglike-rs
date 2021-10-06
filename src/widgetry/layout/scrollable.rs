@@ -72,6 +72,7 @@ impl Widgetlike for ScrollableState {
                     match me {
                         MouseEvent::Click(MouseButton::Left, _, _) => { 
                             w.unique.set_offset(w.unique.offset.get() - scroll_offset_for(1 as f32).max(2.0), inner_height, brush_height); 
+                            return Signal::Refresh;
                         }
                         MouseEvent::Click(_, _, _) => {}
                         MouseEvent::Up(_, _, _) => {}
@@ -85,6 +86,7 @@ impl Widgetlike for ScrollableState {
                     match me {
                         MouseEvent::Click(MouseButton::Left, _, _) => { 
                             w.unique.set_offset(w.unique.offset.get() + scroll_offset_for(1 as f32).max(2.0), inner_height, brush_height); 
+                            return Signal::Refresh;
                         }
                         MouseEvent::Click(_, _, _) => {}
                         MouseEvent::Up(_, _, _) => {}
@@ -104,6 +106,7 @@ impl Widgetlike for ScrollableState {
                                 w.unique.offset.get() + scroll_offset_for((point.y - scrollbar_center) as f32),
                                     inner_height, brush_height,
                             ); 
+                            return Signal::Refresh;
                         }
                         MouseEvent::Click(_, _, _) => {}
                         MouseEvent::Up(_, _, _) => {}
@@ -117,6 +120,7 @@ impl Widgetlike for ScrollableState {
                                 w.unique.offset.get() + scroll_offset_for((now_point.y - last_point.y) as f32),
                                 inner_height, brush_height,
                             );
+                            return Signal::Refresh;
                         }
                         MouseEvent::Drag { .. } => {} 
                         MouseEvent::Scroll(amt, _, _) => {
@@ -124,6 +128,7 @@ impl Widgetlike for ScrollableState {
                                 w.unique.offset.get() + scroll_offset_for(amt),
                                 inner_height, brush_height,
                             );
+                            return Signal::Refresh;
                         }
                     }
                     Signal::Continue

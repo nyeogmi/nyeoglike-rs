@@ -5,5 +5,5 @@ mod reexports;
 mod sitemode;
 
 pub use entry_point::main;
-pub use globals::Globals;
+pub use globals::{Globals, GlobalState};
 pub use sitemode::SiteMode;

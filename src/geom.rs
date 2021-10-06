@@ -1,9 +1,10 @@
-use areaportal2d::{Egosphere as Es, GlobalView as GV, GlobalPoint as GP, Viewport as Vp, Portals as Po};
+use areaportal2d::{AreaPortal as Ap, Egosphere as Es, GlobalView as GV, GlobalPoint as GP, Viewport as Vp, Portals as Po};
 use euclid::{Point2D, Rect, Size2D, Vector2D};
 use moogle::Id;
 
 use crate::terrain::Room;
 
+pub type AreaPortal = Ap<Id<Room>>;
 pub type Egosphere = Es<Id<Room>>;
 pub type GlobalView = GV<Id<Room>>;
 pub type GlobalPoint = GP<Id<Room>>;

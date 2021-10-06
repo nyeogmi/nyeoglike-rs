@@ -23,7 +23,7 @@ impl<'frame, T: Widgetlike> WidgetMenu<'frame, T> {
         }
     }
 
-    pub fn on_key(&self, k: Keycode, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, KeyEvent) -> Signal) {
+    pub fn on_key(&self, k: KeyRecognizer<'frame>, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, KeyEvent) -> Signal) {
         let state = self.state.clone();
         let ui = self.ui.share();
         self.menu.on_key(k, move |inp| {
@@ -31,7 +31,7 @@ impl<'frame, T: Widgetlike> WidgetMenu<'frame, T> {
         })
     }
 
-    pub fn on_key_hprio(&self, k: Keycode, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, KeyEvent) -> Signal) {
+    pub fn on_key_hprio(&self, k: KeyRecognizer<'frame>, cb: impl 'frame+Fn(UI, &mut WidgetCommon<T>, KeyEvent) -> Signal) {
         let state = self.state.clone();
         let ui = self.ui.share();
         self.menu.on_key_hprio(k, move |inp| {

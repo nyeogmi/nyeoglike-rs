@@ -1,6 +1,6 @@
 use crate::game::reexports::*;
 
-use super::graphics::{SCCELL_X, SCCELL_Y};
+use super::{Intent, graphics::{SCCELL_X, SCCELL_Y}};
 
 impl SiteMode {
     pub fn on_loop(&mut self, globals: &Globals, screen_boundaries: CellRect) {
@@ -15,15 +15,11 @@ impl SiteMode {
         }
     }
 
-    pub fn on_tick(&self) {
-
-    }
-
     pub(super) fn get_viewport(&self, screen_boundaries: CellRect) -> Option<Viewport> {
         let ego_rect = rect(
             0, 0, 
             // TODO: Round up
-            screen_boundaries.width() / SCCELL_X, screen_boundaries.height() / SCCELL_Y
+            screen_boundaries.width() / SCCELL_X + 1, screen_boundaries.height() / SCCELL_Y + 1
         );
 
         if let Some(player_xy) = self.player_xy {
@@ -35,5 +31,9 @@ impl SiteMode {
         } else {
             None
         }
+    }
+
+    pub fn on_tick(&mut self, globals: &Globals) {
+        self.handle_intent(globals);
     }
 }

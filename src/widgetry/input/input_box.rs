@@ -28,25 +28,50 @@ impl Widgetlike for InputBoxState {
     }
 
     fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'frame, InputBoxState>) {
+        use chiropterm::OnKey;
+        use Keycode::*;
+
         if selected {
-            menu.on_text_hprio( |_, this, character| { this.unique.type_character(character); Signal::Continue });
-            menu.on_key_hprio( Keycode::Backspace, |_, this, _| {this.unique.backspace(); Signal::Continue });
-            menu.on_key_hprio( Keycode::Delete, |_, this, _| {this.unique.delete(); Signal::Continue });
-            menu.on_key_hprio( Keycode::Left, |_, this, _| {this.unique.move_cursor(-1); Signal::Continue });
-            menu.on_key_hprio( Keycode::Right, |_, this, _| {this.unique.move_cursor(1); Signal::Continue });
-            menu.on_key_hprio( Keycode::Home, |_, this, _| {this.unique.set_cursor(0); Signal::Continue });
-            menu.on_key_hprio( Keycode::End, |_, this, _| {this.unique.set_cursor(this.unique.text.len()); Signal::Continue });
-            menu.on_key_hprio(Keycode::Enter, |ui, this, _| {
-                ui.deselect(this);
-                Signal::Continue  // TODO: Make the UI hit the submit button
-            })
+            menu.on_text_hprio( |_, this, character| { this.unique.type_character(character); Signal::Refresh });
+            menu.on_key_hprio( 
+                OnKey::only(Keycode::Backspace).pressed(),
+                |_, this, _| {this.unique.backspace(); Signal::Refresh }
+            );
+            menu.on_key_hprio( 
+                OnKey::only(Keycode::Delete).pressed(),
+                |_, this, _| {this.unique.delete(); Signal::Refresh }
+            );
+            menu.on_key_hprio( 
+                OnKey::only(Keycode::Left).pressed(),
+                |_, this, _| {this.unique.move_cursor(-1); Signal::Refresh }
+            );
+            menu.on_key_hprio( 
+                OnKey::only(Keycode::Right).pressed(), 
+                |_, this, _| {this.unique.move_cursor(1); Signal::Refresh }
+            );
+            menu.on_key_hprio( 
+                OnKey::only(Keycode::Home).pressed(), 
+                |_, this, _| {this.unique.set_cursor(0); Signal::Refresh }
+            );
+            menu.on_key_hprio( 
+                OnKey::only(Keycode::End).pressed(), 
+                |_, this, _| {this.unique.set_cursor(this.unique.text.len()); Signal::Refresh }
+            );
+            menu.on_key_hprio(
+                OnKey::only(Keycode::Enter).pressed(), 
+                |ui, this, _| {
+                    ui.deselect(this);
+                    Signal::Refresh
+                }
+            )
         }
 
         let click_interactor = menu.on_click(move |ui, this, click: MouseEvent| {
             match click {
                 MouseEvent::Click(MouseButton::Left, point, _) => {
                     ui.select(this);
-                    this.unique.set_cursor(point.x as usize)
+                    this.unique.set_cursor(point.x as usize);
+                    return Signal::Refresh
                 },
                 MouseEvent::Click(_, _, _) => {}
                 MouseEvent::Up(_, _, _) => {}
@@ -59,6 +84,7 @@ impl Widgetlike for InputBoxState {
                     let now_x = now_point.x.max(0) as usize;
 
                     this.unique.highlight(start_point.x as usize, now_x);
+                    return Signal::Refresh
                 },
                 MouseEvent::Drag {..} => {}
                 MouseEvent::Scroll(_, _, _) => {}
@@ -70,7 +96,6 @@ impl Widgetlike for InputBoxState {
         brush.fill(FSem::new().color(if selected { theme.selected } else { theme.deselected }));
         brush.bevel_w95(theme.bevel);
         brush.putfs(&self.text);  // TODO: Don't wrap?
-
 
         // make clickable
         brush.interactor(click_interactor, theme.preclick).fill(FSem::new());
