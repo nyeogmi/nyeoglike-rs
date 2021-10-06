@@ -1,3 +1,6 @@
-mod intent;
+mod behavior;
+mod buttonmap;
+mod walk;
 
-pub use intent::*;
+pub use behavior::*;
+pub use walk::*;

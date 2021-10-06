@@ -1,5 +1,5 @@
 mod behavior;
-mod controller;
+mod bindgui;
 mod graphics;
 mod logic;
 mod structure;
