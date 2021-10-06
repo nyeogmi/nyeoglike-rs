@@ -21,6 +21,7 @@ impl SiteMode {
             // - something in the world moves
             // only recalculate memory on ticks
             // probably provide a mark_dirty function that resize() calls!
+            // NOTE: Maybe a function that is called once every tick, but instantly re-called if the screen is resized?
             self.memory.calculate(|xy| Self::vis_cell(&globals, ego.at(xy)))
         }
     }

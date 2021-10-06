@@ -1,6 +1,6 @@
 use crate::game::reexports::*;
 
-use areaportal2d::{EgoSize, EgoVec};
+use areaportal2d::{EgoVec};
 
 use super::VisCell;
 
@@ -19,7 +19,6 @@ impl Memory {
         let original_rect = self.grid.rect();
         if original_rect == viewport.rect { return; }
 
-        let center = original_rect.center();
         let new_rect = viewport.rect;
         self.grid.resize(new_rect, || None);
     }

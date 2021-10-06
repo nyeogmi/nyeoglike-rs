@@ -1,8 +1,10 @@
+mod behavior;
 mod controller;
-mod intent;
 mod graphics;
 mod logic;
 mod structure;
 
-pub(self) use intent::Intent;
-pub use structure::SiteMode;
+pub(self) use self::behavior::*;
+pub(self) use self::graphics::*;
+pub(self) use self::structure::*;
+pub use self::structure::SiteMode;

@@ -2,8 +2,7 @@ use std::{process::exit};
 
 use chiropterm::{*, colors::{Light, LtRed, White}};
 use euclid::*;
-use moogle::Id;
-use crate::{terrain::{Room, Terrain}, widgetry::{Border, Button, Canvas, Column, Deck, InputBox, Label, Row, Scrollable, Spacer, Theme, UI, Window, look_and_feel::WindowBorders}};
+use crate::{terrain::Terrain, widgetry::{Border, Button, Canvas, Column, Deck, InputBox, Label, Row, Scrollable, Spacer, Theme, UI, Window, look_and_feel::WindowBorders}};
 
 const ASPECT_CONFIG: AspectConfig = AspectConfig {
     pref_min_term_size: size2(80, 50),  // but expect ~112x60
@@ -13,9 +12,11 @@ const ASPECT_CONFIG: AspectConfig = AspectConfig {
 struct EditorState {
     io: IO, 
 
+    /*
     terrain: Terrain,
     room: Option<Id<Room>>,
     cursor: Point2D<isize, isize>
+    */
 }
 
 pub fn main() {
@@ -26,14 +27,16 @@ pub fn main() {
         |_| exit(0)
     );
 
-    let terrain = load_file(&mut io);
+    load_file(&mut io);
 
     main_loop(EditorState {
         io, 
 
+        /* 
         terrain,
         room: None,
         cursor: point2(0, 0),
+        */
     })
 }
 

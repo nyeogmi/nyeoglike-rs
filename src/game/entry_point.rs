@@ -40,8 +40,11 @@ fn main_loop(globals: &Globals, io: &mut IO) {
         sitemode.borrow_mut().on_loop(&globals, out.rect());
 
         let g = globals.clone();
+        let rect = out.rect();
         menu.on_tick(move |_| { 
+            // TODO: Trap "resized to rect"
             g.sitemode.borrow_mut().on_tick(&g);
+            g.sitemode.borrow_mut().on_tick_or_resize(&g, rect);
             Signal::Refresh
         });
         sitemode_display.draw(globals.ui.share(), out.brush(), menu)

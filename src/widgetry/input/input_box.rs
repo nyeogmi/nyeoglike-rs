@@ -28,9 +28,6 @@ impl Widgetlike for InputBoxState {
     }
 
     fn draw<'frame>(&self, selected: bool, brush: Brush, menu: WidgetMenu<'frame, InputBoxState>) {
-        use chiropterm::OnKey;
-        use Keycode::*;
-
         if selected {
             menu.on_text_hprio( |_, this, character| { this.unique.type_character(character); Signal::Refresh });
             menu.on_key_hprio( 
