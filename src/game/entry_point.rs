@@ -80,5 +80,23 @@ fn test_terrain() -> Terrain {
         size: 1,
     });
 
+    terrain.add_area_portal(AreaPortal {
+        src: GlobalView { r: room1, x: point2(0, -3), c: Cardinal::North},
+        dst: GlobalView { r: room1, x: point2(0, 3), c: Cardinal::North},
+        size: 1,
+    });
+
+    terrain.add_area_portal(AreaPortal {
+        src: GlobalView { r: room1, x: point2(3, 0), c: Cardinal::East},
+        dst: GlobalView { r: room2, x: point2(0, 3), c: Cardinal::North},
+        size: 1,
+    });
+
+    terrain.add_area_portal(AreaPortal {
+        src: GlobalView { r: room2, x: point2(0, -3), c: Cardinal::North},
+        dst: GlobalView { r: room0, x: point2(-3, 0), c: Cardinal::East},
+        size: 1,
+    });
+
     terrain
 }

@@ -43,6 +43,7 @@ impl SiteMode {
     fn walk(&mut self, globals: &Globals, offset: EgoVec) {
         let terrain: Ref<Terrain> = globals.terrain.borrow();
         self.player_xy = self.player_xy.map(|pxy| terrain.step_offset(pxy, offset));
+        self.shift_memory(-offset);
     }
 }
 impl Movement {
