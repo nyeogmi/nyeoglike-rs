@@ -8,7 +8,7 @@ pub use super::constants::*;
 pub use super::{
     Globals,
     GlobalState,
-    SiteMode,
+    sitemode::*,
 };
 pub use std::cell::{Ref, RefCell, Cell};
 pub use std::rc::Rc;

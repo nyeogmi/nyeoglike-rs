@@ -1,16 +1,18 @@
+use crate::foreach_behavior;
 use crate::game::reexports::*;
+use crate::game::sitemode::*;
 
 impl SiteMode {
-    pub fn input_set_walk_up(&mut self, is_down: bool) {
-        self.behavior.walk.up = is_down;
+    // TODO: Track last auxiliary pressed and use it
+    pub fn input_auxiliary(&mut self, auxiliary: Auxiliary) {
+        foreach_behavior! { [behavior]
+            if self.handle_auxiliary(behavior, auxiliary) {
+                return;
+            }
+        }
     }
-    pub fn input_set_walk_down(&mut self, is_down: bool) {
-        self.behavior.walk.down = is_down;
-    }
-    pub fn input_set_walk_left(&mut self, is_down: bool) {
-        self.behavior.walk.left = is_down;
-    }
-    pub fn input_set_walk_right(&mut self, is_down: bool) {
-        self.behavior.walk.right = is_down;
+
+    pub fn input_press_charge(&mut self) {
+        self.try_queue(ChargeToken);
     }
 }

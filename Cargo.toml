@@ -15,6 +15,7 @@ edition = "2018"
 # areaportal2d = "0.1.1"
 # chiropterm = "0.1.1"
 areaportal2d = { path = "../areaportal2d" }
+bresenham = "0.1.1"
 chiropterm = { path = "../chiropterm" }
 euclid = "0.22"
 gridd-euclid = "0.1.3"
