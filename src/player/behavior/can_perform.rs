@@ -1,4 +1,4 @@
-use crate::game::{reexports::*, player::*};
+use crate::{reexports::*, player::*};
 
 pub trait CanPerform<T: Clone> {
     // these can do nothing if your type has no queuing feature

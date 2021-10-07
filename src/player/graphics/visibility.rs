@@ -1,13 +1,13 @@
-use crate::game::reexports::*;
+use crate::reexports::*;
 
 use super::{SCCELL_X, SCCELL_Y};
 
 impl Player {
-    pub(in crate::game::player) fn shift_memory(&mut self, offset: EgoVec) {
+    pub(in crate::player) fn shift_memory(&mut self, offset: EgoVec) {
         self.memory.shift(offset)
     }
 
-    pub(in crate::game::player) fn update_visibility(&mut self, globals: &Globals, screen_boundaries: CellRect) {
+    pub(in crate::player) fn update_visibility(&mut self, globals: &Globals, screen_boundaries: CellRect) {
         // update viewport
         if let Some(viewport) = self.get_viewport(screen_boundaries) {
             globals.terrain.borrow().recalculate_egosphere(&mut self.egosphere, viewport);
@@ -26,7 +26,7 @@ impl Player {
         }
     }
 
-    pub(in crate::game::player) fn get_viewport(&self, screen_boundaries: CellRect) -> Option<Viewport> {
+    pub(in crate::player) fn get_viewport(&self, screen_boundaries: CellRect) -> Option<Viewport> {
         let ego_rect = rect(
             0, 0, 
             // TODO: Round up

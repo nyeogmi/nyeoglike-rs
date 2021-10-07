@@ -1,4 +1,4 @@
-use crate::game::{reexports::*};
+use crate::reexports::*;
 
 use super::*;
 
@@ -29,7 +29,7 @@ macro_rules! foreach_behavior {
 }
 
 impl Player {
-    pub(in crate::game::player) fn handle_intent(&mut self, globals: &Globals) {
+    pub(in crate::player) fn handle_intent(&mut self, globals: &Globals) {
         self.take_actions(globals);
         self.discharge_cooldowns(globals);
     }

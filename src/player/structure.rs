@@ -2,7 +2,7 @@ use std::iter;
 
 use bresenham::Bresenham;
 
-use crate::game::reexports::*;
+use crate::reexports::*;
 
 use super::{Behavior, graphics::Memory};
 

@@ -1,6 +1,6 @@
 use crate::foreach_behavior;
-use crate::game::reexports::*;
-use crate::game::player::*;
+use crate::reexports::*;
+use crate::player::*;
 
 impl Player {
     // TODO: Track last auxiliary pressed and use it

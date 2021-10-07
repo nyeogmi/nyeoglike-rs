@@ -1,4 +1,4 @@
-use crate::game::reexports::*;
+use crate::reexports::*;
 
 use areaportal2d::{EgoVec};
 

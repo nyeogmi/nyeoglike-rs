@@ -1,5 +1,5 @@
-use crate::game::reexports::*;
-use crate::game::player::*;
+use crate::player::*;
+use crate::reexports::*;
 
 #[derive(Debug)]
 pub struct Walk {
@@ -18,7 +18,7 @@ pub struct Walk {
 pub struct WalkToken;
 
 impl Walk {
-    pub(in crate::game::player) fn new() -> Walk {
+    pub(in crate::player) fn new() -> Walk {
         Walk {
             up: false, left: false, right: false, down: false,
             horiz_cooldown: 0, vert_cooldown: 0,

@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
-use crate::game::reexports::*;
-use crate::game::player::*;
+use crate::reexports::*;
+use crate::player::*;
 
 #[derive(Debug)]
 pub struct Charge {
@@ -14,7 +14,7 @@ pub struct Charge {
 pub struct ChargeToken;
 
 impl Charge {
-    pub(in crate::game::player) fn new() -> Charge {
+    pub(in crate::player) fn new() -> Charge {
         Charge {  
             queuing: false,
             forced_actions: VecDeque::new(),

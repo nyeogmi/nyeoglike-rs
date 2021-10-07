@@ -1,5 +1,5 @@
-use crate::game::reexports::*;
-use crate::game::player::*;
+use crate::reexports::*;
+use crate::player::*;
 
 impl Player {
     pub fn add_basic_controls<'frame>(&self, globals: &'_ Globals, menu: WidgetMenu<'frame, CanvasState>) {

@@ -1,4 +1,4 @@
-use crate::game::reexports::*;
+use crate::reexports::*;
 
 impl Player {
     pub fn on_loop(&mut self, globals: &Globals, _screen_boundaries: CellRect) {

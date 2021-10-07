@@ -6,10 +6,10 @@ mod visibility;
 pub use memory::Memory;
 
 use self::constants::FADE;
-pub(in crate::game::player) use self::constants::{SCCELL_X, SCCELL_Y};
+pub(in crate::player) use self::constants::{SCCELL_X, SCCELL_Y};
 pub use self::viscell::VisCell;
 
-use crate::game::reexports::*;
+use crate::reexports::*;
 
 impl Player {
     pub fn draw<'frame>(&self, globals: &Globals, brush: Brush, menu: WidgetMenu<'frame, CanvasState>) {

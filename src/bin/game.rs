@@ -1,3 +1,3 @@
 fn main() {
-    nyeoglike::game::main();
+    nyeoglike::main();
 }
