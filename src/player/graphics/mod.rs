@@ -1,9 +1,6 @@
 pub(self) mod constants;
-mod memory;
 mod viscell;
 mod visibility;
-
-pub use memory::Memory;
 
 use self::constants::FADE;
 pub(in crate::player) use self::constants::{SCCELL_X, SCCELL_Y};
@@ -71,12 +68,10 @@ impl Player {
             Block::Plain => VisCell { 
                 height: 2,
                 remembered: false,
-                // msg: format!("{:?},{:?}\n{:?}\n{:?}", at.unwrap().x.x, at.unwrap().x.y, at.unwrap().c, at.unwrap().r.get_value()),
             },
             Block::Empty => VisCell { 
                 height: 0,
                 remembered: false,
-                // msg: format!("{:?},{:?}\n{:?}\n{:?}", at.unwrap().x.x, at.unwrap().x.y, at.unwrap().c, at.unwrap().r.get_value()),
             },
         })
     }

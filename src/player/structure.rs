@@ -4,7 +4,7 @@ use bresenham::Bresenham;
 
 use crate::reexports::*;
 
-use super::{Behavior, graphics::Memory};
+use super::{Behavior, Memory};
 
 pub struct Player {
     pub xy: Option<GlobalView>,
@@ -48,10 +48,14 @@ impl Player {
     pub fn move_by_1(&mut self, globals: &Globals, offset: EgoVec, flail: bool) -> EgoVec {
         let terrain: Ref<Terrain> = globals.terrain.borrow();
         if let Some(player_xy) = self.xy {
-            let mut offset_x0 = offset; offset_x0.x = 0;
-            let mut offset_y0 = offset; offset_y0.y = 0;
+            let options = if flail { 
+                neighbors(offset) 
+            } else { 
+                let mut offset_x0 = offset; offset_x0.x = 0;
+                let mut offset_y0 = offset; offset_y0.y = 0;
 
-            let options = if flail { neighbors(offset) } else { [offset, offset_x0, offset_y0] };
+                [offset, offset_x0, offset_y0] 
+            };
 
             for (i, &thing_to_try) in options.iter().enumerate() {
                 if thing_to_try == offset && i != 0 {

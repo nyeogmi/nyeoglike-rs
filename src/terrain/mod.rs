@@ -74,6 +74,6 @@ impl Terrain {
     }
 
     pub fn step_offset(&self, point: GlobalView, offset: EgoVec) -> GlobalView {
-        self.portals.step_offset(point, offset)
+        self.portals.step_offset(point, offset).1
     }
 }

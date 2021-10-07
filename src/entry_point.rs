@@ -71,6 +71,10 @@ fn test_terrain() -> Terrain {
         }
     }
 
+    for y in [-4, 4] {
+        terrain.set(GlobalPoint { r: room1, x: point2(0, y) }, Block::Empty);
+    }
+
     terrain.set_player_start_xy(GlobalView {
         r: room0,
         x: point2(0, 0),
@@ -84,8 +88,8 @@ fn test_terrain() -> Terrain {
     });
 
     terrain.add_area_portal(AreaPortal {
-        src: GlobalView { r: room1, x: point2(0, -3), c: Cardinal::North},
-        dst: GlobalView { r: room1, x: point2(0, 3), c: Cardinal::North},
+        src: GlobalView { r: room1, x: point2(0, -4), c: Cardinal::East},
+        dst: GlobalView { r: room1, x: point2(0, 4), c: Cardinal::East},
         size: 1,
     });
 
