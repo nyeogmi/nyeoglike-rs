@@ -123,13 +123,22 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chiropterm"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "enum-map",
  "euclid",
  "gridd-euclid",
  "lazy_static",
  "minifb",
+]
+
+[[package]]
+name = "chiroptui"
+version = "0.1.0"
+dependencies = [
+ "chiropterm",
+ "euclid",
+ "smallvec",
 ]
 
 [[package]]
@@ -471,6 +480,7 @@ dependencies = [
  "areaportal2d",
  "bresenham",
  "chiropterm",
+ "chiroptui",
  "euclid",
  "gridd-euclid",
  "moogle",

@@ -15,4 +15,4 @@ pub use std::rc::Rc;
 pub use moogle::*;
 
 pub use crate::terrain::*;
-pub use crate::widgetry::*;
+pub use chiroptui::*;
