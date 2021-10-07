@@ -1,7 +1,7 @@
 use crate::game::reexports::*;
-use crate::game::sitemode::*;
+use crate::game::player::*;
 
-impl SiteMode {
+impl Player {
     pub fn add_basic_controls<'frame>(&self, globals: &'_ Globals, menu: WidgetMenu<'frame, CanvasState>) {
         let g = globals.clone();
         menu.on_key(OnKey::only(Keycode::W).up_or_down(), move |_, _, k| {

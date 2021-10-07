@@ -14,7 +14,7 @@ pub fn main() {
     let terrain = test_terrain();
     let globals: Globals = Rc::new(GlobalState { 
         ui,
-        sitemode: Rc::new(RefCell::new(SiteMode::new())),
+        sitemode: Rc::new(RefCell::new(Player::new())),
         terrain: Rc::new(RefCell::new(terrain)),
     });
 

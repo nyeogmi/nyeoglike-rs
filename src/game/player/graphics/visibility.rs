@@ -2,12 +2,12 @@ use crate::game::reexports::*;
 
 use super::{SCCELL_X, SCCELL_Y};
 
-impl SiteMode {
-    pub(in crate::game::sitemode) fn shift_memory(&mut self, offset: EgoVec) {
+impl Player {
+    pub(in crate::game::player) fn shift_memory(&mut self, offset: EgoVec) {
         self.memory.shift(offset)
     }
 
-    pub(in crate::game::sitemode) fn update_visibility(&mut self, globals: &Globals, screen_boundaries: CellRect) {
+    pub(in crate::game::player) fn update_visibility(&mut self, globals: &Globals, screen_boundaries: CellRect) {
         // update viewport
         if let Some(viewport) = self.get_viewport(screen_boundaries) {
             globals.terrain.borrow().recalculate_egosphere(&mut self.egosphere, viewport);
@@ -26,14 +26,14 @@ impl SiteMode {
         }
     }
 
-    pub(in crate::game::sitemode) fn get_viewport(&self, screen_boundaries: CellRect) -> Option<Viewport> {
+    pub(in crate::game::player) fn get_viewport(&self, screen_boundaries: CellRect) -> Option<Viewport> {
         let ego_rect = rect(
             0, 0, 
             // TODO: Round up
             screen_boundaries.width() / SCCELL_X + 1, screen_boundaries.height() / SCCELL_Y + 1
         );
 
-        if let Some(player_xy) = self.player_xy {
+        if let Some(player_xy) = self.xy {
             Some(Viewport {
                 rect: ego_rect,
                 observer_in_rect: ego_rect.center().cast_unit(),

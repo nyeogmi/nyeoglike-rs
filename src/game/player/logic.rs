@@ -1,10 +1,10 @@
 use crate::game::reexports::*;
 
-impl SiteMode {
+impl Player {
     pub fn on_loop(&mut self, globals: &Globals, _screen_boundaries: CellRect) {
         // place player if possible
-        if let None = self.player_xy {
-            self.player_xy = globals.terrain.borrow().suggest_player_xy();
+        if let None = self.xy {
+            self.xy = globals.terrain.borrow().suggest_player_xy();
         }
     }
 

@@ -6,12 +6,12 @@ mod visibility;
 pub use memory::Memory;
 
 use self::constants::FADE;
-pub(in crate::game::sitemode) use self::constants::{SCCELL_X, SCCELL_Y};
+pub(in crate::game::player) use self::constants::{SCCELL_X, SCCELL_Y};
 pub use self::viscell::VisCell;
 
 use crate::game::reexports::*;
 
-impl SiteMode {
+impl Player {
     pub fn draw<'frame>(&self, globals: &Globals, brush: Brush, menu: WidgetMenu<'frame, CanvasState>) {
         self.add_basic_controls(globals, menu);
         brush.fill(FSem::new().color(FADE));

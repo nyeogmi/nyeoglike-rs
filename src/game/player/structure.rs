@@ -6,9 +6,10 @@ use crate::game::reexports::*;
 
 use super::{Behavior, graphics::Memory};
 
-pub struct SiteMode {
+pub struct Player {
+    pub xy: Option<GlobalView>,
+
     // behavior
-    pub(super) player_xy: Option<GlobalView>,
     pub(super) behavior: Behavior,
 
     // graphics
@@ -16,10 +17,10 @@ pub struct SiteMode {
     pub(super) memory: Memory,
 }
 
-impl SiteMode {
-    pub fn new() -> SiteMode {
-        SiteMode {
-            player_xy: None,
+impl Player {
+    pub fn new() -> Player {
+        Player {
+            xy: None,
             behavior: Behavior::new(),
 
             egosphere: Egosphere::new(false),
@@ -46,7 +47,7 @@ impl SiteMode {
 
     pub fn move_by_1(&mut self, globals: &Globals, offset: EgoVec, flail: bool) -> EgoVec {
         let terrain: Ref<Terrain> = globals.terrain.borrow();
-        if let Some(player_xy) = self.player_xy {
+        if let Some(player_xy) = self.xy {
             let mut offset_x0 = offset; offset_x0.x = 0;
             let mut offset_y0 = offset; offset_y0.y = 0;
 
@@ -63,7 +64,7 @@ impl SiteMode {
                     continue;
                 }
 
-                self.player_xy = self.player_xy.map(|pxy| terrain.step_offset(pxy, thing_to_try));
+                self.xy = self.xy.map(|pxy| terrain.step_offset(pxy, thing_to_try));
                 return thing_to_try;
             }
             return EgoVec::zero();

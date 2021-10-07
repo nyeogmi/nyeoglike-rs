@@ -1,8 +1,8 @@
 use crate::foreach_behavior;
 use crate::game::reexports::*;
-use crate::game::sitemode::*;
+use crate::game::player::*;
 
-impl SiteMode {
+impl Player {
     // TODO: Track last auxiliary pressed and use it
     pub fn input_auxiliary(&mut self, auxiliary: Auxiliary) {
         foreach_behavior! { [behavior]

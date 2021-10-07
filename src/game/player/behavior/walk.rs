@@ -1,5 +1,5 @@
 use crate::game::reexports::*;
-use crate::game::sitemode::*;
+use crate::game::player::*;
 
 #[derive(Debug)]
 pub struct Walk {
@@ -18,7 +18,7 @@ pub struct Walk {
 pub struct WalkToken;
 
 impl Walk {
-    pub(in crate::game::sitemode) fn new() -> Walk {
+    pub(in crate::game::player) fn new() -> Walk {
         Walk {
             up: false, left: false, right: false, down: false,
             horiz_cooldown: 0, vert_cooldown: 0,
@@ -36,7 +36,7 @@ impl Walk {
     }
 }
 
-impl CanPerform<WalkToken> for SiteMode {
+impl CanPerform<WalkToken> for Player {
     fn handle_auxiliary(&mut self, _token: WalkToken, auxiliary: Auxiliary) -> bool {
         match auxiliary {
             Auxiliary::Up(u) => {

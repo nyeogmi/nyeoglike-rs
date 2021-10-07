@@ -28,8 +28,8 @@ macro_rules! foreach_behavior {
     };
 }
 
-impl SiteMode {
-    pub(in crate::game::sitemode) fn handle_intent(&mut self, globals: &Globals) {
+impl Player {
+    pub(in crate::game::player) fn handle_intent(&mut self, globals: &Globals) {
         self.take_actions(globals);
         self.discharge_cooldowns(globals);
     }

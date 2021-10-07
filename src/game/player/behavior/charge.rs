@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
 use crate::game::reexports::*;
-use crate::game::sitemode::*;
+use crate::game::player::*;
 
 #[derive(Debug)]
 pub struct Charge {
@@ -14,7 +14,7 @@ pub struct Charge {
 pub struct ChargeToken;
 
 impl Charge {
-    pub(in crate::game::sitemode) fn new() -> Charge {
+    pub(in crate::game::player) fn new() -> Charge {
         Charge {  
             queuing: false,
             forced_actions: VecDeque::new(),
@@ -23,7 +23,7 @@ impl Charge {
     }
 }
 
-impl CanPerform<ChargeToken> for SiteMode {
+impl CanPerform<ChargeToken> for Player {
     fn get_activity_state(&self, _token: ChargeToken) -> ActivityState {
         if self.behavior.charge.queuing { return ActivityState::Queuing; }
         if self.behavior.charge.forced_actions.len() > 0 { return ActivityState::Busy; }

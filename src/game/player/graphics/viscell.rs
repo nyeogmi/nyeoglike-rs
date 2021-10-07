@@ -13,19 +13,11 @@ impl VisCell {
     pub fn draw_front(&self, brush: Brush) {
         if self.height > 0 {
             // TODO: FADE if remembered
-            brush.fill(FSem::new().color(SIDE))
-        }
-        if self.height > 0 {
-            /* 
-            brush.at(point2(0, 0)).putch(0xb0u16);
-            brush.at(point2(0, 2)).putch(0xb0u16);
-            brush.at(point2(1, 0)).putch(0xb0u16);
-            brush.at(point2(1, 2)).putch(0xb0u16);
-            brush.at(point2(2, 0)).putch(0xb0u16);
-            brush.at(point2(2, 2)).putch(0xb0u16);
-            brush.at(point2(3, 0)).putch(0xb0u16);
-            brush.at(point2(3, 2)).putch(0xb0u16);
-            */
+            if self.remembered {
+                brush.fill(FSem::new().color(SIDE_FADE))
+            } else {
+                brush.fill(FSem::new().color(SIDE))
+            }
         }
     }
 
