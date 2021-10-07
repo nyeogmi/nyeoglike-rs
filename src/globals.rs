@@ -10,6 +10,6 @@ pub struct GlobalState {
     pub ui: UI,
 
     // game state
-    pub sitemode: Rc<RefCell<Player>>,
+    pub player: Rc<RefCell<Player>>,
     pub terrain: Rc<RefCell<Terrain>>,
 }

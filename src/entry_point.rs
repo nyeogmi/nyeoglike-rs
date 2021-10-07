@@ -14,7 +14,7 @@ pub fn main() {
     let terrain = test_terrain();
     let globals: Globals = Rc::new(GlobalState { 
         ui,
-        sitemode: Rc::new(RefCell::new(Player::new())),
+        player: Rc::new(RefCell::new(Player::new())),
         terrain: Rc::new(RefCell::new(terrain)),
     });
 
@@ -25,14 +25,14 @@ fn main_loop(globals: &Globals, io: &mut IO) {
     let theme = globals.ui.theme();
     
     let g = globals.clone();
-    let sitemode = globals.sitemode.clone();
+    let sitemode = globals.player.clone();
     let sitemode_display = Canvas::new().setup(|c| {
         c.set_draw(move |brush, menu| {
             sitemode.borrow_mut().draw(&g, brush, menu);
         });
     });
 
-    let sitemode = globals.sitemode.clone();
+    let sitemode = globals.player.clone();
     io.menu(|out, menu: Menu| {
         // base BG
         out.brush().fill(FSem::new().color(theme.base.wallpaper));
@@ -43,8 +43,8 @@ fn main_loop(globals: &Globals, io: &mut IO) {
         let rect = out.rect();
         menu.on_tick(move |_| { 
             // TODO: Trap "resized to rect"
-            g.sitemode.borrow_mut().on_tick(&g);
-            g.sitemode.borrow_mut().on_tick_or_resize(&g, rect);
+            g.player.borrow_mut().on_tick(&g);
+            g.player.borrow_mut().on_tick_or_resize(&g, rect);
             Signal::Refresh
         });
         sitemode_display.draw(globals.ui.share(), out.brush(), menu)
