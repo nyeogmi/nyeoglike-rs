@@ -2,7 +2,7 @@ pub(self) mod constants;
 mod memory;
 mod viscell;
 
-use self::constants::FADE;
+use self::constants::EMPTY_FADE;
 pub(crate) use self::constants::{SCCELL_X, SCCELL_Y};
 pub use self::memory::Memory;
 pub use self::viscell::VisCell;
@@ -53,7 +53,7 @@ impl Graphics {
     pub fn draw<'frame>(&self, globals: &Globals, brush: Brush, menu: WidgetMenu<'frame, CanvasState>) {
         let player = globals.player.borrow();
         player.add_basic_controls(globals, menu);
-        brush.fill(FSem::new().color(FADE));
+        brush.fill(FSem::new().color(EMPTY_FADE));
 
         if let Some(viewport) = self.get_viewport(brush.rect(), &player) {
             for ego_xy in isize::points_in(viewport.rect) {
@@ -72,7 +72,9 @@ impl Graphics {
                     viscell_here = viscell_here.map(|mut vc| { vc.remembered = true; vc });
                 }
 
-                // TODO: Memory
+                if let Some(here) = viscell_here {
+                    here.draw_base(brush.region(Rect::new(screen_xy, size2(SCCELL_X, SCCELL_Y))));
+                }
 
                 if let Some(mut behind) = viscell_behind {
                     if ego_xy_behind.y >= viewport.observer_in_rect.y {

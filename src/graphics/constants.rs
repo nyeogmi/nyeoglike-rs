@@ -1,6 +1,7 @@
 use crate::reexports::*;
 
-pub(super) const FADE: (u8, u8) = (colors::Dark[1], colors::Light[3]);
+pub(super) const EMPTY_FADE: (u8, u8) = (colors::Dark[1], colors::Light[3]);
+pub(super) const EMPTY: (u8, u8) = (colors::Dark[0], colors::Light[3]);
 
 pub(super) const TOP_FADE: (u8, u8) = (colors::Light[1], colors::Light[1]);
 pub(super) const TOP: (u8, u8) = (colors::Light[3], colors::Light[1]);

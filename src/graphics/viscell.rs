@@ -21,16 +21,21 @@ impl VisCell {
         }
     }
 
+    pub fn draw_base(&self, brush: Brush) {
+        if self.remembered {
+        } else {
+            brush.fill(FSem::new().color(EMPTY))
+        }
+    }
+
     pub fn draw_top(&self, brush: Brush) {
-        // brush.font(Font::Small).putfs(&self.msg);
         if self.height > 0 {
-            // TODO: FADE if remembered
             if self.remembered {
                 brush.fill(FSem::new().color(TOP_FADE))
             }
             else {
                 brush.fill(FSem::new().color(TOP))
             }
-        }
+        } 
     }
 }

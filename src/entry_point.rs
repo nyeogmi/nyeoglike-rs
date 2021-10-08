@@ -50,6 +50,7 @@ fn main_loop(globals: &Globals, io: &mut IO) {
     });
 }
 
+/* 
 fn test_terrain() -> Terrain {
     let mut terrain = Terrain::new();
     let room0 = terrain.create_room(); 
@@ -102,6 +103,38 @@ fn test_terrain() -> Terrain {
         src: GlobalView { r: room2, x: point2(0, -3), c: Cardinal::North},
         dst: GlobalView { r: room0, x: point2(-3, 0), c: Cardinal::East},
         size: 1,
+    });
+
+    terrain
+}
+*/
+
+fn test_terrain() -> Terrain {
+    let mut terrain = Terrain::new();
+    let room0 = terrain.create_room(); 
+
+    for x in -4..=4 {
+        for y in -4..=4 {
+            terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
+        }
+    };
+
+    for x in 10..=14 {
+        for y in -4..=4 {
+            terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
+        }
+    };
+
+    for x in 4..=10 {
+        for y in -1..=1 {
+            terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
+        }
+    };
+
+    terrain.set_player_start_xy(GlobalView {
+        r: room0,
+        x: point2(0, 0),
+        c: Cardinal::North,
     });
 
     terrain
