@@ -20,7 +20,7 @@ pub fn main() {
         terrain: RefCell::new(terrain),
     });
 
-    let npc0 = globals.npcs.borrow_mut().create_npc();
+    let npc0 = globals.npcs.borrow_mut().create_npc(Cardinal::North, MoveAI::Hotline(Hotline { distance: 1 }), 5);
     globals.npcs.borrow().location_of.fwd().insert(npc0, GlobalPoint {
         r: room,
         x: point2(0, -2),
@@ -47,10 +47,15 @@ fn main_loop(globals: &Globals, io: &mut IO) {
         let g = g.clone();
         let rect = out.rect();
         menu.on_tick(move |_| { 
-            // TODO: Figure out if the rect was resized and if so, also call pre_tick_or_resize?
+            // update graphics
             g.graphics.borrow_mut().pre_tick_or_resize(&g, rect);
+
+            g.npcs.borrow_mut().pre_tick(&g);
             g.player.borrow_mut().on_tick(&g);
+            g.npcs.borrow_mut().tick(&g);
+
             g.graphics.borrow_mut().post_tick_or_resize(&g, rect);
+
             Signal::Refresh
         });
         sitemode_display.draw(globals.ui.share(), out.brush(), menu)

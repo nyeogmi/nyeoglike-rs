@@ -20,4 +20,6 @@ pub use crate::terrain::*;
 
 // rust stdlib systems
 pub use std::cell::{Ref, RefCell, Cell};
+pub use std::collections::VecDeque;
+pub use std::mem;
 pub use std::rc::Rc;
