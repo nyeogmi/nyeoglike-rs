@@ -74,7 +74,6 @@ impl Graphics {
 
                 if let Some(here) = viscell_here {
                     here.draw_base(brush.region(Rect::new(screen_xy, size2(SCCELL_X, SCCELL_Y))));
-                    here.draw_contents(brush.region(Rect::new(screen_xy, size2(SCCELL_X, SCCELL_Y))));
                 }
 
                 if let Some(mut behind) = viscell_behind {
@@ -89,6 +88,7 @@ impl Graphics {
                 }
 
                 if let Some(here) = viscell_here {
+                    here.draw_contents(brush.region(Rect::new(screen_xy, size2(SCCELL_X, SCCELL_Y))));
                     here.draw_top(brush.region(Rect::new(screen_xy, size2(SCCELL_X, SCCELL_Y))));
 
                     // TODO: Check if remembered and if not, draw cell content
@@ -127,7 +127,7 @@ impl Graphics {
     }
 
     fn draw_player(&self, brush: Brush) {
-        brush.region(rect(SCCELL_X / 2 - 1, SCCELL_Y / 2 - 1, 2, 2)).font(Font::Set).color((colors::Dark[0], colors::LtGreen[2])).putch(b'@');
+        brush.region(rect(SCCELL_X / 2 - 1, SCCELL_Y / 2 - 1, 2, 2)).font(Font::Set).fg(colors::LtGreen[2]).putch(b'@');
     }
 
     fn get_viewport(&self, screen_boundaries: CellRect, player: &Player) -> Option<Viewport> {

@@ -39,7 +39,7 @@ impl VisCell {
         
         // TODO: Centralize this hack somewhere
         if self.npc.is_some() {
-            brush.region(rect(SCCELL_X / 2 - 1, SCCELL_Y / 2 - 1, 2, 2)).font(Font::Set).color((colors::Dark[0], colors::LtYellow[2])).putch(b'@');
+            brush.region(rect(SCCELL_X / 2 - 1, SCCELL_Y / 2 - 1, 2, 2)).font(Font::Set).fg(colors::LtYellow[2]).putch(b'@');
         }
     }
 

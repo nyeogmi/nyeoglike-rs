@@ -20,7 +20,7 @@ pub fn main() {
         terrain: RefCell::new(terrain),
     });
 
-    let npc0 = globals.npcs.borrow_mut().create_npc(Cardinal::North, MoveAI::Hotline(Hotline { distance: 1 }), 5);
+    let npc0 = globals.npcs.borrow_mut().create_npc(Cardinal::North, MoveAI::Hotline(Hotline { distance: 3, internal_facing: Cardinal::North }), 8);
     globals.npcs.borrow().location_of.fwd().insert(npc0, GlobalPoint {
         r: room,
         x: point2(0, -2),
@@ -131,7 +131,7 @@ fn test_terrain() -> (Terrain, Id<Room>) {
         }
     };
 
-    for x in 10..=14 {
+    for x in 10..=18 {
         for y in -4..=4 {
             terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
         }
@@ -142,6 +142,28 @@ fn test_terrain() -> (Terrain, Id<Room>) {
             terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
         }
     };
+
+    for x in 6..=8 {
+        for y in -7..=-3 {
+            terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
+        }
+
+        for y in 3..=7 {
+            terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
+        }
+    };
+
+    for x in 4..=12 {
+        for y in 9..=13 {
+            terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
+        }
+    }
+
+    for x in 7..=7 {
+        for y in -4..=12 {
+            terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
+        }
+    }
 
     terrain.set_player_start_xy(GlobalView {
         r: room0,
