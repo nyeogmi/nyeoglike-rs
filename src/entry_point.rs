@@ -14,7 +14,8 @@ pub fn main() {
     let terrain = test_terrain();
     let globals: Globals = Rc::new(GlobalState { 
         ui,
-        player: Rc::new(RefCell::new(Player::new())),
+        graphics: RefCell::new(Graphics::new()),
+        player: RefCell::new(Player::new()),
         terrain: Rc::new(RefCell::new(terrain)),
     });
 
@@ -25,26 +26,24 @@ fn main_loop(globals: &Globals, io: &mut IO) {
     let theme = globals.ui.theme();
     
     let g = globals.clone();
-    let sitemode = globals.player.clone();
     let sitemode_display = Canvas::new().setup(|c| {
         c.set_draw(move |brush, menu| {
-            sitemode.borrow_mut().draw(&g, brush, menu);
+            g.graphics.borrow_mut().draw(&g, brush, menu);
         });
     });
 
-    let sitemode = globals.player.clone();
+    let g = globals.clone();
     io.menu(|out, menu: Menu| {
         // base BG
         out.brush().fill(FSem::new().color(theme.base.wallpaper));
 
-        sitemode.borrow_mut().on_loop(&globals, out.rect());
-
-        let g = globals.clone();
+        let g = g.clone();
         let rect = out.rect();
         menu.on_tick(move |_| { 
-            // TODO: Trap "resized to rect"
+            // TODO: Figure out if the rect was resized and if so, also call pre_tick_or_resize?
+            g.graphics.borrow_mut().pre_tick_or_resize(&g, rect);
             g.player.borrow_mut().on_tick(&g);
-            g.player.borrow_mut().on_tick_or_resize(&g, rect);
+            g.graphics.borrow_mut().post_tick_or_resize(&g, rect);
             Signal::Refresh
         });
         sitemode_display.draw(globals.ui.share(), out.brush(), menu)

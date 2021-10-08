@@ -4,27 +4,23 @@ use bresenham::Bresenham;
 
 use crate::reexports::*;
 
-use super::{Behavior, Memory};
+use super::{Behavior};
 
 pub struct Player {
     pub xy: Option<GlobalView>,
+    pub cumulative_xy_shift: EgoVec,
 
     // behavior
-    pub(super) behavior: Behavior,
-
-    // graphics
-    pub(super) egosphere: Egosphere,
-    pub(super) memory: Memory,
+    pub behavior: Behavior,
 }
 
 impl Player {
     pub fn new() -> Player {
         Player {
             xy: None,
-            behavior: Behavior::new(),
+            cumulative_xy_shift: vec2(0, 0),
 
-            egosphere: Egosphere::new(false),
-            memory: Memory::new(),
+            behavior: Behavior::new(),
         }
     }
 
@@ -41,7 +37,7 @@ impl Player {
             sum += self.move_by_1(globals, suboffset, flail)
         }
         // TODO: Take memory at every intermediate point?
-        self.shift_memory(-sum);
+        self.cumulative_xy_shift += sum;
         sum
     }
 

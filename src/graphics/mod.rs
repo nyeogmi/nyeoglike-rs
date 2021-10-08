@@ -1,19 +1,61 @@
 pub(self) mod constants;
+mod memory;
 mod viscell;
-mod visibility;
 
 use self::constants::FADE;
-pub(in crate::player) use self::constants::{SCCELL_X, SCCELL_Y};
+pub(crate) use self::constants::{SCCELL_X, SCCELL_Y};
+pub use self::memory::Memory;
 pub use self::viscell::VisCell;
 
 use crate::reexports::*;
 
-impl Player {
+pub struct Graphics {
+    // viewport: Option<Viewport>,
+    egosphere: Egosphere,
+    memory: Memory,
+    old_xy: Option<EgoVec>,
+}
+
+impl Graphics {
+    pub fn new() -> Graphics {
+        Graphics { 
+            // viewport: None,
+            egosphere: Egosphere::new(false),
+            memory: Memory::new(),
+            old_xy: None,
+        }
+    }
+}
+
+impl Graphics {
+    pub fn pre_tick_or_resize(&mut self, globals: &Globals, screen_boundaries: CellRect) {
+        let player = globals.player.borrow();
+
+        let new_xy = player.cumulative_xy_shift;
+        if let Some(old_xy) = self.old_xy {
+            self.memory.shift(-(new_xy - old_xy));
+        }
+        self.old_xy = Some(new_xy);
+
+        if let Some(viewport) = self.get_viewport(screen_boundaries, &player) {
+            globals.terrain.borrow().recalculate_egosphere(&mut self.egosphere, viewport);
+            let ego = &self.egosphere;
+
+            self.memory.resize(viewport); // TODO: 3x larger
+            self.memory.calculate(|xy| Self::vis_cell(&globals, ego.at(xy)))
+        }
+    }
+
+    pub fn post_tick_or_resize(&mut self, _globals: &Globals, _screen_boundaries: CellRect) {
+        // TODO: Anything? Probably not. Maybe store the player's last position for shifting reasons
+    }
+
     pub fn draw<'frame>(&self, globals: &Globals, brush: Brush, menu: WidgetMenu<'frame, CanvasState>) {
-        self.add_basic_controls(globals, menu);
+        let player = globals.player.borrow();
+        player.add_basic_controls(globals, menu);
         brush.fill(FSem::new().color(FADE));
 
-        if let Some(viewport) = self.get_viewport(brush.rect()) {
+        if let Some(viewport) = self.get_viewport(brush.rect(), &player) {
             for ego_xy in isize::points_in(viewport.rect) {
                 let screen_xy: CellPoint = point2(ego_xy.x * SCCELL_X, ego_xy.y * SCCELL_Y);
                 let ego_xy_behind = ego_xy - vec2(0, 1);
@@ -78,5 +120,23 @@ impl Player {
 
     fn draw_player(&self, brush: Brush) {
         brush.region(rect(SCCELL_X / 2 - 1, SCCELL_Y / 2 - 1, 2, 2)).font(Font::Set).color((colors::Dark[0], colors::LtGreen[2])).putch(b'@');
+    }
+
+    fn get_viewport(&self, screen_boundaries: CellRect, player: &Player) -> Option<Viewport> {
+        let ego_rect = rect(
+            0, 0, 
+            // TODO: Round up
+            screen_boundaries.width() / SCCELL_X + 1, screen_boundaries.height() / SCCELL_Y + 1
+        );
+
+        if let Some(player_xy) = player.xy {
+            Some(Viewport {
+                rect: ego_rect,
+                observer_in_rect: ego_rect.center().cast_unit(),
+                observer: player_xy,
+            })
+        } else {
+            None
+        }
     }
 }

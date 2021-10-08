@@ -2,7 +2,7 @@ use crate::reexports::*;
 
 use areaportal2d::{EgoVec};
 
-use super::VisCell;
+use crate::graphics::VisCell;
 
 pub struct Memory {
     viewport: Option<Viewport>,

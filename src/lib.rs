@@ -3,6 +3,7 @@ pub mod terrain;
 mod constants;
 mod entry_point;
 mod globals;
+mod graphics;
 mod reexports;
 mod player;
 
