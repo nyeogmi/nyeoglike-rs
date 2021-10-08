@@ -21,7 +21,7 @@ pub fn main() {
     });
 
     let npc0 = globals.npcs.borrow_mut().create_npc(Cardinal::North, MoveAI::Hotline(
-        Hotline { viewdist_forward: 7, side_distance: 1, internal_facing: Cardinal::North, mandatory_steps_forward: 0 }
+        Hotline { internal_facing: Cardinal::North }
     ), 8);
     globals.npcs.borrow().location_of.fwd().insert(npc0, GlobalPoint {
         r: room,
@@ -166,6 +166,9 @@ fn test_terrain() -> (Terrain, Id<Room>) {
             terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
         }
     }
+    terrain.set(GlobalPoint { r: room0, x: point2(7, 10) }, Block::Plain);
+    terrain.set(GlobalPoint { r: room0, x: point2(7, 14) }, Block::Empty);
+
 
     terrain.set_player_start_xy(GlobalView {
         r: room0,

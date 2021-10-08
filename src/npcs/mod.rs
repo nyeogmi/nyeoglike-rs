@@ -57,9 +57,6 @@ impl NPCs {
                         }
                         return true;
                     },
-                    |ego| {
-                        facing.replace(facing.get().rotated(ego));
-                    },
                     |amt| {
                         location_of.fwd().insert(id, terr.step_offset(loc.facing(facing.get()), amt).point());
                     },
@@ -87,10 +84,10 @@ pub enum MoveAI {
 // hotline miami-style "hug the right wall" AI
 
 impl MoveAI {
-    pub fn advance(&mut self, blocked: impl Fn(EgoPoint) -> bool, turn: impl FnMut(Egocentric), step: impl FnOnce(EgoVec)) {
+    pub fn advance(&mut self, blocked: impl Fn(EgoPoint) -> bool, step: impl FnOnce(EgoVec)) {
         match self {
             MoveAI::Idle => {}
-            MoveAI::Hotline(h) => h.advance(blocked, turn, step)
+            MoveAI::Hotline(h) => h.advance(blocked, step)
         }
     }
 }
