@@ -20,7 +20,9 @@ pub fn main() {
         terrain: RefCell::new(terrain),
     });
 
-    let npc0 = globals.npcs.borrow_mut().create_npc(Cardinal::North, MoveAI::Hotline(Hotline { distance: 3, internal_facing: Cardinal::North }), 8);
+    let npc0 = globals.npcs.borrow_mut().create_npc(Cardinal::North, MoveAI::Hotline(
+        Hotline { viewdist_forward: 7, side_distance: 1, internal_facing: Cardinal::North, mandatory_steps_forward: 0 }
+    ), 8);
     globals.npcs.borrow().location_of.fwd().insert(npc0, GlobalPoint {
         r: room,
         x: point2(0, -2),

@@ -1,3 +1,5 @@
+mod geom;
+
 // external libraries
 pub use areaportal2d::*;
 pub use gridd_euclid::*;
@@ -10,8 +12,8 @@ pub use euclid::{size2, point2, rect, vec2, Rect};
 
 // internal shorthand etc
 pub use crate::constants::*;
-pub use crate::geom::*;
-pub use crate::geom::{Egosphere, GlobalPoint, GlobalView, Viewport};
+pub use self::geom::*;
+pub use self::geom::{AreaPortal, Egosphere, GlobalPoint, GlobalView, Portals, Viewport};
 pub use crate::globals::*;
 pub use crate::graphics::*;
 pub use crate::npcs::*;

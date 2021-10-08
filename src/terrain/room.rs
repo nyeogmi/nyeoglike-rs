@@ -1,7 +1,4 @@
-use crate::geom::*;
-use gridd_euclid::{CopyEndlessGrid};
-
-use super::Block;
+use crate::reexports::*;
 
 pub struct Room {
     blocks: CopyEndlessGrid<Block, RoomSpace>,
