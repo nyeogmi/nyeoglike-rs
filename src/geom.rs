@@ -17,6 +17,9 @@ pub use areaportal2d::{
 
 pub struct RoomSpace;
 pub type RoomPoint = Point2D<isize, RoomSpace>;
+#[allow(dead_code)]
 pub type RoomSize = Size2D<isize, RoomSpace>;
+#[allow(dead_code)]
 pub type RoomVec = Vector2D<isize, RoomSpace>;
+#[allow(dead_code)]
 pub type RoomRect = Rect<isize, RoomSpace>;
