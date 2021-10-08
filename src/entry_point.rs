@@ -11,12 +11,19 @@ pub fn main() {
         |_| exit(0)
     );
 
-    let terrain = test_terrain();
+    let (terrain, room) = test_terrain();
     let globals: Globals = Rc::new(GlobalState { 
         ui,
         graphics: RefCell::new(Graphics::new()),
         player: RefCell::new(Player::new()),
-        terrain: Rc::new(RefCell::new(terrain)),
+        npcs: RefCell::new(NPCs::new()),
+        terrain: RefCell::new(terrain),
+    });
+
+    let npc0 = globals.npcs.borrow_mut().create_npc();
+    globals.npcs.borrow().location_of.fwd().insert(npc0, GlobalPoint {
+        r: room,
+        x: point2(0, -2),
     });
 
     main_loop(&globals, &mut io);
@@ -109,7 +116,7 @@ fn test_terrain() -> Terrain {
 }
 */
 
-fn test_terrain() -> Terrain {
+fn test_terrain() -> (Terrain, Id<Room>) {
     let mut terrain = Terrain::new();
     let room0 = terrain.create_room(); 
 
@@ -137,5 +144,5 @@ fn test_terrain() -> Terrain {
         c: Cardinal::North,
     });
 
-    terrain
+    (terrain, room0)
 }

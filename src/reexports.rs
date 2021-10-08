@@ -14,6 +14,7 @@ pub use crate::geom::*;
 pub use crate::geom::{Egosphere, GlobalPoint, GlobalView, Viewport};
 pub use crate::globals::*;
 pub use crate::graphics::*;
+pub use crate::npcs::*;
 pub use crate::player::*;
 pub use crate::terrain::*;
 

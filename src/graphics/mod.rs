@@ -65,20 +65,21 @@ impl Graphics {
 
                 if let None = viscell_behind {
                     viscell_behind = self.memory.remember(ego_xy_behind);
-                    viscell_behind = viscell_behind.map(|mut vc| { vc.remembered = true; vc });
+                    viscell_behind = viscell_behind.map(|mut vc| { vc.degrade_memory(); vc });
                 }
                 if let None = viscell_here {
                     viscell_here = self.memory.remember(ego_xy);
-                    viscell_here = viscell_here.map(|mut vc| { vc.remembered = true; vc });
+                    viscell_here = viscell_here.map(|mut vc| { vc.degrade_memory(); vc });
                 }
 
                 if let Some(here) = viscell_here {
                     here.draw_base(brush.region(Rect::new(screen_xy, size2(SCCELL_X, SCCELL_Y))));
+                    here.draw_contents(brush.region(Rect::new(screen_xy, size2(SCCELL_X, SCCELL_Y))));
                 }
 
                 if let Some(mut behind) = viscell_behind {
                     if ego_xy_behind.y >= viewport.observer_in_rect.y {
-                        behind.remembered = true;
+                        behind.degrade_memory();
                     }
 
                     behind.draw_front(brush.region(Rect::new(
@@ -102,21 +103,26 @@ impl Graphics {
 
     fn vis_cell(globals: &GlobalState, at: Option<GlobalView>) -> Option<VisCell> {
         // NOTE: if we don't know what's in it we can't use it
-        let block = if let Some(x) = at {
-            globals.terrain.borrow_mut().get(x.point())
+        let (loc, block) = if let Some(x) = at {
+            (x, globals.terrain.borrow_mut().get(x.point()))
         } else {
             return None
         };
 
         Some(match block {
             Block::Plain => VisCell { 
-                height: 2,
+                filled: true,
                 remembered: false,
+                npc: None,
             },
-            Block::Empty => VisCell { 
-                height: 0,
-                remembered: false,
-            },
+            Block::Empty => {
+                let npc = globals.npcs.borrow().location_of.bwd().get(loc.point());
+                VisCell { 
+                    filled: false,
+                    remembered: false,
+                    npc,
+                }
+            }
         })
     }
 

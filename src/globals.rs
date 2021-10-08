@@ -10,5 +10,6 @@ pub struct GlobalState {
 
     // game state
     pub player: RefCell<Player>,
-    pub terrain: Rc<RefCell<Terrain>>,
+    pub npcs: RefCell<NPCs>,
+    pub terrain: RefCell<Terrain>,
 }
