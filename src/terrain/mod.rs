@@ -12,8 +12,8 @@ pub struct Terrain {
     player_start_xy: Option<GlobalView>,
     portals: Portals,
 
-    // levels: Pom<Level>,
-    rooms: Pom<Room>,
+    // levels: FloatingPom<Level>,
+    rooms: FloatingPom<Room>,  // we don't need the iterator-friendly features of Pom, but do need to be able to create rooms on the fly
 
     // level_rooms: OneToMany<Id<Level>, Id<Room>>,
 }
@@ -23,34 +23,28 @@ impl Terrain {
         Terrain { 
             player_start_xy: None,
             portals: Portals::new(),
-            // levels: Pom::new(), 
-            rooms: Pom::new(), 
+            // levels: FloatingPom::new(), 
+            rooms: FloatingPom::new(),
 
             // level_rooms: OneToMany::new(), 
         }
     }
 
-    pub fn recalculate_egosphere(&self, egosphere: &mut Egosphere, viewport: Viewport) {
-        egosphere.calculate(
-            viewport,
-            &self.portals,
-            |gv| {
-                self.get(gv.point()).is_blocked()
-            }
-        );
+    pub fn recalculate_egosphere(&self, egosphere: &mut Egosphere, viewport: Viewport, blocked: impl Fn(GlobalView) -> bool) {
+        egosphere.calculate(viewport, &self.portals, blocked);
     }
 
-    pub fn set(&mut self, gp: GlobalPoint, b: Block) {
-        if let Some(r) = self.rooms.get_mut(gp.r) {
-            r.set(gp.x.cast_unit(), b);
+    pub fn set_block_raw(&self, gp: GlobalPoint, b: Block) {
+        if let Some(r) = self.rooms.get(gp.r) {
+            r.borrow().set(gp.x.cast_unit(), b);
         } else {
             panic!("invalid room ID");
         }
     }
 
-    pub fn get(&self, gp: GlobalPoint) -> Block {
+    pub fn get_block_raw(&self, gp: GlobalPoint) -> Block {
         if let Some(r) = self.rooms.get(gp.r) {
-            return r.get(gp.x.cast_unit())
+            return r.borrow().get(gp.x.cast_unit())
         };
         Block::Plain
     }

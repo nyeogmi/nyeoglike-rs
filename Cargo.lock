@@ -405,9 +405,9 @@ dependencies = [
 
 [[package]]
 name = "moogle"
-version = "0.4.2"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed6151ae0074641757d6e3dc92ef64ca07e66a8d00e9b43ada238b1f9ad36af7"
+checksum = "7b78ace4e4b8f8a22d6bbe3a9bce8e68362f10b8097728354880558fff13e0c0"
 
 [[package]]
 name = "nix"

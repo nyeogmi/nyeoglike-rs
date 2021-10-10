@@ -38,7 +38,7 @@ impl Graphics {
         self.old_xy = Some(new_xy);
 
         if let Some(viewport) = self.get_viewport(screen_boundaries, &player) {
-            globals.terrain.borrow().recalculate_egosphere(&mut self.egosphere, viewport);
+            globals.terrain.recalculate_egosphere(&mut self.egosphere, viewport, |x| globals.at(x.point()).is_blocked());
             let ego = &self.egosphere;
 
             self.memory.resize(viewport); // TODO: 3x larger
@@ -104,7 +104,7 @@ impl Graphics {
     fn vis_cell(globals: &GlobalState, at: Option<GlobalView>) -> Option<VisCell> {
         // NOTE: if we don't know what's in it we can't use it
         let (loc, block) = if let Some(x) = at {
-            (x, globals.terrain.borrow_mut().get(x.point()))
+            (x, globals.at(x.point()).get_block())
         } else {
             return None
         };
@@ -116,7 +116,7 @@ impl Graphics {
                 npc: None,
             },
             Block::Empty => {
-                let npc = globals.npcs.borrow().location_of.bwd().get(loc.point());
+                let npc = globals.npcs.location_of.bwd().get(loc.point());
                 VisCell { 
                     filled: false,
                     remembered: false,

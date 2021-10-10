@@ -42,7 +42,6 @@ impl Player {
     }
 
     pub fn move_by_1(&mut self, globals: &Globals, offset: EgoVec, flail: bool) -> EgoVec {
-        let terrain: Ref<Terrain> = globals.terrain.borrow();
         if let Some(player_xy) = self.xy {
             let options = if flail { 
                 neighbors(offset) 
@@ -58,13 +57,13 @@ impl Player {
                     continue;  // don't try offset more than once
                 }
 
-                let new_xy = terrain.step_offset(player_xy, thing_to_try);
-                let at_new_xy = terrain.get(new_xy.point());
+                let new_xy = globals.terrain.step_offset(player_xy, thing_to_try);
+                let at_new_xy = globals.at(new_xy.point());
                 if at_new_xy.is_blocked() {
                     continue;
                 }
 
-                self.xy = self.xy.map(|pxy| terrain.step_offset(pxy, thing_to_try));
+                self.xy = self.xy.map(|pxy| globals.terrain.step_offset(pxy, thing_to_try));
                 return thing_to_try;
             }
             return EgoVec::zero();

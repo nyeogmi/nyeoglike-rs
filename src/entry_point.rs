@@ -16,14 +16,14 @@ pub fn main() {
         ui,
         graphics: RefCell::new(Graphics::new()),
         player: RefCell::new(Player::new()),
-        npcs: RefCell::new(NPCs::new()),
-        terrain: RefCell::new(terrain),
+        npcs: NPCs::new(),
+        terrain: terrain,
     });
 
-    let npc0 = globals.npcs.borrow_mut().create_npc(Cardinal::North, MoveAI::Hotline(
+    let npc0 = globals.npcs.create_npc(Cardinal::North, MoveAI::Hotline(
         Hotline { internal_facing: Cardinal::North }
     ), 8);
-    globals.npcs.borrow().location_of.fwd().insert(npc0, GlobalPoint {
+    globals.npcs.location_of.fwd().insert(npc0, GlobalPoint {
         r: room,
         x: point2(0, -2),
     });
@@ -52,9 +52,9 @@ fn main_loop(globals: &Globals, io: &mut IO) {
             // update graphics
             g.graphics.borrow_mut().pre_tick_or_resize(&g, rect);
 
-            g.npcs.borrow_mut().pre_tick(&g);
+            g.npcs.pre_tick(&g);
             g.player.borrow_mut().on_tick(&g);
-            g.npcs.borrow_mut().tick(&g);
+            g.npcs.tick(&g);
 
             g.graphics.borrow_mut().post_tick_or_resize(&g, rect);
 
@@ -129,45 +129,45 @@ fn test_terrain() -> (Terrain, Id<Room>) {
 
     for x in -4..=4 {
         for y in -4..=4 {
-            terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
+            terrain.set_block_raw(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
         }
     };
 
     for x in 10..=18 {
         for y in -4..=4 {
-            terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
+            terrain.set_block_raw(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
         }
     };
 
     for x in 4..=10 {
         for y in -1..=1 {
-            terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
+            terrain.set_block_raw(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
         }
     };
 
     for x in 6..=8 {
         for y in -7..=-3 {
-            terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
+            terrain.set_block_raw(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
         }
 
         for y in 3..=7 {
-            terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
+            terrain.set_block_raw(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
         }
     };
 
     for x in 4..=12 {
         for y in 9..=13 {
-            terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
+            terrain.set_block_raw(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
         }
     }
 
     for x in 7..=7 {
         for y in -4..=12 {
-            terrain.set(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
+            terrain.set_block_raw(GlobalPoint { r: room0, x: point2(x, y) }, Block::Empty);
         }
     }
-    terrain.set(GlobalPoint { r: room0, x: point2(7, 10) }, Block::Plain);
-    terrain.set(GlobalPoint { r: room0, x: point2(7, 14) }, Block::Empty);
+    terrain.set_block_raw(GlobalPoint { r: room0, x: point2(7, 10) }, Block::Plain);
+    terrain.set_block_raw(GlobalPoint { r: room0, x: point2(7, 14) }, Block::Empty);
 
 
     terrain.set_player_start_xy(GlobalView {
