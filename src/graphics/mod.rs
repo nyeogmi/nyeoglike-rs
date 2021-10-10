@@ -103,24 +103,32 @@ impl Graphics {
 
     fn vis_cell(globals: &GlobalState, at: Option<GlobalView>) -> Option<VisCell> {
         // NOTE: if we don't know what's in it we can't use it
-        let (loc, block) = if let Some(x) = at {
-            (x, globals.at(x.point()).get_block())
+        let cursor = if let Some(x) = at {
+            globals.at(x.point())
         } else {
             return None
         };
 
-        Some(match block {
+        Some(match cursor.get_block() {
             Block::Plain => VisCell { 
                 filled: true,
                 remembered: false,
                 npc: None,
+                item: None,
             },
             Block::Empty => {
-                let npc = globals.npcs.location_of.bwd().get(loc.point());
                 VisCell { 
                     filled: false,
                     remembered: false,
-                    npc,
+                    npc: cursor.npcs().iter().rev().next(),
+                    item: {
+                        if let Some(item) = cursor.items().iter().rev().next() {
+                            if let Some(spawn) = globals.items.spawns.get(item) {
+                                Some(spawn.borrow().item.profile.icon)
+                            }
+                            else { None }
+                        } else { None }
+                    },
                 }
             }
         })

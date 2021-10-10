@@ -7,14 +7,14 @@ pub struct NPCs {
     pub table: FloatingPom<NPC>, 
 
     // TODO: Don't let people use this directly (so we can force an egosphere recalc)
-    pub location_of: OneToOne<Id<NPC>, GlobalPoint>,
+    pub location_of: ManyToOne<Id<NPC>, GlobalPoint>,
 }
 
 impl NPCs {
     pub fn new() -> NPCs {
         NPCs {  
             table: FloatingPom::new(),
-            location_of: OneToOne::new(),
+            location_of: ManyToOne::new(),
         }
     }
 

@@ -15,6 +15,7 @@ pub fn main() {
     let globals: Globals = Rc::new(GlobalState { 
         ui,
         graphics: RefCell::new(Graphics::new()),
+        items: Items::new(),
         player: RefCell::new(Player::new()),
         npcs: NPCs::new(),
         terrain: terrain,
@@ -27,6 +28,11 @@ pub fn main() {
         r: room,
         x: point2(0, -2),
     });
+
+    globals.at(GlobalPoint {
+        r: room,
+        x: point2(0, 2)
+    }).spawn_item(objdef::ITEM_SHOTGUN.broad());
 
     main_loop(&globals, &mut io);
 }

@@ -6,7 +6,9 @@ use super::constants::*;
 pub struct VisCell {
     pub filled: bool,
     pub remembered: bool,
-    pub npc: Option<Id<NPC>>, // note: in practice use the ID of the NPC
+    // TODO: Allow plural of these
+    pub npc: Option<Id<NPC>>, 
+    pub item: Option<ItemIcon>,
     // msg: String,
 }
 
@@ -40,6 +42,10 @@ impl VisCell {
         // TODO: Centralize this hack somewhere
         if self.npc.is_some() {
             brush.region(rect(SCCELL_X / 2 - 1, SCCELL_Y / 2 - 1, 2, 2)).font(Font::Set).fg(colors::LtYellow[2]).putch(b'@');
+        }
+
+        if let Some(item) = self.item {
+            brush.region(rect(SCCELL_X / 2 - 1, SCCELL_Y / 2 - 1, 2, 2)).font(Font::Set).fg(item.fg).putch(item.art);
         }
     }
 

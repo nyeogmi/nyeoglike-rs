@@ -16,11 +16,14 @@ pub use self::geom::*;
 pub use self::geom::{AreaPortal, Egosphere, GlobalPoint, GlobalView, Portals, Viewport};
 pub use crate::globals::*;
 pub use crate::graphics::*;
+pub use crate::items::*;
 pub use crate::npcs::*;
+pub use crate::objdef;
 pub use crate::player::*;
 pub use crate::terrain::*;
 
 // rust stdlib systems
+pub use std::borrow::Cow;
 pub use std::cell::{Ref, RefCell, Cell};
 pub use std::collections::VecDeque;
 pub use std::mem;

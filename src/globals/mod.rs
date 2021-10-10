@@ -11,6 +11,7 @@ pub struct GlobalState {
 
     // game state
     pub player: RefCell<Player>,
+    pub items: Items,
     pub npcs: NPCs,
     pub terrain: Terrain, // all methods only require &Terrain currently
 }

@@ -7,6 +7,10 @@ pub struct Cursor<'a> {
 }
 
 impl<'a> Cursor<'a> {
+    pub fn point(&self) -> GlobalPoint {
+        return self.point
+    }
+
     pub fn get_block(&self) -> Block {
         self.globals.terrain.get_block_raw(self.point)
     }
@@ -17,5 +21,17 @@ impl<'a> Cursor<'a> {
 
     pub(crate) fn is_blocked(&self) -> bool {
         self.get_block().is_blocked()
+    }
+
+    pub fn npcs(&self) -> impl SharedAnySet<Id<NPC>> {
+        self.globals.npcs.location_of.bwd().get(self.point)
+    }
+
+    pub fn items(&self) -> impl SharedAnySet<Id<ItemSpawn>> {
+        self.globals.items.location_of.bwd().get(self.point)
+    }
+
+    pub fn spawn_item(&self, item: Item<ItemDyn>) -> Id<ItemSpawn> {
+        self.globals.items.spawn_item_raw(self.point, item)
     }
 }
