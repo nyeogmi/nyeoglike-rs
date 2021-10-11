@@ -25,6 +25,7 @@ impl Items {
     pub fn spawn_item_raw(&self, location: GlobalPoint, item: Item<ItemDyn>) -> Id<ItemSpawn> {
         let id = self.spawns.insert(ItemSpawn { item });
         self.location_of.fwd().insert(id, location);
+        println!("now contains: {:?}", self.location_of.bwd().get(location));
         return id
     }
 }

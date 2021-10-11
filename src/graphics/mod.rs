@@ -1,11 +1,15 @@
 pub(self) mod constants;
+mod hud;
 mod memory;
+mod periodic;
+mod theme;
 mod viscell;
+mod world;
 
-use self::constants::EMPTY_FADE;
 pub(crate) use self::constants::{SCCELL_X, SCCELL_Y};
 pub use self::memory::Memory;
-pub use self::viscell::VisCell;
+pub use self::viscell::{VisCell, VisContent};
+pub use self::theme::*;
 
 use crate::reexports::*;
 
@@ -28,114 +32,87 @@ impl Graphics {
 }
 
 impl Graphics {
-    pub fn pre_tick_or_resize(&mut self, globals: &Globals, screen_boundaries: CellRect) {
-        let player = globals.player.borrow();
+    pub fn main_loop(globals: &Globals, io: &mut IO) {
+        let g = globals.clone();
+        let sitemode_display = Canvas::new().setup(|c| {
+            c.set_draw(move |brush, menu| {
+                g.graphics.borrow_mut().draw_world(&g, brush, menu);
+            });
+        });
 
-        let new_xy = player.cumulative_xy_shift;
-        if let Some(old_xy) = self.old_xy {
-            self.memory.shift(-(new_xy - old_xy));
-        }
-        self.old_xy = Some(new_xy);
+        let g = globals.clone();
+        let hud_player_part = Canvas::new().setup(|c| {
+            c.set_draw(move |brush, menu| {
+                g.graphics.borrow_mut().draw_player_hud(&g, brush, menu)
+            });
+            c.layout_hacks.preferred_height = Some(6);
+        });
 
-        if let Some(viewport) = self.get_viewport(screen_boundaries, &player) {
-            globals.terrain.recalculate_egosphere(&mut self.egosphere, viewport, |x| globals.at(x.point()).is_blocked());
-            let ego = &self.egosphere;
+        let hud_player = Window::new().setup(|w| {
+            w.set_title("Nyeogmi");
+            w.set(hud_player_part);
+        });
 
-            self.memory.resize(viewport); // TODO: 3x larger
-            self.memory.calculate(|xy| Self::vis_cell(&globals, ego.at(xy)))
-        }
-    }
+        let g = globals.clone();
+        let hud_time_part = Canvas::new().setup(|c| {
+            c.set_draw(move |brush, menu| {
+                g.graphics.borrow_mut().draw_time_hud(&g, brush, menu)
+            });
+            c.layout_hacks.preferred_height = Some(2);
+            c.layout_hacks.preferred_width = Some(10);
+        });
 
-    pub fn post_tick_or_resize(&mut self, _globals: &Globals, _screen_boundaries: CellRect) {
-        // TODO: Anything? Probably not. Maybe store the player's last position for shifting reasons
-    }
+        let hud_time = Window::new().setup(|w| {
+            w.set(hud_time_part);
+        });
 
-    pub fn draw<'frame>(&self, globals: &Globals, brush: Brush, menu: WidgetMenu<'frame, CanvasState>) {
-        let player = globals.player.borrow();
-        player.add_basic_controls(globals, menu);
-        brush.fill(FSem::new().color(EMPTY_FADE));
+        let hud = Column::new().setup(|c| {
+            c.add(hud_player);
+            c.add(Spacer::new());
+            c.add(Row::new().setup(|r| {
+                r.add(hud_time);
+                r.add(Spacer::new());
+            }));
+        });
 
-        if let Some(viewport) = self.get_viewport(brush.rect(), &player) {
-            for ego_xy in isize::points_in(viewport.rect) {
-                let screen_xy: CellPoint = point2(ego_xy.x * SCCELL_X, ego_xy.y * SCCELL_Y);
-                let ego_xy_behind = ego_xy - vec2(0, 1);
+        let g = globals.clone();
+        let hud_target = Window::new().setup(|w| {
+            w.set(Canvas::new().setup(|c| {
+                c.set_draw(move |brush, menu| {
+                    g.graphics.borrow_mut().draw_target_hud(&g, brush, menu)
+                })
+            }));
+            w.window_border_override = Some(TARGET_WBORDER);
+        });
 
-                let mut viscell_behind = Self::vis_cell(globals, self.egosphere.at(ego_xy_behind));
-                let mut viscell_here = Self::vis_cell(globals, self.egosphere.at(ego_xy));
+        let g = globals.clone();
+        io.menu(|out, menu: Menu| {
+            let g = g.clone();
+            let game_rect = out.rect();
+            menu.on_tick(move |_| { 
+                // update graphics
+                g.graphics.borrow_mut().pre_move_post_move_or_resize(&g, game_rect);
 
-                if let None = viscell_behind {
-                    viscell_behind = self.memory.remember(ego_xy_behind);
-                    viscell_behind = viscell_behind.map(|mut vc| { vc.degrade_memory(); vc });
-                }
-                if let None = viscell_here {
-                    viscell_here = self.memory.remember(ego_xy);
-                    viscell_here = viscell_here.map(|mut vc| { vc.degrade_memory(); vc });
-                }
+                g.npcs.pre_tick(&g);
+                g.player.borrow_mut().on_tick(&g);
+                g.graphics.borrow_mut().pre_move_post_move_or_resize(&g, game_rect);
+                g.npcs.tick(&g);
 
-                if let Some(here) = viscell_here {
-                    here.draw_base(brush.region(Rect::new(screen_xy, size2(SCCELL_X, SCCELL_Y))));
-                }
+                g.graphics.borrow_mut().post_tick_or_resize(&g, game_rect);
 
-                if let Some(mut behind) = viscell_behind {
-                    if ego_xy_behind.y >= viewport.observer_in_rect.y {
-                        behind.degrade_memory();
-                    }
+                Signal::Refresh
+            });
 
-                    behind.draw_front(brush.region(Rect::new(
-                        screen_xy,
-                        size2(SCCELL_X, SCCELL_Y),
-                    )));
-                }
+            sitemode_display.draw(globals.ui.share(), out.brush(), menu.share());
+            let hud_rect = rect(2, 2, 22.min(out.brush().rect().width() - 4), out.brush().rect().height() - 4);
+            hud.draw(globals.ui.share(), out.brush().region(hud_rect), menu.share());
 
-                if let Some(here) = viscell_here {
-                    here.draw_contents(brush.region(Rect::new(screen_xy, size2(SCCELL_X, SCCELL_Y))));
-                    here.draw_top(brush.region(Rect::new(screen_xy, size2(SCCELL_X, SCCELL_Y))));
-
-                    // TODO: Check if remembered and if not, draw cell content
-                }
-
-                if ego_xy == viewport.observer_in_rect {
-                    self.draw_player(brush.region(Rect::new(screen_xy, size2(SCCELL_X, SCCELL_Y))))
-                }
+            if false {  // Only turn this on when targets are available
+                let target_x1 = hud_rect.max_x();
+                let target_rect = rect(hud_rect.max_x(), 2, out.brush().rect().max_x() - target_x1 - 2, 12.min(out.brush().rect().height() - 4));
+                hud_target.draw(globals.ui.share(), out.brush().region(target_rect), menu.share());
             }
-        }
-    }
-
-    fn vis_cell(globals: &GlobalState, at: Option<GlobalView>) -> Option<VisCell> {
-        // NOTE: if we don't know what's in it we can't use it
-        let cursor = if let Some(x) = at {
-            globals.at(x.point())
-        } else {
-            return None
-        };
-
-        Some(match cursor.get_block() {
-            Block::Plain => VisCell { 
-                filled: true,
-                remembered: false,
-                npc: None,
-                item: None,
-            },
-            Block::Empty => {
-                VisCell { 
-                    filled: false,
-                    remembered: false,
-                    npc: cursor.npcs().iter().rev().next(),
-                    item: {
-                        if let Some(item) = cursor.items().iter().rev().next() {
-                            if let Some(spawn) = globals.items.spawns.get(item) {
-                                Some(spawn.borrow().item.profile.icon)
-                            }
-                            else { None }
-                        } else { None }
-                    },
-                }
-            }
-        })
-    }
-
-    fn draw_player(&self, brush: Brush) {
-        brush.region(rect(SCCELL_X / 2 - 1, SCCELL_Y / 2 - 1, 2, 2)).font(Font::Set).fg(colors::LtGreen[2]).putch(b'@');
+        });
     }
 
     fn get_viewport(&self, screen_boundaries: CellRect, player: &Player) -> Option<Viewport> {

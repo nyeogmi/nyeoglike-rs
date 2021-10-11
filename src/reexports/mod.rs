@@ -9,6 +9,7 @@ pub use chiroptui::*;
 
 // external libraries (not me)
 pub use euclid::{size2, point2, rect, vec2, Rect};
+pub use smallvec::*;
 
 // internal shorthand etc
 pub use crate::constants::*;
