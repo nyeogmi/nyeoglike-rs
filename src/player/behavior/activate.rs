@@ -5,7 +5,8 @@ use crate::player::*;
 pub struct Activate {
     queuing: bool,
     contextual_column: Option<Column>,
-    contextual: Option<ContextualHandle>
+    contextual: Option<ContextualHandle>,
+    force_regen: bool,
 }
 
 impl std::fmt::Debug for Activate {
@@ -23,6 +24,7 @@ impl Activate {
             queuing: false,
             contextual_column: None,
             contextual: None,
+            force_regen: false,
             // TODO: Allow a cooldown, or delay
         }
     }
@@ -40,7 +42,7 @@ impl Activate {
                     return;
                 }
             }
-        }
+        } 
         self.queuing = false;
     }
 }
@@ -54,7 +56,7 @@ impl CanPerform<ActivateToken> for Player {
     fn internal_mark_queuing(&mut self, _token: ActivateToken, queuing: bool) { 
         self.behavior.activate.queuing = queuing;
         if queuing {
-            self.behavior.activate.contextual = None; // force it to be regenerated
+            self.behavior.activate.force_regen = true;
         }
     }
 
@@ -73,6 +75,15 @@ impl CanPerform<ActivateToken> for Player {
         let mut graphics = globals.graphics.borrow_mut();
         let mut activate = &mut self.behavior.activate;
 
+        if activate.force_regen { 
+            if let Some(c) = activate.contextual {
+                assert!(graphics.contextuals.unshow(c));
+            }
+            activate.contextual = None;
+            activate.contextual_column = None;
+            activate.force_regen = false;
+        }
+
         if activate.queuing {
             match activate.contextual {
                 None => {
@@ -82,11 +93,13 @@ impl CanPerform<ActivateToken> for Player {
                         if widgets.len() > 0 {
                             let mouse_xy = graphics.mouse_xy.unwrap_or(point2(0, 0));
                             let column = Column::new().setup(|c| for w in widgets { c.add(w) });
-                            activate.contextual_column = Some(column.share());
-                            let ctx = generate_contextual(mouse_xy, column);
 
+                            let ctx = generate_contextual(mouse_xy, column.share());
                             let ctx_id = graphics.contextuals.show(ctx);
+
+                            activate.contextual_column = Some(column.share());
                             activate.contextual.replace(ctx_id);
+
                             return false;
                         }
                     }
@@ -97,6 +110,7 @@ impl CanPerform<ActivateToken> for Player {
                     if !graphics.contextuals.is_showing(handle) {
                         // somehow has been closed
                         activate.queuing = false;
+                        activate.contextual = None;
                         activate.contextual_column = None;
                     }
                     return false;
@@ -113,7 +127,7 @@ impl CanPerform<ActivateToken> for Player {
                         graphics.contextuals.unshow(handle);
                         activate.contextual = None;
                         activate.contextual_column = None;
-                    }
+                    } 
                     return false
                 }
             }
