@@ -4,6 +4,7 @@ use crate::player::*;
 
 pub struct Activate {
     queuing: bool,
+    contextual_cell: Option<GlobalView>,
     contextual_column: Option<Column>,
     contextual: Option<ContextualHandle>,
     force_regen: bool,
@@ -22,6 +23,7 @@ impl Activate {
     pub(in crate::player) fn new() -> Activate {
         Activate {  
             queuing: false,
+            contextual_cell: None,
             contextual_column: None,
             contextual: None,
             force_regen: false,
@@ -30,8 +32,7 @@ impl Activate {
     }
 
     fn touched(&mut self, globals: &Rc<GlobalState>) {
-        let graphics = globals.graphics.borrow();
-        if let Some(view) = graphics.mouseover_view() {
+        if let Some(view) = self.contextual_cell {
             let widgets = context_widgets(globals, view.point());
             if widgets.len() > 0 {
                 if let Some(contextual_column) = &self.contextual_column {
@@ -77,10 +78,11 @@ impl CanPerform<ActivateToken> for Player {
 
         if activate.force_regen { 
             if let Some(c) = activate.contextual {
-                assert!(graphics.contextuals.unshow(c));
+                graphics.contextuals.unshow(c);
             }
-            activate.contextual = None;
+            activate.contextual_cell = None;
             activate.contextual_column = None;
+            activate.contextual = None;
             activate.force_regen = false;
         }
 
@@ -97,6 +99,7 @@ impl CanPerform<ActivateToken> for Player {
                             let ctx = generate_contextual(mouse_xy, column.share());
                             let ctx_id = graphics.contextuals.show(ctx);
 
+                            activate.contextual_cell = Some(view);
                             activate.contextual_column = Some(column.share());
                             activate.contextual.replace(ctx_id);
 
@@ -110,6 +113,7 @@ impl CanPerform<ActivateToken> for Player {
                     if !graphics.contextuals.is_showing(handle) {
                         // somehow has been closed
                         activate.queuing = false;
+                        activate.contextual_cell = None;
                         activate.contextual = None;
                         activate.contextual_column = None;
                     }
@@ -125,6 +129,7 @@ impl CanPerform<ActivateToken> for Player {
                 Some(handle) => {
                     if graphics.contextuals.is_showing(handle) {
                         graphics.contextuals.unshow(handle);
+                        activate.contextual_cell = None;
                         activate.contextual = None;
                         activate.contextual_column = None;
                     } 
