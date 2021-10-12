@@ -20,9 +20,9 @@ pub const THEME: Theme = Theme {
         color: (colors::Dark[0], colors::Light[2]),
     },
     button: ButtonTheme { 
-        bevel: (colors::Dark[0], colors::Dark[3]), 
+        bevel: (colors::Dark[0], colors::Dark[0]), 
         color: (colors::Dark[0], colors::Light[3]), 
-        preclick: (colors::Dark[1], colors::Light[3]),
+        preclick: (colors::DkGreen[2], colors::Light[3]),
     },
     input_box: InputBoxTheme { 
         bevel: (colors::DkGreen[0], colors::DkGreen[3]), 
