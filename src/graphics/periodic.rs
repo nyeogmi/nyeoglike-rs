@@ -10,7 +10,8 @@ impl Graphics {
         }
         self.old_xy = Some(new_xy);
 
-        if let Some(viewport) = self.get_viewport(screen_boundaries, &player) {
+        self.calculate_viewport(screen_boundaries, &player);
+        if let Some(viewport) = self.viewport {
             globals.terrain.recalculate_egosphere(&mut self.egosphere, viewport, |x| globals.at(x.point()).is_blocked());
             let ego = &self.egosphere;
 

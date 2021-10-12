@@ -7,7 +7,7 @@ impl Graphics {
         player.add_basic_controls(globals, menu);
         brush.fill(FSem::new().color(EMPTY_FADE));
 
-        if let Some(viewport) = self.get_viewport(brush.rect(), &player) {
+        if let Some(viewport) = self.viewport {
             for ego_xy in isize::points_in(viewport.rect) {
                 let screen_xy: CellPoint = point2(ego_xy.x * SCCELL_X, ego_xy.y * SCCELL_Y);
                 let ego_xy_behind = ego_xy - vec2(0, 1);

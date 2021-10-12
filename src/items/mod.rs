@@ -25,7 +25,16 @@ impl Items {
     pub fn spawn_item_raw(&self, location: GlobalPoint, item: Item<ItemDyn>) -> Id<ItemSpawn> {
         let id = self.spawns.insert(ItemSpawn { item });
         self.location_of.fwd().insert(id, location);
-        println!("now contains: {:?}", self.location_of.bwd().get(location));
         return id
+    }
+
+    pub fn take_item(&self, spawn: Id<ItemSpawn>) -> Option<Item<ItemDyn>> {
+        if let Some(actual_spawn) = self.spawns.get(spawn) {
+            let item = actual_spawn.borrow().item.clone();
+            self.spawns.remove(spawn);
+            Some(item)
+        } else {
+            None
+        }
     }
 }

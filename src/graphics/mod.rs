@@ -1,4 +1,5 @@
 pub(self) mod constants;
+mod contextual;
 mod hud;
 mod memory;
 mod periodic;
@@ -7,6 +8,7 @@ mod viscell;
 mod world;
 
 pub(crate) use self::constants::{SCCELL_X, SCCELL_Y};
+pub use self::contextual::*;
 pub use self::memory::Memory;
 pub use self::viscell::{VisCell, VisContent};
 pub use self::theme::*;
@@ -14,19 +16,24 @@ pub use self::theme::*;
 use crate::reexports::*;
 
 pub struct Graphics {
-    // viewport: Option<Viewport>,
+    viewport: Option<Viewport>,
     egosphere: Egosphere,
     memory: Memory,
     old_xy: Option<EgoVec>,
+    pub mouse_xy: Option<CellPoint>,
+
+    pub contextuals: ContextualServer,
 }
 
 impl Graphics {
     pub fn new() -> Graphics {
         Graphics { 
-            // viewport: None,
+            viewport: None,
             egosphere: Egosphere::new(false),
             memory: Memory::new(),
             old_xy: None,
+            mouse_xy: None,
+            contextuals: ContextualServer::new(),
         }
     }
 }
@@ -66,9 +73,15 @@ impl Graphics {
             w.set(hud_time_part);
         });
 
+        let modal_container_side = Container::new().setup(|s| s.layout_hacks.expand_vertically = true);
+        let modal_container_center = Container::new();
+        let modal_container_overlay = Container::new();
+
         let hud = Column::new().setup(|c| {
             c.add(hud_player);
-            c.add(Spacer::new());
+
+            // TODO: Put an extra container here, and swap its contents between the modal_container_side and the notifications pane
+            c.add(modal_container_side.share());  
             c.add(Row::new().setup(|r| {
                 r.add(hud_time);
                 r.add(Spacer::new());
@@ -87,7 +100,13 @@ impl Graphics {
 
         let g = globals.clone();
         io.menu(|out, menu: Menu| {
-            let g = g.clone();
+            let globals = g.clone();
+
+            { 
+                globals.graphics.borrow_mut().mouse_xy = Some(menu.mouse_xy()); 
+            }
+
+            let g = globals.clone();
             let game_rect = out.rect();
             menu.on_tick(move |_| { 
                 // update graphics
@@ -111,18 +130,29 @@ impl Graphics {
                 let target_x1 = hud_rect.max_x();
                 let target_rect = rect(hud_rect.max_x(), 2, out.brush().rect().max_x() - target_x1 - 2, 12.min(out.brush().rect().height() - 4));
                 hud_target.draw(globals.ui.share(), out.brush().region(target_rect), menu.share());
+
+                // TODO: Draw the modal_container_center here
             }
+
+            // perform modal maintenance 
+            {
+                let g = globals.clone();
+                let graphics = g.graphics.borrow();
+                graphics.contextuals.update_widgets(modal_container_side.share(), modal_container_center.share(), modal_container_overlay.share());
+            }
+
+            modal_container_overlay.draw(globals.ui.share(), out.brush(), menu.share());
         });
     }
 
-    fn get_viewport(&self, screen_boundaries: CellRect, player: &Player) -> Option<Viewport> {
+    fn calculate_viewport(&mut self, screen_boundaries: CellRect, player: &Player) {
         let ego_rect = rect(
             0, 0, 
             // TODO: Round up
             screen_boundaries.width() / SCCELL_X + 1, screen_boundaries.height() / SCCELL_Y + 1
         );
 
-        if let Some(player_xy) = player.xy {
+        self.viewport = if let Some(player_xy) = player.xy {
             Some(Viewport {
                 rect: ego_rect,
                 observer_in_rect: ego_rect.center().cast_unit(),
@@ -131,5 +161,14 @@ impl Graphics {
         } else {
             None
         }
+    }
+
+    pub fn mouseover_view(&self) -> Option<GlobalView> {
+        if let Some(mouse) = self.mouse_xy {
+            if let Some(_) = self.viewport {
+                return self.egosphere.at(point2(mouse.x / SCCELL_X, mouse.y / SCCELL_Y))
+            }
+        }
+        None
     }
 }

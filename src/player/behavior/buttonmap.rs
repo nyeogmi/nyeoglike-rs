@@ -14,4 +14,14 @@ impl Player {
     pub fn input_press_charge(&mut self) {
         self.try_queue(ChargeToken);
     }
+
+    pub fn input_press_activate(&mut self) {
+        // Figure out what contextual action the player wants
+        self.try_queue(ActivateToken);
+        /*
+        g.graphics.borrow_mut().show_contextual(Contextual::Side(AnyWidget::wrap(Label::new().setup(
+            |l| l.set_text("NYEH")
+        ))));
+        */
+    }
 }

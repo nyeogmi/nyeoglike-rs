@@ -32,5 +32,11 @@ impl Player {
             g.player.borrow_mut().input_press_charge();
             Signal::Continue
         });
+
+        let g = globals.clone();
+        menu.on_key(OnKey::only(Keycode::E).pressed(), move |_, _, _| {
+            g.player.borrow_mut().input_press_activate();
+            Signal::Continue
+        });
     }
 }

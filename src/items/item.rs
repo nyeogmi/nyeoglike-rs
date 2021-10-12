@@ -1,6 +1,6 @@
 use std::{borrow::Cow};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Item<Data> {
     pub profile: ItemProfile,
     pub data: Data,
@@ -18,10 +18,12 @@ pub struct ItemIcon {
     pub fg: u8,  
 }
 
+#[derive(Clone, Debug)]
 pub enum ItemDyn {
     Dakka(Dakka)
 }
 
+#[derive(Clone, Debug)]
 pub struct Dakka {
     // TODO: Projectile info!
 }
